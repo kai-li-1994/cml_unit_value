@@ -1,3 +1,6 @@
+"""
+The main funciton to analyze the unit values of HS-coded commodity
+"""
 import time
 from uv_preparation import extract_trade, clean_trade, detect_outliers
 from uv_analysis import dip_test, fit_normal, fit_skewnormal, bootstrap_skewnormal_ci, find_gmm, fit_gmm, fit_gmm2,fit_gmm3
