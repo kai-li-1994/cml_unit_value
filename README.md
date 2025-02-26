@@ -90,7 +90,7 @@ UVPicker follows a structured workflow to ensure accurate unit value analysis:
   *(Countries are represented by their ISO Alpha-3 codes.)*
 ---
 ## Copyright & License
-© 2025 Kai Li. All rights reserved.
+© 2025 Kai Li (Leiden University). All rights reserved.
 
 This project is licensed under the **GNU Lesser General Public License v3.0 (LGPL-3.0)** – see the [LICENSE](LICENSE) file for details.
 
