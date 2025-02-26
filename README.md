@@ -89,7 +89,9 @@ UVPicker follows a structured workflow to ensure accurate unit value analysis:
 
   *(Countries are represented by their ISO Alpha-3 codes.)*
 ---
-## License
+## Copyright & License
+© 2025 Kai Li. All rights reserved.
+
 This project is licensed under the **GNU Lesser General Public License v3.0 (LGPL-3.0)** – see the [LICENSE](LICENSE) file for details.
 
 You are free to **use, modify, and distribute** this package under the terms of LGPL-3.0. If you modify and distribute this package, you must **release modifications under LGPL** while allowing proprietary software to link to it.
