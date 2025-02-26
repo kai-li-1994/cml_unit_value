@@ -89,6 +89,12 @@ UVPicker follows a structured workflow to ensure accurate unit value analysis:
 
   *(Countries are represented by their ISO Alpha-3 codes.)*
 ---
+## Acknowledgments
+This project has received funding from the **European Horizon Project "RESOURCE – REgional project development aSsistance fOr the Uptake of an aRagonese Circular Economy"**.  
+
+Additionally, it has been financially supported by the **Institute of Environmental Sciences (CML), Leiden University**, which facilitated access to the **UN Comtrade database** for data collection and analysis.
+
+---
 ## Copyright & License
 © 2025 Kai Li (Leiden University). All rights reserved.
 
