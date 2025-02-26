@@ -18,8 +18,6 @@ When analyzing the unit values of a traded product across countries, several key
 
 ![Figure Description](readme.svg)
 
----
-
 ## **Main Steps**
 UVPicker follows a structured workflow to ensure accurate unit value analysis:
 
@@ -46,7 +44,6 @@ UVPicker follows a structured workflow to ensure accurate unit value analysis:
      - **95% confidence intervals**  
    - Generates **plots** to illustrate unit value distributions  
 
----
 ## **Returned Results Explanation (Examples)**
 
 - **"In 2023, the unit values for HS 740400 imports are represented by a single cluster**, with a **mean unit price** of **1.86 USD/kg** (95% Confidence Interval (CI): **1.855–1.865**), a **median value** of **1.897 USD/kg** (95% CI: **1.893–1.901**), and  a **mode value** of **1.984 USD/kg** (95% CI: **1.977–1.992**)."  
@@ -88,18 +85,15 @@ UVPicker follows a structured workflow to ensure accurate unit value analysis:
   - **Cluster 11 (1.65%)** – DEU: **12.93%**, ITA: **8.16%**, GIB: **8.16%**  
 
   *(Countries are represented by their ISO Alpha-3 codes.)*
----
+
 ## Acknowledgments
 This project has received funding from the **European Union’s Horizon Europe research and innovation program** under **Grant Agreement No. 101060142**, as part of the project **"RESOURCE – REgional project development aSsistance fOr the Uptake of an aRagonese Circular Economy"**.
 
 Additionally, it has been financially supported by the **Institute of Environmental Sciences (CML), Leiden University**, which facilitated access to the **UN Comtrade database** for data collection and analysis.
 
----
 ## Copyright & License
 © 2025 Kai Li (Leiden University). All rights reserved.
 
 This project is licensed under the **GNU Lesser General Public License v3.0 (LGPL-3.0)** – see the [LICENSE](LICENSE) file for details.
 
 You are free to **use, modify, and distribute** this package under the terms of LGPL-3.0. If you modify and distribute this package, you must **release modifications under LGPL** while allowing proprietary software to link to it.
-
----
