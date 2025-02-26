@@ -19,8 +19,8 @@ def cmltrade_uv(subscription_key, code, year, direction):
     zero_time = time.time()  # Starting the total analysis timer
     print(f"Starting analysis for HS code {code} in year {year}...\n")
     #subscription_key = "b3ca7de8704f4cb4a1ae3cec68730595"
-    #code = '391590'
-    #year = '2023'
+    #code = '740311'
+    #year = '2018'
     #direction = 'm'
     
     # Step 1: Extract trade
@@ -44,7 +44,7 @@ def cmltrade_uv(subscription_key, code, year, direction):
     # Step 4: Histogram
     print_section_header("Histogram Plotting")
     start_time  = time.time()
-    plot_histogram(df2['ln_uv'], code, year, direction, save_path=None, ax=None)
+    plot_histogram(df2['ln_uv'], code, year, direction, save_path="740311_m_2018.pdf", ax=None)
     print_time_info("Histogram plotting", start_time)
         
     # Step 5: Perform dip test
@@ -85,7 +85,7 @@ def cmltrade_uv(subscription_key, code, year, direction):
             print_section_header("Plotting")
             start_time  = time.time()
             plot_skn(df2['ln_uv'], code, year, direction, ci_median=ci_median, 
-                     ci_mode=ci_mode, save_path=None, ax=None)
+                     ci_mode=ci_mode, save_path='740400_m_2023_skn.pdf', ax=None)
             print_time_info("Plot", start_time)
             
         else:
@@ -116,7 +116,7 @@ def cmltrade_uv(subscription_key, code, year, direction):
         components, bic_values = find_gmm(df2[['ln_uv']], max_components=50, 
                             convergence_threshold=5, threshold=0.2)
         plot_gmm_bic(bic_values, max_components=50, save_path=None, ax=None)
-        fit_gmm(df2, ['ln_uv'], components, code, year, direction, plot = True, save_path=None, ax=None)
+        fit_gmm(df2, ['ln_uv'], components, code, year, direction, plot = True, save_path='391590_m_2023_gmm.pdf', ax=None)
         print_time_info("Fitting a 1D GMM on unit values" , start_time)
         
         print_section_header("Fitting a 2D GMM on unit values and trade volume")

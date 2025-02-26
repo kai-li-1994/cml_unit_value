@@ -5,6 +5,7 @@ from scipy.stats import (norm, iqr, skewnorm, cauchy, logistic,anderson,
 from uv_analysis import dip_test, fit_normal, fit_skewnormal, bootstrap_skewnormal_ci, fit_gmm
 from matplotlib import cm
 from sklearn.mixture import GaussianMixture
+import matplotlib as mpl
 
 def plot_histogram(data, code, year, direction, save_path=None, ax=None):
     """
@@ -20,6 +21,7 @@ def plot_histogram(data, code, year, direction, save_path=None, ax=None):
     save_path: If provided, saves the plot to the specified path (default is None).
     ax: If provided, uses the given Axes object to plot on it. Otherwise, creates a new figure.
     """
+    mpl.rcParams['pdf.fonttype'] = 42                                         # Set rcParams to ensure editable text in the PDF
     # Step 1: Calculate IQR and bin width using Freedman-Diaconis Rule
     iqr = np.percentile(data, 75) - np.percentile(data, 25)
     bin_width = 2 * iqr / len(data) ** (1 / 3)
@@ -37,6 +39,7 @@ def plot_histogram(data, code, year, direction, save_path=None, ax=None):
     ax.set_ylabel("Counts")
     ax.grid(axis='y', linestyle='--', alpha=0.7)
     
+
     # Save or show the plot
     if save_path:
         plt.savefig(save_path)
@@ -77,6 +80,7 @@ def plot_gmm_bic(bic_values, max_components=50, save_path=None, ax=None):
 
 def plot_skn(data, code, year, direction, ci_median=None,ci_mode=None, save_path=None, ax=None):
     
+    mpl.rcParams['pdf.fonttype'] = 42                                         # Set rcParams to ensure editable text in the PDF
     if ax is None:
         fig, ax = plt.subplots(figsize=(10, 6))  # Create a new figure if no ax is passed
     

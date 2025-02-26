@@ -11,6 +11,7 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
+import matplotlib as mpl
 
 def dip_test(data):
     """Return Hartigan's dip statistic and the p-value for unimodality test.
@@ -404,6 +405,7 @@ def fit_gmm(df, columns, best_component, code, year, direction, plot = None, sav
        
    
     if plot:
+       mpl.rcParams['pdf.fonttype'] = 42       
         
        x = np.linspace(data.min(), data.max() , 1000).reshape(-1, 1)  # Grid of values for the column
     
