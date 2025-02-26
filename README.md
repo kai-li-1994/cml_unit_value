@@ -1,3 +1,4 @@
+![LGPL v3.0 License](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)
 # UVPicker
 
 ## Introduction
@@ -87,4 +88,9 @@ UVPicker follows a structured workflow to ensure accurate unit value analysis:
   - **Cluster 11 (1.65%)** – DEU: **12.93%**, ITA: **8.16%**, GIB: **8.16%**  
 
   *(Countries are represented by their ISO Alpha-3 codes.)*
+---
+## License
+This project is licensed under the **GNU Lesser General Public License v3.0 (LGPL-3.0)** – see the [LICENSE](LICENSE) file for details.
+
+You are free to **use, modify, and distribute** this software under the terms of LGPL-3.0. If you modify this package and distribute it, you must **release modifications under LGPL** while allowing proprietary software to link to it.
 ---
