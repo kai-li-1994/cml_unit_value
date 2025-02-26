@@ -93,4 +93,5 @@ UVPicker follows a structured workflow to ensure accurate unit value analysis:
 This project is licensed under the **GNU Lesser General Public License v3.0 (LGPL-3.0)** – see the [LICENSE](LICENSE) file for details.
 
 You are free to **use, modify, and distribute** this software under the terms of LGPL-3.0. If you modify this package and distribute it, you must **release modifications under LGPL** while allowing proprietary software to link to it.
+
 ---
