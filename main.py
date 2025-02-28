@@ -1,5 +1,10 @@
 """
-The main funciton to analyze the unit values of HS-coded commodity
+UVPicker - Unit Value Analysis Tool
+Copyright (c) 2025 Kai Li
+Licensed under LGPL v3.0 – See LICENSE file for details.
+Funding Acknowledgment:
+- European Horizon Project (No. 101060142) "RESOURCE – REgional project development aSsistance fOr the Uptake of an aRagonese Circular Economy"
+- Financial support from CML, Leiden University, for full access to the UN Comtrade database
 """
 import time
 from uv_preparation import extract_trade, clean_trade, detect_outliers
@@ -19,8 +24,8 @@ def cmltrade_uv(subscription_key, code, year, direction):
     zero_time = time.time()  # Starting the total analysis timer
     print(f"Starting analysis for HS code {code} in year {year}...\n")
     #subscription_key = "b3ca7de8704f4cb4a1ae3cec68730595"
-    #code = '740311'
-    #year = '2018'
+    #code = '391590'
+    #year = '2023'
     #direction = 'm'
     
     # Step 1: Extract trade
