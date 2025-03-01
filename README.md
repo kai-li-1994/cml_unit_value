@@ -89,9 +89,9 @@ UVPicker follows a structured workflow to ensure accurate unit value analysis:
 ## Acknowledgments
 This project has received funding from the **European Union’s Horizon Europe research and innovation program** under **Grant Agreement No. 101060142**, as part of the project **"RESOURCE – REgional project development aSsistance fOr the Uptake of an aRagonese Circular Economy"**.
 
-Additionally, it has been financially supported by the **Institute of Environmental Sciences (CML), Leiden University**, which facilitated access to the **UN Comtrade database** for data collection and analysis.
+Additionally, it has been financially supported by the **[Institute of Environmental Sciences (CML)](https://www.universiteitleiden.nl/en/science/environmental-sciences), Leiden University**, which facilitated access to the **UN Comtrade database** for data collection and analysis.
 
-I would also like to acknowledge the contributions of the project leaders [Prof. Arnold Tukker](https://www.universiteitleiden.nl/en/staffmembers/arnold-tukker#tab-1) and [Dr. Hauke Ward](https://www.universiteitleiden.nl/en/staffmembers/hauke-ward). 
+I would like to acknowledge the contributions of the project leaders [Prof. Arnold Tukker](https://www.universiteitleiden.nl/en/staffmembers/arnold-tukker#tab-1) and [Dr. Hauke Ward](https://www.universiteitleiden.nl/en/staffmembers/hauke-ward). 
 
 ## Copyright & License
 © 2025 Kai Li (Leiden University). All rights reserved.
