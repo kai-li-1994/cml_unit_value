@@ -91,6 +91,8 @@ This project has received funding from the **European Union’s Horizon Europe r
 
 Additionally, it has been financially supported by the **Institute of Environmental Sciences (CML), Leiden University**, which facilitated access to the **UN Comtrade database** for data collection and analysis.
 
+I would also like to acknowledge the contributions of the project leaders [Prof. Arnold Tukker](https://www.universiteitleiden.nl/en/staffmembers/arnold-tukker#tab-1) and [Dr. Hauke Ward](https://www.universiteitleiden.nl/en/staffmembers/hauke-ward). 
+
 ## Copyright & License
 © 2025 Kai Li (Leiden University). All rights reserved.
 
