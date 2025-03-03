@@ -22,6 +22,7 @@ We can further explore the unit value distribution at the country level by focus
 <div align="center">
   <img src="country_gmm.svg" alt="Figure Description" height="600"/>
 </div>
+
 ## **Main Steps**
 UVPicker follows a structured workflow to ensure accurate unit value analysis:
 
