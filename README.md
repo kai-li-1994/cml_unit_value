@@ -15,9 +15,13 @@ When analyzing the unit values of a traded product across countries, several key
 - What if the dataset includes multiple **sub-products**, each with a distinct unit value mean?  
 
 **UVPicker** is designed to answer these questions by employing statistical techniques to identify **unimodal vs. multimodal distributions** and provide **robust trade value insights** (see illustration below).  
-
 ![Figure Description](readme.svg)
 
+### **Breakdown by country**
+We can further explore the unit value distribution at the country level by focusing on the bottom-right case from the previous figure, specifically for HS code 391590 in 2023.  In the figure below, representative countries are selected based on clustering of unit value, trade volume, and GDP per capita using a 3D GMM. 
+<div align="center">
+  <img src="country_gmm.svg" alt="Figure Description" height="600"/>
+</div>
 ## **Main Steps**
 UVPicker follows a structured workflow to ensure accurate unit value analysis:
 
