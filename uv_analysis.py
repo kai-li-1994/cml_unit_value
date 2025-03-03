@@ -224,15 +224,18 @@ def find_gmm(data, max_components=50, convergence_threshold=5, threshold=0.2):
 
     # Step 4: Check for the component with the largest tangent before the global minimum
     lst_bf, lst_af= tangents[:best_component-2], tangents[best_component-1:]
-    max_tangent = max(lst_bf[:-1]) # Largest tangent before the global minimum and excude the one before the global min
-
-    # Step 5: Look for components before the global minimum with a tangent that is 20% smaller
     local_optimal_component = None
-    for i in range(len(lst_bf)):
-        if tangents[i] < (max_tangent * threshold):  # If tangent is 25% smaller than the largest tangent
-            local_optimal_component = i + 2  # Update with the smaller component
-            print(f"Best component selected due to L shape: {local_optimal_component}")
-            break
+    if len(lst_bf[:-1]) !=0:
+        max_tangent = max(lst_bf[:-1]) # Largest tangent before the global minimum and excude the one before the global min
+
+        # Step 5: Look for components before the global minimum with a tangent that is 20% smaller
+
+        for i in range(len(lst_bf)):
+            if tangents[i] < (max_tangent * threshold):  # If tangent is 25% smaller than the largest tangent
+                local_optimal_component = i + 2  # Update with the smaller component
+                print(f"Best component selected due to L shape: {local_optimal_component}")
+                break
+        
 
     # Step 6: Handle tick shape BIC curve
     # Check if the BIC values after the global minimum are stable or increasing
@@ -246,217 +249,136 @@ def find_gmm(data, max_components=50, convergence_threshold=5, threshold=0.2):
             break
 
         
-    if local_optimal_component is None or abs(local_optimal_component - best_component) <=2:
+    if local_optimal_component is None:
         print(f"Best component selected: {best_component}")
         return best_component, bic_values
     else:
         print(f"Best component selected: {local_optimal_component}")
         return local_optimal_component, bic_values
         
-            
-    # # Calculate slopes (differences between consecutive BIC values)
-    # bic_diffs = np.diff(bic_values)  # Calculate the difference between consecutive BICs
-    # slopes = np.divide(bic_diffs, bic_values[:-1]) # Calculate the slope between consecutive points
 
-    # # Step 1: Find the best component using BIC
-    # best_component = np.argmin(bic_values) + 2  # Find the best component via BIC
+def fit_gmm(df, columns, best_component, code, year, direction, cc=None, plot=False, save_path=None, ax=None): 
+    """
+    Fits a Gaussian Mixture Model (GMM) to a dataset, prints statistics, and optionally plots results.
 
-    # # # Step 2: Check for L-shape and find turning point with dynamic slope threshold
-    # turning_point = None
-    # for i in range(1, best_component):  # Only check within the range from 1 to best_component
-    #     # 1) Check for turning point (negative to positive slope)
-    #     if slopes[i - 1] < 0 and slopes[i] > 0:
-    #         # 2) Calculate the average of all previous slopes before i-1
-    #         if i - 1 > 0:  # Ensure there are previous slopes to calculate the average
-    #             average_slope = np.mean(np.abs(slopes[:i-1]))   # Average of slopes before the turning point
-    #         else:
-    #             average_slope = 0  # Default to 0 if there are no previous slopes
-    #         # 3) Check if slopes are small relative to this average slope
-    #         if all(abs(slopes[j]) < stability_fraction * abs(average_slope) 
-    #                for j in range(i, best_component)):
-    #             turning_point = i + 2  # Add 1 to map to actual component number
-    #             break
+    Parameters:
+    - df: DataFrame containing the data.
+    - columns: List of column names to fit GMM on (should be ['ln_uv'] in this case).
+    - best_component: Number of GMM components to fit.
+    - code: HS code for the commodity.
+    - year: Year of analysis.
+    - direction: 'm' for imports, 'x' for exports.
+    - cc: If True, includes country composition in output.
+    - plot: If True, generates a plot.
+    - save_path: File path to save the plot if needed.
+    - ax: Matplotlib axis object (for subplot usage). If None, a new figure will be created.
 
-    # # Print the detected turning point and best component
-    # if turning_point is None or abs(turning_point - best_component) <=2:      #
-    #     print(f"No L-shaped BIC values detecgted. Best component is {best_component}.")
-    #     return best_component, bic_values
-    # else:
-    #     print(f"Turning point of L-shaped BIC values detected at component {turning_point}.")
-    #     return turning_point, bic_values
-
-def fit_gmm(df, columns, best_component, code, year, direction, plot = None, save_path=None, ax=None): 
-
+    Returns:
+    - Dictionary containing sorted means, proportions, and covariances.
+    """
     gmm = GaussianMixture(n_components=best_component, random_state=42)
-
     data = df[columns].to_numpy()
     gmm.fit(data)
-    
-    covariances = gmm.covariances_.flatten()                                  # You can also check other properties of the GMM, such as covariances:
 
-    is_stick_like = np.any(covariances < 1e-3)  # Check if there are any stick-like clusters (very small variance)
+    covariances = gmm.covariances_.flatten()
+    is_stick_like = np.any(covariances < 1e-3)  
 
     if is_stick_like:
-        
         print("Stick-like cluster detected. Using regularization (1e-3).")
-        gmm = GaussianMixture(n_components=best_component, random_state=42, 
-                              reg_covar=1e-3)                                 # If stick-like clusters are detected, apply higher regularization
+        gmm = GaussianMixture(n_components=best_component, random_state=42, reg_covar=1e-3)
         gmm.fit(data)
-    else:
-        print("Fitting without regularization.")
-        
-    means = gmm.means_.flatten()                                              # Re-extract the updated means, proportions, and variances after fitting with the selected reg_covar
-    proportions = gmm.weights_.flatten()                                      # Extract the proportions (weights) of each component in the data  
-    covariances = gmm.covariances_.flatten()                                  # You can also check other properties of the GMM, such as covariances:
 
-    N = len(data)                                                             # Calculate the number of data points (N) in your dataset
+    means = gmm.means_.flatten()  
+    proportions = gmm.weights_.flatten()  
+    covariances = gmm.covariances_.flatten()
 
-    standard_errors = np.sqrt(covariances) / np.sqrt(N * proportions)         # Compute the standard error for each component's mean
+    # Calculate confidence intervals
+    N = len(data)  
+    standard_errors = np.sqrt(covariances) / np.sqrt(N * proportions)
+    z_alpha_half = norm.ppf(0.975)
+    lower_bound = means - z_alpha_half * standard_errors
+    upper_bound = means + z_alpha_half * standard_errors
 
-    z_alpha_half = norm.ppf(0.975)                                            # Calculate the 95% confidence interval for each meanFor 95% confidence, z_alpha/2 is approx. 1.96
-    lower_bound = means.flatten() - z_alpha_half * standard_errors
-    upper_bound = means.flatten() + z_alpha_half * standard_errors
-
-    sorted_indices = np.argsort(proportions)[::-1]                            # Sort the means, proportions, and covariances based on the proportions (weights)
+    # Sort components
+    sorted_indices = np.argsort(proportions)[::-1]  
     sorted_means = means[sorted_indices]
     sorted_proportions = proportions[sorted_indices]
     sorted_covariances = covariances[sorted_indices]
     sorted_lower_bound = lower_bound[sorted_indices]
     sorted_upper_bound = upper_bound[sorted_indices]
-    
-    component_labels = gmm.predict(data)  # This gives the component assignment for each data point
-    # Now calculate the proportion of each country in each component (peak)
-    country_proportions = {}
-    for i in range(best_component):
-        country_counts = df.loc[np.where(component_labels == i)[0], 
-                                 'partnerISO'].value_counts(normalize=True)
-        country_proportions[i] = country_counts
-    
-    sorted_country_proportions = {}
-    for i in range(best_component):
-        sorted_country_proportions[i] = pd.Series(country_proportions[i]).sort_values(ascending=False)
 
-    text_d = 'imports' if direction == 'm' else 'exports'
-    # General template output
-    print(f"In {year}, the unit values for HS {code} {text_d}\n"
-          f"are represented by {best_component} clusters,")
+    # Country composition in clusters
+    if cc:
+        component_labels = gmm.predict(data)  
+        country_proportions = {}
+        for i in range(best_component):
+            country_counts = df.loc[np.where(component_labels == i)[0], 'partnerISO'].value_counts(normalize=True)
+            country_proportions[i] = country_counts
 
-    # Print means
-    mean_values = [f"{np.exp(mean):.3f}" for mean in sorted_means]  # Exponentiate back to normal scale
+        sorted_country_proportions = {i: pd.Series(country_proportions[i]).sort_values(ascending=False)
+                                      for i in range(best_component)}
 
-    chunk_size = 7  # Adjust the chunk size as needed
-    mean_values_chunks = [", ".join(mean_values[i:i+chunk_size]) 
-                          for i in range(0, len(mean_values), chunk_size)]
-    
-    print("with their mean unit prices at")
-    
-    for chunk in mean_values_chunks:
-     print(chunk)  # Print each chunk on a new line
-
-
-    # Print 95% confidence intervals
-    ci_values = [f"({np.exp(lower):.3f}, {np.exp(upper):.3f})"
-         for lower, upper in zip(sorted_lower_bound, sorted_upper_bound)]
-
-    chunk_size = 3  # Adjust the chunk size as needed
-    ci_values_chunks = [", ".join(ci_values[i:i+chunk_size]) 
-                          for i in range(0, len(ci_values), chunk_size)]
-    
-    print("with 95% confidence intervals ranging from")
-    
-    for chunk in ci_values_chunks:
-     print(chunk)  # Print each chunk on a new line
-     
-    # # Print proportions (percentages)
-    # proportions_values = [f"{proportion*100:.2f}%" 
-    #                       for proportion in sorted_proportions]
-    # chunk_size = 7  # Adjust the chunk size as needed
-    # proportions_values_chunks = [", ".join(proportions_values[i:i+chunk_size]) 
-    #               for i in range(0, len(proportions_values), chunk_size)]
-    
-    # print("These components account for")
-    # for chunk in proportions_values_chunks:
-    #  print(chunk)  # Print each chunk on a new line
-     
-    # # Print country composition for each component in the legend
-    # for i in range(best_component):
-    #     print(f"Component {i + 1} country composition:")
-    #     if i in sorted_country_proportions:
-    #         top_countries = sorted_country_proportions[i].head(3)  # Get the top 3 countries
-    #         for country, proportion in top_countries.items():
-    #             print(f"  {country}: {proportion * 100:.2f}%")
-    #     print("\n")
- 
-    # Print proportions (percentages) and country composition in a single line
-    proportions_values = [
-        f"{proportion*100:.2f}% ({', '.join([f'{country}: {proportion * 100:.2f}%' for country, proportion in sorted_country_proportions[i].head(3).items()])})"
-        for i, proportion in enumerate(sorted_proportions)
-    ]
-
-    chunk_size = 1  # Adjust the chunk size as needed
-    proportions_values_chunks = [
-        ", ".join(proportions_values[i:i+chunk_size]) 
-        for i in range(0, len(proportions_values), chunk_size)
-    ]
-
-    print("These components account for:")
-    for chunk in proportions_values_chunks:
-        print(chunk)  # Print each chunk on a new line
-       
-   
+    # **Plot GMM Components**
     if plot:
-       mpl.rcParams['pdf.fonttype'] = 42       
+        # **Check if ax is None (no subplot assigned)**
+        own_figure = False
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(10, 6))  # Create new figure only if no subplot exists
+            own_figure = True  # We created our own figure
+
+        x_vals = np.linspace(data.min(), data.max(), 1000).reshape(-1)
+        colors = cm.get_cmap('tab20', best_component)
+
+        pdf = np.exp(gmm.score_samples(x_vals.reshape(-1, 1)))
+
+        for i in range(best_component):
+            component_pdf = sorted_proportions[i] * np.exp(
+                -0.5 * ((x_vals - sorted_means[i]) ** 2) / sorted_covariances[i]
+            ) / np.sqrt(2 * np.pi * sorted_covariances[i])
+
+            a, b = sorted_proportions[i], sorted_means[i]
+
+            if cc:
+                top_countries = sorted_country_proportions[i].head(3)
+                countries_str = ", ".join([f"{country}: {proportion * 100:.0f}%" for country, proportion in top_countries.items()])
+                ax.plot(x_vals, component_pdf, label=f"({i + 1}) {a*100:.0f}%: {np.exp(b):.2f} USD/kg ({countries_str})", color=colors(i))
+            else:
+                ax.plot(x_vals, component_pdf, label=f"({i + 1}) {a*100:.0f}%: {np.exp(b):.2f} USD/kg", color=colors(i))
+
+            # Add cluster number on top of each peak
+            mean_x_position = sorted_means[i]
+            mean_y_position = np.max(component_pdf) / 2  
+            ax.text(mean_x_position, mean_y_position, f"({i + 1})", fontsize=8, ha='center', va='center')
+
+        # Plot histogram
+        iqr = np.percentile(data, 75) - np.percentile(data, 25)
+        bin_width = 2 * iqr / len(data) ** (1 / 3)
+        bin_edges = np.arange(min(data), max(data) + bin_width, bin_width)  
+        ax.hist(data, bins=bin_edges, density=True, alpha=0.5, label="Data", color="gray")
+
+        # Plot overall GMM PDF
+        ax.plot(x_vals, pdf, label="Overall GMM", color="black", linewidth=2)
+
+        # Add legend and labels
+        if ax is None:
+            ax.legend(ncol=2, loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True)
+        else:
+            ax.legend(ncol=2, loc='upper right')
+            
         
-       x = np.linspace(data.min(), data.max() , 1000).reshape(-1, 1)  # Grid of values for the column
-    
-       colors = cm.get_cmap('tab20', best_component)  # Adjust color map for best_component
+        ax.set_title(f"Unit values in a GMM distribution for HS {code} {direction} in {year}")
+        ax.set_xlabel("Log Unit Value")
+        ax.set_ylabel("Density")
 
-       gmm = GaussianMixture(n_components=best_component, random_state=42, reg_covar=1e-3)
-       
-       gmm.fit(data)  # Make sure data is passed in a column-vector form
-       
-       pdf = np.exp(gmm.score_samples(x))
+        # **Only show the plot if we created our own figure**
+        if own_figure:
+            plt.show()
 
-       # Plot each GMM component, using sorted values
-       for i in range(best_component):
-           component_pdf = sorted_proportions[i] * np.exp(
-               -0.5 * ((x - sorted_means[i]) ** 2) / sorted_covariances[i]
-           ) / np.sqrt(2 * np.pi * sorted_covariances[i])
-           if ax is None:
-               fig, ax = plt.subplots(figsize=(10, 6))  # Create a new figure if no ax is passed
-               
-           # Get top 3 countries for the current component
-           top_countries = sorted_country_proportions[i].head(3)  # Get the top 3 countries
-           countries_str = ", ".join([f"{country}: {proportion * 100:.0f}%" for country, proportion in top_countries.items()])
-           
-           a,b = sorted_proportions[i],sorted_means[i]
-           ax.plot(x, component_pdf, label=f"({i + 1}) {a*100:.0f}%: {np.exp(b):.2f} USD/kg ({countries_str})", color=colors(i))
-           
-           # Add number in the middle of the component curve
-           mean_x_position = sorted_means[i]  # Position to place the number
-           mean_y_position = np.max(component_pdf) / 2  # Center vertically
-           ax.text(mean_x_position, mean_y_position, f"({i + 1})", fontsize=8, ha='center', va='center')
-       
-       iqr = np.percentile(data, 75) - np.percentile(data, 25)
-       bin_width = 2 * iqr / len(data) ** (1 / 3)
-       bin_edges = np.arange(min(data), max(data) + bin_width, bin_width)  # Step 2: Compute bin edges
-       # Plot the histogram of data
-       ax.hist(data, bins=bin_edges, density=True, alpha=0.5, label="Data", color="gray")
-
-       # Plot the overall GMM PDF
-       ax.plot(x, pdf, label="Overall GMM", color="black", linewidth=2)
-
-       # Add legend and labels
-       ax.legend(ncol=2, loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True)
-       ax.set_title(f"Unit values in a GMM distribution for HS {code} {text_d} in {year}")
-       ax.set_xlabel("Data Value")
-       ax.set_ylabel("Density")
-       
-       if save_path:
-           plt.savefig(save_path, bbox_inches="tight")
-       else:
-           plt.show()
-           
+    return {
+        "means": sorted_means,
+        "proportions": sorted_proportions,
+        "covariances": sorted_covariances
+    }   
 def re_minmax_log(scaled_values, scaler, feature_index):
     """
     Reverse the Min-Max scaling and log transformation in one step.
@@ -637,7 +559,9 @@ def fit_gmm2(data, components, code, year, direction, plot='2D', save_path=None,
         }
     }
 
-def fit_gmm3(data, components, code, year, direction, save_path=None):
+
+    
+def fit_gmm3(df, columns, components, code, year, direction, save_path=None):
     """
     Fits a Gaussian Mixture Model (GMM) to a dataset with three features and provides
     statistics along with an optional 3D plot.
@@ -653,38 +577,51 @@ def fit_gmm3(data, components, code, year, direction, save_path=None):
     Returns:
     - Dictionary containing means, proportions, and covariances.
     """
-    data = data.to_numpy()
+    data = df[columns].to_numpy()  # Extract numerical data
     
-    scaler = MinMaxScaler()
+    scaler = MinMaxScaler()    # Normalize data (Min-Max scaling)
     data = scaler.fit_transform(data)
 
-
-    # Fit the GMM model
-    gmm = GaussianMixture(n_components=components, random_state=42, reg_covar=1e-3)
+    gmm = GaussianMixture(n_components=components, random_state=42, reg_covar=1e-3) # Fit the GMM model
     gmm.fit(data)
 
-    # Extract statistics from the fitted GMM
-    means = gmm.means_
+    means = gmm.means_ # Extract statistics from the fitted GMM
     proportions = gmm.weights_
     covariances = gmm.covariances_
 
-    # Sort components by proportions
-    sorted_indices = np.argsort(proportions)[::-1]
+    sorted_indices = np.argsort(proportions)[::-1] # Sort components by proportions (largest clusters first)
     sorted_means = means[sorted_indices]
     sorted_proportions = proportions[sorted_indices]
     sorted_covariances = covariances[sorted_indices]
 
-    # Text for import/export
-    text_d = 'imports' if direction == 'm' else 'exports'
+    # Assign cluster labels to each data point
+    df['cluster'] = gmm.predict(data)
+
+    # Identify the most representative country in each cluster based on total net weight
+    representative_countries = {}
+
+    for i in range(components):
+        cluster_subset = df[df['cluster'] == i]  # Select data points in cluster i
+        
+        if not cluster_subset.empty:
+            # Sum net weight per country in this cluster
+            country_weight_sums = cluster_subset.groupby('partnerISO')['ln_netWgt'].sum()
+
+            # Select the country with the highest net weight contribution
+            representative_countries[i] = country_weight_sums.idxmax()
+
+    # Convert dictionary to a unique sorted list of countries
+    unique_countries = list(set(representative_countries.values()))
+    country_gdp_order = df[df['partnerISO'].isin(unique_countries)].groupby('partnerISO')['ln_gdp'].mean().sort_values().index.tolist()
+        
+    text_d = 'imports' if direction == 'm' else 'exports' # Text for import/export
     print(f"In {year}, the unit values for HS {code} {text_d} are represented by {components} clusters.")
     
-    # Optimized 3D Visualization
-    fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(12, 8)) # 3D Visualization
     ax = fig.add_subplot(111, projection='3d')
-    colors = cm.get_cmap('tab20', components)
+    colors = cm.get_cmap('tab20',components)
 
-    # Plot each data point with transparency for clarity
-    ax.scatter(data[:, 0], data[:, 1], data[:, 2], alpha=0.1, color='gray', s=5)
+    ax.scatter(data[:, 0], data[:, 1], data[:, 2], alpha=0.1, color='gray', s=5) # Plot each data point with transparency for clarity
     
     # Plot each cluster mean and draw 3D ellipsoids
     for i in range(components):
@@ -703,15 +640,17 @@ def fit_gmm3(data, components, code, year, direction, save_path=None):
         y = np.outer(np.sin(u), np.sin(v))
         z = np.outer(np.ones_like(u), np.cos(v))
         
-        # Scale and rotate the unit sphere to match the covariance ellipse
-        ellipsoid = np.stack([x, y, z], axis=-1)
-        ellipsoid = ellipsoid @ np.diag(radii)  # Scale
-        ellipsoid = ellipsoid @ eigenvectors.T  # Rotate
-        ellipsoid += sorted_means[i]  # Translate to mean
+        # # Scale and rotate the unit sphere to match the covariance ellipse
+        # ellipsoid = np.stack([x, y, z], axis=-1)
+        # ellipsoid = ellipsoid @ np.diag(radii)  # Scale
+        # ellipsoid = ellipsoid @ eigenvectors.T  # Rotate
+        # ellipsoid += sorted_means[i]  # Translate to mean
+        ellipsoid = np.stack([x, y, z], axis=-1) @ np.diag(radii) @ eigenvectors.T + sorted_means[i]
         
         # Plot the ellipsoid as a mesh
         ax.plot_wireframe(ellipsoid[:, :, 0], ellipsoid[:, :, 1], ellipsoid[:, :, 2], color=color, alpha=0.3)
-    
+
+
     ax.set_xlabel("ln_Unit_Price")
     ax.set_ylabel("ln_netWgt")
     ax.set_zlabel("Country_Grouped_Unit_Value")
@@ -726,8 +665,9 @@ def fit_gmm3(data, components, code, year, direction, save_path=None):
     return {
         "means": sorted_means,
         "proportions": sorted_proportions,
-        "covariances": sorted_covariances
-    }
+        "covariances": sorted_covariances,
+        "representative countries":representative_countries
+    }, country_gdp_order  
             
 
    

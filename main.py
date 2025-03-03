@@ -121,8 +121,9 @@ def cmltrade_uv(subscription_key, code, year, direction):
         components, bic_values = find_gmm(df2[['ln_uv']], max_components=50, 
                             convergence_threshold=5, threshold=0.2)
         plot_gmm_bic(bic_values, max_components=50, save_path=None, ax=None)
-        fit_gmm(df2, ['ln_uv'], components, code, year, direction, plot = True, save_path='391590_m_2023_gmm.pdf', ax=None)
+        fit_gmm(df2, ['ln_uv'], components, code, year, direction, plot = True, ax =None)
         print_time_info("Fitting a 1D GMM on unit values" , start_time)
+        
         
         print_section_header("Fitting a 2D GMM on unit values and trade volume")
         start_time  = time.time()
@@ -131,11 +132,19 @@ def cmltrade_uv(subscription_key, code, year, direction):
         fit_gmm2(df2[['ln_uv','ln_netWgt']], components, code, year, direction, plot = '2D', save_path=None, ax=None)
         print_time_info("Fitting a 2D GMM on unit values and trade volume" , start_time)
         
+        components, bic_values = find_gmm(df2[['ln_uv','ln_gdp']], max_components=50, convergence_threshold=5)
+        plot_gmm_bic(bic_values, max_components=50, save_path=None, ax=None)
+        fit_gmm2(df2[['ln_uv','ln_gdp']], components, code, year, direction, plot = '2D', save_path=None, ax=None)
+  
+        
         print_section_header("Fitting a 3D GMM on unit values, trade volume, and GDP per capita")
         components, bic_values = find_gmm(df2[['ln_uv','ln_netWgt','ln_gdp']], max_components=50, convergence_threshold=5)
         plot_gmm_bic(bic_values, max_components=50, save_path=None, ax=None)
-        fit_gmm3(df2[['ln_uv','ln_netWgt','ln_gdp']], components, code, year, direction, save_path=None)
+        a, b = fit_gmm3(df2, ['ln_uv','ln_netWgt','ln_gdp'], components, code, year, direction, save_path=None)
         print_time_info("Fitting a 3D GMM on unit values, trade volume, and GDP per capita" , start_time)
+        
+        # Extra plot on the countries' involvement
+        
       
         
     total_time = time.time() - zero_time
