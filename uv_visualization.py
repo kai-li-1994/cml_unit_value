@@ -1,17 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import (norm, iqr, skewnorm, cauchy, logistic,anderson,
-    gumbel_r,lognorm, t,johnsonsu, gennorm, kstest, expon, gaussian_kde)
-from uv_analysis import dip_test, fit_normal, fit_skewnormal, bootstrap_skewnormal_ci, fit_gmm
+    gumbel_r,lognorm, t,gennorm, johnsonsu, gennorm, kstest, expon, gaussian_kde,logistic)
 from matplotlib import cm
 from sklearn.mixture import GaussianMixture
 import matplotlib as mpl
 import seaborn as sns
 import pandas as pd
-from uv_analysis import dip_test, fit_normal, fit_skewnormal, bootstrap_skewnormal_ci, find_gmm, fit_gmm, fit_gmm2,fit_gmm3
+from uv_analysis import fit_all_unimodal_models, fit_logistic,dip_test, fit_normal, fit_skewnormal, fit_studentt, fit_gennorm, fit_johnsonsu, bootstrap_parametric_ci, find_gmm_components, fit_gmm, ensure_cov_matrix,fit_gmm2_flexible,fit_gmm3
 
-
-def plot_histogram(data, code, year, direction, save_path=None, ax=None):
+def plot_histogram(data, code, year, flow, save_path=None, ax=None):
     """
     Plot a histogram with customizable options and Freedman-Diaconis rule for bin width.
     
@@ -37,7 +35,7 @@ def plot_histogram(data, code, year, direction, save_path=None, ax=None):
     
     # Step 3: Plot histogram
     ax.hist(data, bins=bin_edges, edgecolor='black', alpha=0.7)
-    text_d = 'imports' if direction == 'm' else 'exports'
+    text_d = 'imports' if flow == 'm' else 'exports'
     ax.set_title(f"Histogram of unit values for HS {code} {text_d} in {year}")
     ax.set_xlabel("ln(Unit Price)")
     ax.set_ylabel("Counts")
@@ -50,109 +48,160 @@ def plot_histogram(data, code, year, direction, save_path=None, ax=None):
     else:
         plt.show()
         
-def plot_gmm_bic(bic_values, max_components=50, save_path=None, ax=None):
+
+def plot_dist(data, code, year, flow,
+              dist=None, best_fit=None, fit_result=None, all_results=None,
+              ci_mean=None, ci_median=None, ci_mode=None, ci_var=None,
+              save_path=None, ax=None):
     """
-    Plot the BIC values for different numbers of components in GMM.
-    
+    Unified plot function for any supported unimodal distribution.
+    Can plot a single fit or compare all fits with AIC/BIC.
+
     Args:
-    bic_values: List of BIC values for different components.
-    max_components: The maximum number of components considered (default is 50).
-    title: The title of the plot (default is a descriptive title).
-    color: Color of the plot line (default is 'blue').
-    save_path: If provided, saves the plot to the specified path (default is None).
-    ax: If provided, uses the given Axes object to plot on it. Otherwise, creates a new figure.
+        data (array-like): The log-transformed unit values.
+        code (str): HS code for labeling.
+        year (int): Year for labeling.
+        flow (str): 'm' for import, 'x' for export.
+        dist (str): Distribution name (used when comparing single fit).
+        best_fit (str): Best-fit distribution name for highlighting.
+        fit_result (dict): Fit result for the selected distribution.
+        all_results (dict): All fit results (for multi-fit plot).
+        ci_mean (tuple): CI for mean.
+        ci_median (tuple): CI for median.
+        ci_mode (tuple): CI for mode.
+        ci_variance (tuple): CI for parametric variance.
+        save_path (str): Optional file path to save the plot.
+        ax (matplotlib axis): Optional axis for subplotting.
     """
+
+    mpl.rcParams['pdf.fonttype'] = 42
     if ax is None:
-        fig, ax = plt.subplots(figsize=(10, 6))  # Create a new figure if no ax is passed
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+    x = np.linspace(min(data), max(data), 1000)
+    iqr = np.percentile(data, 75) - np.percentile(data, 25)
+    bin_width = 2 * iqr / len(data) ** (1 / 3)
+    bin_edges = np.arange(min(data), max(data) + bin_width, bin_width)
+
+    ax.hist(data, bins=bin_edges, density=True, alpha=0.4, label="Data", color="gray")
+    text_d = 'imports' if flow == 'm' else 'exports'
+
+    colors = {
+        'normal': '#e41a1c',
+        'skewnorm': '#377eb8',
+        'studentt': '#4daf4a',
+        'gennorm': '#984ea3',
+        'johnsonsu': '#ff7f00',
+        'logistic': 'brown'
+    }
+
+    # Compare all distributions
+    if not dist and all_results:
+        for name, res in all_results.items():
+            color = colors.get(name, None)
+            if name == 'normal':
+                y = norm.pdf(x, res['mu_norm'], res['sigma_norm'])
+                label = f"Normal (AIC={res['aic_norm']:.1f}, BIC={res['bic_norm']:.1f})"
+            elif name == 'skewnorm':
+                y = skewnorm.pdf(x, res['a_skew'], res['loc_skew'], res['scale_skew'])
+                label = f"Skewnorm (AIC={res['aic_skewnorm']:.1f}, BIC={res['bic_skewnorm']:.1f})"
+            elif name == 'studentt':
+                y = t.pdf(x, res['df_t'], res['loc_t'], res['scale_t'])
+                label = f"Student-t (AIC={res['aic_t']:.1f}, BIC={res['bic_t']:.1f})"
+            elif name == 'gennorm':
+                y = gennorm.pdf(x, res['beta_gn'], res['loc_gn'], res['scale_gn'])
+                label = f"GenNorm (AIC={res['aic_gn']:.1f}, BIC={res['bic_gn']:.1f})"
+            elif name == 'johnsonsu':
+                y = johnsonsu.pdf(x, res['a_jsu'], res['b_jsu'], res['loc_jsu'], res['scale_jsu'])
+                label = f"Johnson SU (AIC={res['aic_jsu']:.1f}, BIC={res['bic_jsu']:.1f})"
+            elif name == 'logistic':
+                y = logistic.pdf(x, res['loc_log'], res['scale_log'])
+                label = f"Logistic (AIC={res['aic_logistic']:.1f}, BIC={res['bic_logistic']:.1f})"
+            else:
+                continue
+
+            lw = 2.5 if name == best_fit else 1.5
+            ax.plot(x, y, label=label, lw=lw, alpha=0.9 if name == best_fit else 0.6, color=color)
+
+        ax.set_title(f"Distribution fits (AIC/BIC) for HS {code} {text_d} in {year}")
+
+        # Highlight vertical lines for best-fit statistics
+        if fit_result and ci_mean and ci_median and ci_mode and ci_var:
+            mean_key = [k for k in fit_result if k.startswith('mean')][0]
+            mean = fit_result[mean_key]
+            median = fit_result[[k for k in fit_result if 'median' in k][0]]
+            mode = fit_result[[k for k in fit_result if 'mode' in k][0]]
+            var_key = [k for k in fit_result if k.startswith('variance')][0]
+            var = fit_result[var_key]
+            sample_var_key = [k for k in fit_result if k.startswith('sample_variance')][0]
+            sample_var = fit_result[sample_var_key]
         
-    x_values = range(2, len(bic_values) + 2)
-    ax.plot(x_values, bic_values, marker='o', linestyle='-', color='blue')
-    ax.set_title("BIC for Different Numbers of Components in GMM")
-    ax.set_xlabel("Number of Components")
-    ax.set_ylabel("BIC Value")
-    ax.grid(True)
-    
-    best_component_index = np.argmin(bic_values)
-    ax.axvline(x=2 + best_component_index, color='red', linestyle='--', label=f"Best Component: {2 + best_component_index}")
-    ax.legend()
-    ax.set_xticks(x_values)
 
-    if save_path:
-        plt.savefig(save_path)
+            ax.axvline(mean, color='black', linestyle='--',
+                       label=f'Mean: {mean:.3f} ({np.exp(mean):.3f} USD/kg)\n95%CI: ({np.exp(ci_mean[0]):.3f}, {np.exp(ci_mean[1]):.3f})')
+            ax.axvline(median, color='black', linestyle=':', 
+                       label=f'Median: {median:.3f} ({np.exp(median):.3f} USD/kg)\n95%CI: ({np.exp(ci_median[0]):.3f}, {np.exp(ci_median[1]):.3f})')
+            ax.axvline(mode, color='black', linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                   label=f'Mode (log): {mode:.3f} ({np.exp(mode):.3f} USD/kg)\n95%CI: ({np.exp(ci_mode[0]):.3f}, {np.exp(ci_mode[1]):.3f})')
+            ax.text(0.75, 0.35,
+                    f"Variance: {var:.4f}\n95%CI: ({ci_var[0]:.4f}, {ci_var[1]:.4f})\n"
+                    f"Sample variance: {sample_var:.4f}",
+                    transform=ax.transAxes,
+                    ha='left', va='top', fontsize=10 )
+
     else:
-        plt.show()
+        # Plot single fit distribution
+        if dist == 'normal' and fit_result:
+            y = norm.pdf(x, fit_result['mu_norm'], fit_result['sigma_norm'])
+        elif dist == 'skewnorm' and fit_result:
+            y = skewnorm.pdf(x, fit_result['a_skew'], fit_result['loc_skew'], fit_result['scale_skew'])
+        elif dist == 'studentt' and fit_result:
+            y = t.pdf(x, fit_result['df_t'], fit_result['loc_t'], fit_result['scale_t'])
+        elif dist == 'gennorm' and fit_result:
+            y = gennorm.pdf(x, fit_result['beta_gn'], fit_result['loc_gn'], fit_result['scale_gn'])
+        elif dist == 'johnsonsu' and fit_result:
+            y = johnsonsu.pdf(x, fit_result['a_jsu'], fit_result['b_jsu'], fit_result['loc_jsu'], fit_result['scale_jsu'])
+        elif dist == 'logistic' and fit_result:
+            y = logistic.pdf(x, fit_result['loc_log'], fit_result['scale_log'])
+        else:
+            raise ValueError("Unsupported distribution or missing fit_result.")
 
-def plot_skn(data, code, year, direction, ci_median=None,ci_mode=None, save_path=None, ax=None):
-    
-    mpl.rcParams['pdf.fonttype'] = 42                                         # Set rcParams to ensure editable text in the PDF
-    if ax is None:
-        fig, ax = plt.subplots(figsize=(10, 6))  # Create a new figure if no ax is passed
-    
-    x = np.linspace(min(data), max(data), 1000)
-    
-    iqr = np.percentile(data, 75) - np.percentile(data, 25)
-    bin_width = 2 * iqr / len(data) ** (1 / 3)
-    bin_edges = np.arange(min(data), max(data) + bin_width, bin_width)  # Step 2: Compute bin edges
-   
-    ax.hist(data, bins=bin_edges, density=True, alpha=0.5, label="Data", color="gray")
-    
-    re = fit_skewnormal(data, pt=None)
-    if ci_median is None or ci_mode is None:
-        ci_median, ci_mode = bootstrap_skewnormal_ci(data, n_bootstraps=1000)
-    
-    ax.plot(x, skewnorm.pdf(x, re['a_skew'], re['loc_skew'], re['scale_skew']), lw=2, label='Skew-normal fit')
+        ax.plot(x, y, lw=2, label=f"{dist.capitalize()} fit")
+        ax.set_title(f"Unit values in a {dist.capitalize()} distribution for HS {code} {text_d} in {year}")
 
-    # Highlight mean, median, and mode
-    a,b,c,d = re['mean_skew'],re['median_skew'],re['mode_skew'],re['ci95_mean']
-    ax.axvline(a, color='orange', linestyle='--', label=f'Mean: {a:.3f} (log),\n{np.exp(a):.3f} USD/kg, 95% CI: ({np.exp(d[0]):.3f}, {np.exp(d[1]):.3f})')
-    ax.axvline(b, color='purple', linestyle='--', label=f'Median: {b:.3f} (log),\n{np.exp(b):.3f} USD/kg, 95% CI: ({np.exp(ci_median[0]):.3f}, {np.exp(ci_median[1]):.3f})')
-    ax.axvline(c, color='green', linestyle='--', label=f'Mode: {c:.3f} (log),\n{np.exp(c):.3f} USD/kg, 95% CI: ({np.exp(ci_mode[0]):.3f}, {np.exp(ci_mode[1]):.3f})')
-    
-    text_d = 'imports' if direction == 'm' else 'exports'
-    ax.set_title(f"Unit values in a skew-normal distribution for HS {code} {text_d} in {year}")
+        # Plot vertical lines if CI provided
+        if fit_result and ci_mean and ci_median and ci_mode and ci_var:
+            mean_key = [k for k in fit_result if k.startswith('loc') or k.startswith('mean')][0]
+            mean = fit_result[mean_key]
+            median = fit_result[[k for k in fit_result if 'median' in k][0]]
+            mode = fit_result[[k for k in fit_result if 'mode' in k][0]]
+            var_key = [k for k in fit_result if k.startswith('variance')][0]
+            var = fit_result[var_key]
+            sample_var_key = [k for k in fit_result if k.startswith('sample_variance')][0]
+            sample_var = fit_result[sample_var_key]
+
+            ax.axvline(mean, color='black', linestyle='--',
+                       label=f'Mean: {mean:.3f} ({np.exp(mean):.3f} USD/kg)\n95%CI: ({np.exp(ci_mean[0]):.3f}, {np.exp(ci_mean[1]):.3f})')
+            ax.axvline(median, color='black', linestyle=':', 
+                       label=f'Median: {median:.3f} ({np.exp(median):.3f} USD/kg)\n95%CI: ({np.exp(ci_median[0]):.3f}, {np.exp(ci_median[1]):.3f})')
+            ax.axvline(mode, color='black', linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                   label=f'Mode (log): {mode:.3f} ({np.exp(mode):.3f} USD/kg)\n95%CI: ({np.exp(ci_mode[0]):.3f}, {np.exp(ci_mode[1]):.3f})')
+            ax.text(0.75, 0.35,
+                    f"Variance: {var:.4f}\n95%CI: ({ci_var[0]:.4f}, {ci_var[1]:.4f})\n"
+                    f"Sample variance: {sample_var:.4f}",
+                    transform=ax.transAxes,
+                    ha='left', va='top', fontsize=10 )
+
     ax.set_xlabel("ln(Unit Price)")
     ax.set_ylabel("Density")
-    ax.legend()
-    
+    ax.legend(loc='best')
+
     if save_path:
         plt.savefig(save_path)
     else:
         plt.show()
-
-def plot_n(data, code, year, direction, save_path=None, ax=None):
-    
-    if ax is None:
-        fig, ax = plt.subplots(figsize=(10, 6))  # Create a new figure if no ax is passed
-    
-    x = np.linspace(min(data), max(data), 1000)
-    
-    iqr = np.percentile(data, 75) - np.percentile(data, 25)
-    bin_width = 2 * iqr / len(data) ** (1 / 3)
-    bin_edges = np.arange(min(data), max(data) + bin_width, bin_width)  # Step 2: Compute bin edges
-   
-    ax.hist(data, bins=bin_edges, density=True, alpha=0.5, label="Data", color="gray")
-    
-    re = fit_normal(data, pt=None)
-    
-    ax.plot(x, norm.pdf(x, re['mu_norm'], re['sigma_norm']), lw=2, label='Normal fit')
-
-    # Highlight mean, median, and mode
-    a,b = re['mu_norm'],re['ci_mean_norm']
-    ax.axvline(a, color='orange', linestyle='--', label=f'Mean: {a:.3f} (log)),\n{np.exp(a):.3f} USD/kg, 95% CI: ({np.exp(b[0]):.3f}, {np.exp(b[1]):.3f})')
-    
-    text_d = 'imports' if direction == 'm' else 'exports'
-    ax.set_title(f"Unit values in a normal distribution for HS {code} {text_d} in {year}")
-    ax.set_xlabel("ln(Unit Price)")
-    ax.set_ylabel("Density")
-    ax.legend()
-    
-    if save_path:
-        plt.savefig(save_path)
-    else:
-        plt.show()
-
-
-def plot_gdpcountry(df, code, year, direction, save_path=None, ax=None):
+        
+def plot_gdpcountry(df, code, year, flow, save_path=None, ax=None):
     """
     Generate a scatter plot showing the involvement of countries in unit values,
     with countries ordered by GDP per capita.
@@ -163,7 +212,7 @@ def plot_gdpcountry(df, code, year, direction, save_path=None, ax=None):
                        and 'partnerISO' (country ISO3 codes).
     code (str): HS code for labeling the plot.
     year (int): Year for labeling the plot.
-    direction (str): "import" or "export" to indicate trade direction.
+    flow (str): "import" or "export" to indicate trade flow.
     save_path (str, optional): If provided, saves the plot to this path.
     ax (matplotlib.axes.Axes, optional): If provided, plots on this axis.
 
@@ -191,7 +240,7 @@ def plot_gdpcountry(df, code, year, direction, save_path=None, ax=None):
     ax.set_yticklabels(country_order)
 
     # Set labels and title
-    text_d = "import" if direction.lower() == "import" else "export"
+    text_d = "import" if flow.lower() == "import" else "export"
     ax.set_xlabel("Log Unit Value")
     ax.set_ylabel("Countries Ordered by GDP per Capita")
     ax.set_title(f"Unit values in a normal distribution for HS {code} {text_d} in {year}")
@@ -204,7 +253,7 @@ def plot_gdpcountry(df, code, year, direction, save_path=None, ax=None):
         plt.show()
 
 
-def plot_gmm1d_country(df, selected_countries, code, year, direction, save_path=None):
+def plot_gmm1d_country(df, selected_countries, code, year, flow, save_path=None):
     """
     Generate overlapping 1D GMM density plots for selected representative countries using separate axes.
 
@@ -213,7 +262,7 @@ def plot_gmm1d_country(df, selected_countries, code, year, direction, save_path=
     selected_countries (list): Ordered list of selected countries.
     code (str): HS code for the commodity.
     year (int): Year of analysis.
-    direction (str): "import" or "export".
+    flow (str): "import" or "export".
     save_path (str, optional): Path to save the figure.
 
     Returns:
@@ -242,7 +291,7 @@ def plot_gmm1d_country(df, selected_countries, code, year, direction, save_path=
                                          convergence_threshold=5, threshold=0.2)
 
             # Run GMM fitting for this country and pass the corresponding subplot
-            fit_gmm(subset, ['ln_uv'], best_component, code, year, direction, plot=True, ax=ax)
+            fit_gmm(subset, ['ln_uv'], best_component, code, year, flow, plot=True, ax=ax)
 
             # Add country label inside its subplot
             ax.text(0, 0.4, f'{country}\nTrade volume:{netWgt:.2e} kg\nGDP per capita: {gdp_per_capital:.2e} USD)', fontsize=12, verticalalignment='center', transform=ax.transAxes)
