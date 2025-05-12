@@ -125,8 +125,8 @@ def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", m
     csv_data = "\n".join(f"{v}" for v in values)
 
     # Path to the Rscript executable (not the .R script)
-    #rscript_exec = "C:/Users/lik6/AppData/Local/Programs/R/R-4.5.0/bin/x64/Rscript.exe"
-    rscript_exec = "C:/Program Files/R/R-4.4.1/bin/x64/Rscript.exe"
+    rscript_exec = "C:/Users/lik6/AppData/Local/Programs/R/R-4.5.0/bin/x64/Rscript.exe"
+    #rscript_exec = "C:/Program Files/R/R-4.4.1/bin/x64/Rscript.exe"
 
     # Compose command
     cmd = [rscript_exec, r_script_path, str(mod0)]

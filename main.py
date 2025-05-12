@@ -72,7 +72,6 @@ def cmltrade_uv(path, code, year, flow):
     logger_time_info("Outlier detection", start_time)
     
     # Step 3: Histogram
-    logger_section_header("Histogram plotting")
     logger.info(f"Outlier Detection (HS {code}, {year}, {flow.upper()})")
     start_time = time.time()
     plot_histogram(

@@ -24,14 +24,24 @@ def plot_histogram(data, code, year, flow, save_path=None, ax=None):
     ax: If provided, uses the given Axes object to plot on it. Otherwise, creates a new figure.
     """
     mpl.rcParams['pdf.fonttype'] = 42                                         # Set rcParams to ensure editable text in the PDF
-    # Step 1: Calculate IQR and bin width using Freedman-Diaconis Rule
-    iqr = np.percentile(data, 75) - np.percentile(data, 25)
-    bin_width = 2 * iqr / len(data) ** (1 / 3)
-    bin_edges = np.arange(min(data), max(data) + bin_width, bin_width)  # Step 2: Compute bin edges
+    data = np.asarray(data)  # Ensure it's a NumPy array for slicing speed
+    data = data[~np.isnan(data)]  # Drop NaNs if any
+
+    # Efficient bin computation using Freedman-Diaconis rule
+    q75, q25 = np.percentile(data, [75, 25])
+    iqrg = q75 - q25
+    n = len(data)
+
+    if iqrg == 0 or n < 2:
+        bin_edges = 10  # fallback to 10 bins if not enough spread
+    else:
+        bin_width = 2 * iqrg / (n ** (1 / 3))
+        bin_count = int(np.ceil((data.max() - data.min()) / bin_width))
+        bin_edges = bin_count if bin_count > 0 else 10
     
     # Create figure and axis if not provided
     if ax is None:
-        fig, ax = plt.subplots(figsize=(10, 6))  # Create a new figure
+        fig, ax = plt.subplots(figsize=(8, 5))  # Create a new figure
     
     # Step 3: Plot histogram
     ax.hist(data, bins=bin_edges, edgecolor='black', alpha=0.7)
