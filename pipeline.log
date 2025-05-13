@@ -634,3 +634,25 @@
 [2025-05-12 16:52:13] INFO     - Dropped 755 rows (1.055%).
 [2025-05-12 16:52:13] INFO     - Remaining rows: 70782.
 [2025-05-12 16:52:13] INFO     ✅ Outlier detection completed in 0.02 seconds.
+[2025-05-13 10:27:16] INFO     Trade data cleaning (HS 870322, 2018, M)
+[2025-05-13 10:27:16] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_870322.csv
+[2025-05-13 10:27:17] INFO     🧹 Cleaning Summary:
+[2025-05-13 10:27:17] INFO      - Initial rows: 88433
+[2025-05-13 10:27:17] INFO      - Valid country filter: 84767 (95.85%)
+[2025-05-13 10:27:17] INFO      - Valid trade value filter: 82912 (93.76%)
+[2025-05-13 10:27:17] INFO      - Valid kg-based UV rows: 74160 (83.86%)
+[2025-05-13 10:27:17] INFO     📊 Non-kg UV Subset:
+[2025-05-13 10:27:17] INFO      - Top unit: Number of items (u)
+[2025-05-13 10:27:17] INFO      - Share of valid qty rows: 88.50% (Required: 10%)
+[2025-05-13 10:27:17] INFO      - Valid qty count: 71537 (Required: 100)
+[2025-05-13 10:27:17] INFO     ✅ Non-kg UV subset created.
+[2025-05-13 10:27:17] INFO     ✅ Finished cleaning: HS 870322, Year 2018, Flow M
+[2025-05-13 10:27:17] INFO     ✅ Trade data cleaning completed in 0.95 seconds.
+[2025-05-13 10:27:56] INFO     Outlier detection (HS 870322, 2018, M)
+[2025-05-13 10:27:56] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-13 10:27:56] INFO     - Dropped 181 rows (0.244%).
+[2025-05-13 10:27:56] INFO     - Remaining rows: 73979.
+[2025-05-13 10:27:56] INFO     📊 Outlier Detection on Non-kg-based UV:
+[2025-05-13 10:27:56] INFO     - Dropped 755 rows (1.055%).
+[2025-05-13 10:27:56] INFO     - Remaining rows: 70782.
+[2025-05-13 10:27:56] INFO     ✅ Outlier detection completed in 0.03 seconds.

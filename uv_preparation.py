@@ -196,9 +196,9 @@ def clean_trade(df1):
     return df1
 
 def load_config(
-    country_file="uv_mapping_country.pkl",
-    unit_file="uv_mapping_unit.pkl",
-    unit_abbr_file="uv_mapping_unitAbbr.pkl"):
+    country_file="./pkl/uv_mapping_country.pkl",
+    unit_file="./pkl/uv_mapping_unit.pkl",
+    unit_abbr_file="./pkl/uv_mapping_unitAbbr.pkl"):
     """Load ISO mappings, group list, quantity unit mappings, and thresholds from pickle files."""
     import pandas as pd
     import pickle
