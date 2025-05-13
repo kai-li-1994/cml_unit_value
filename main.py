@@ -9,10 +9,7 @@ test text
 """
 import time
 from uv_preparation import (
-    clean_trade_tariff,
     load_config,
-    extract_trade_tariff,
-    extract_trade,
     clean_trade,
     detect_outliers,
 )
@@ -44,25 +41,34 @@ from uv_visualization import (
 
 from uv_logger_setup import logger_setup, logger_time_info
 
-config = load_config()
-logger = logger_setup()
+
 # subscription_key = "4a624b220f67400c9a6ef19b1890f1f9"
-# path = 'C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy'
-# code = '870322'
-# year = '2018'
-# flow = 'm'
+path = 'C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy'
+code = '870322'
+year = '2018'
+flow = 'm'
+
+config = load_config()
+
+logger = logger_setup(
+    log_to_file=True,
+    log_dir=config["dirs"]["logs"],
+    code=code,
+    year=year,
+    flow=flow
+)
 
 def cmltrade_uv(path, code, year, flow):
     zero_time = time.time()  # Starting the total analysis timer
     print(f"Starting analysis for HS code {code} in year {year}...\n")
 
-    # Step 1: clean trade
+    # === Step 1: clean trade data ===
     logger.info(f"Trade data cleaning (HS {code}, {year}, {flow.upper()})")
     start_time = time.time()
-    df_uv, df_q, report_cleaning = clean_trade_tariff(path, code, year, flow, config)
+    df_uv, df_q, report_cleaning, non_kg_unit = clean_trade(path, code, year, flow, config)
     logger_time_info("Trade data cleaning", start_time)
 
-    # Step 2: Detect outliers
+    # === Step 2: Detect outliers ===
     logger.info(f"Outlier detection (HS {code}, {year}, {flow.upper()})")
     start_time = time.time()
     df_filtered, df_outliers, report_outlier = detect_outliers(
@@ -72,7 +78,7 @@ def cmltrade_uv(path, code, year, flow):
                        df_q, ["ln_uv_q"], label="Non-kg-based UV")
     logger_time_info("Outlier detection", start_time)
     
-    # Step 3: Histogram
+    # === Step 3: Histogram ===
     logger.info(f"Outlier Detection (HS {code}, {year}, {flow.upper()})")
     start_time = time.time()
     plot_histogram(
@@ -80,21 +86,21 @@ def cmltrade_uv(path, code, year, flow):
         code,
         year,
         flow,
-        save_path="740311_m_2018.pdf",
+        unit_label="USD/kg", 
         ax=None,
     )
-    if df_uv is not None and not df_q.empty:
+    if df_q_filtered is not None and not df_q_filtered:
         plot_histogram(
             df_q_filtered["ln_uv_q"],
             code,
             year,
             flow,
-            save_path="740311_m_2018.pdf",
+            unit_label= non_kg_unit, 
             ax=None,
         )
         logger_time_info("Histogram plotting", start_time)
     
-    # Step 4: Modality test
+    # === Step 4: Modality test === 
     logger_section_header("Modality Test")
     print("Running modality test on unit values...")
     start_time = time.time()

@@ -9,19 +9,18 @@ import seaborn as sns
 import pandas as pd
 from uv_analysis import fit_all_unimodal_models, fit_logistic,dip_test, fit_normal, fit_skewnormal, fit_studentt, fit_gennorm, fit_johnsonsu, bootstrap_parametric_ci, find_gmm_components, fit_gmm, ensure_cov_matrix,fit_gmm2_flexible,fit_gmm3
 
-def plot_histogram(data, code, year, flow, save_path=None, ax=None):
+def plot_histogram(data, code, year, flow, unit_label="USD/kg", save_path=None, ax=None):
     """
     Plot a histogram with customizable options and Freedman-Diaconis rule for bin width.
     
     Args:
-    data: Array-like dataset to plot the histogram for.
-    title: Title of the plot (default is a descriptive title).
-    xlabel: Label for the x-axis (default is 'ln(Unit Price)').
-    ylabel: Label for the y-axis (default is 'Frequency').
-    alpha: Transparency level for the bars (default is 0.7).
-    grid: Whether to display gridlines (default is True).
-    save_path: If provided, saves the plot to the specified path (default is None).
-    ax: If provided, uses the given Axes object to plot on it. Otherwise, creates a new figure.
+        data: Array-like dataset to plot the histogram for.
+        code: HS code for title annotation.
+        year: Year of the data for title annotation.
+        flow: 'm' for import or 'x' for export.
+        unit_label: Label for the x-axis unit (e.g., 'USD/kg' or 'USD/u' etc.).
+        save_path: Path to save the figure. If None, it will display instead.
+        ax: Optional matplotlib Axes object to plot on.
     """
     mpl.rcParams['pdf.fonttype'] = 42                                         # Set rcParams to ensure editable text in the PDF
     data = np.asarray(data)  # Ensure it's a NumPy array for slicing speed
@@ -44,18 +43,21 @@ def plot_histogram(data, code, year, flow, save_path=None, ax=None):
         fig, ax = plt.subplots(figsize=(8, 5))  # Create a new figure
     
     # Step 3: Plot histogram
-    ax.hist(data, bins=bin_edges, edgecolor='black', alpha=0.7)
+    ax.hist(data, bins=bin_edges, edgecolor='black', alpha=0.6)
     text_d = 'imports' if flow == 'm' else 'exports'
     ax.set_title(f"Histogram of unit values for HS {code} {text_d} in {year}")
-    ax.set_xlabel("ln(Unit Price)")
+    ax.set_xlabel(f"ln(Unit Price) [{unit_label}]")
     ax.set_ylabel("Counts")
-    ax.grid(axis='y', linestyle='--', alpha=0.7)
-    
+    ax.grid(axis='y', linestyle='--', alpha=0.6)
 
     # Save or show the plot
     if save_path:
-        plt.savefig(save_path)
+        plt.tight_layout()
+        plt.savefig(save_path, dpi=300)
+        if ax is None:
+            plt.close()   
     else:
+        plt.tight_layout()
         plt.show()
         
 

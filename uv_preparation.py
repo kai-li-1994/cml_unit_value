@@ -1,204 +1,18 @@
 import pandas as pd
 import numpy as np
-import comtradeapicall
-import time
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-import textwrap
 import glob
-from uv_logger_setup import logger_setup, logger_time_info
+from uv_logger_setup import logger_setup
+import os
 
 logger = logger_setup("trade_logger")
-
-def extract_trade(subscription_key, code, year, direction):
-    """
-    Extract monthly trade data from the comtrade API based on subscription key,
-    commodity code, year, and trade direction.
-
-    Args:
-        subscription_key (str): API subscription key.
-        code (str): 6-digit commodity code (HS code).
-        year (int): The year for the trade data.
-        direction (str): Trade direction ("m" or "x").
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the trade data.
-    """
-    period = ",".join(f"{year}{month:02d}" for month in range(1, 13))
-    data = comtradeapicall.getFinalData(
-        subscription_key,
-        typeCode="C",
-        freqCode="M",
-        clCode="HS",
-        period=period,
-        reporterCode=None,
-        cmdCode=code,
-        flowCode=direction.upper(),
-        partnerCode=None,
-        partner2Code=None,
-        customsCode=None,
-        motCode=None,
-        format_output="JSON",
-        aggregateBy=None,
-        breakdownMode="plus",
-        countOnly=None,
-        includeDesc=True,
-    )
-    df = data
-    text = df.cmdDesc.unique()[0]
-    wrapped_text = textwrap.fill(text, width=50)
-    print(
-        f"{len(df)} records of monthly import trade retrieved\n"
-        f"under the HS code {code}\n"
-        f"({wrapped_text})\n"
-        f"in the year {year} via the UN Comtrade database.\n"
-    )
-
-    return df
-
-
-def extract_trade_tariff(subscription_key, code, year, direction):
-    period = ",".join(f"{year}{month:02d}" for month in range(1, 13))
-    data = comtradeapicall.getTarifflineData(
-        subscription_key,
-        typeCode="C",
-        freqCode="M",
-        clCode="HS",
-        period=period,
-        reporterCode=None,
-        cmdCode=code,
-        flowCode=direction.upper(),
-        partnerCode=None,
-        partner2Code=None,
-        customsCode=None,
-        motCode=None,
-        format_output="JSON",
-        countOnly=None,
-        includeDesc=True,
-    )
-    df = data
-    # text = df.cmdDesc.unique()[0]
-    # wrapped_text = textwrap.fill(text, width=50)
-    print(
-        f"{len(df)} records of monthly import tarrif trade retrieved\n"
-        f"under the HS code {code}\n"
-        # f"({wrapped_text})\n"
-        f"in the year {year} via the UN Comtrade database.\n"
-    )
-
-    return df
-
-
-def clean_trade(df1):
-    """
-    Clean the trade data by filtering the sum-up rows, dropping NA values,
-    and calculating the log-transformed unit price, trade volume, and GDP per
-    capita.
-
-    Args:
-        df (pd.DataFrame): The raw trade data.
-
-    Returns:
-        pd.DataFrame: The cleaned trade data with added log-transformed
-        columns.
-    """
-    c1 = len(df1)
-
-    df_cgdp_95 = pd.read_pickle("df_cgdp_95.pkl")
-    lst_gp = (
-        df_cgdp_95.loc[df_cgdp_95["group"] == "Grouped", "IsoAlpha3"]
-        .str.strip()
-        .tolist()
-    )
-    df1["partnerISO"] = df1[
-        "partnerISO"
-    ].str.strip()  # Remove whitespace in 'partnerISO'
-    df1 = df1[
-        (df1["partnerDesc"] != "World") & (~df1["partnerISO"].isin(lst_gp))
-    ]  # Romoving the trading partner as a group of countries, e.g. 'World', 'Other Europe, nes', ect.
-    c2 = len(df1)
-
-    def filter_sum_rows(group):
-        if (group["partner2Desc"] == "World").any() and (
-            group["partner2Desc"] != "World"
-        ).any():
-            group = group[group["partner2Desc"] != "World"]
-        if (group["motDesc"] == "TOTAL MOT").any() and (
-            group["motDesc"] != "TOTAL MOT"
-        ).any():
-            group = group[
-                group["motDesc"] != "TOTAL MOT"
-            ]  # Romove the sum-up rows for transport modes and coustoms procedures when the sub mode or precedure is reported in a given country, a partner country, and a year.
-        if (group["customsDesc"] == "TOTAL CPC").any() and (
-            group["customsDesc"] != "TOTAL CPC"
-        ).any():
-            group = group[group["customsDesc"] != "TOTAL CPC"]
-        return group
-
-    df1 = df1.groupby(
-        ["reporterDesc", "partnerDesc", "period"], group_keys=False
-    ).apply(filter_sum_rows)
-    c3 = len(df1)
-
-    df1 = df1[
-        ~(
-            (df1["netWgt"].isna() | (df1["netWgt"] == 0))
-            & (df1["qty"].isna() | (df1["qty"] == 0))
-        )
-    ]  # Now drop rows where both netWgt and qty are 0 or NaN
-    c4 = len(df1)
-
-    df1["uv"] = (
-        df1["primaryValue"] / df1["netWgt"]
-    )  # Compute plain unit value.
-
-    # Add GDP per capita of the trading partner country
-    df1["refYear"] = df1["refYear"].astype(
-        "int"
-    )  # locate the column 2013 instead of '2023'
-
-    def find_gdp(row, df_cgdp_95):
-        # Try to find the corresponding GDP value, or raise an error if not found
-        matched_data = df_cgdp_95.loc[
-            df_cgdp_95["text"] == row["partnerDesc"], row["refYear"]
-        ]  # Try to find the corresponding GDP value based on partnerDesc
-
-        if matched_data.empty:
-            matched_data = df_cgdp_95.loc[
-                df_cgdp_95["IsoAlpha3"] == row["partnerISO"], row["refYear"]
-            ]  # If no match found, try using partnerISO instead
-
-        if matched_data.empty:  # If still no match found, raise an error
-            raise ValueError(
-                f"No matching GDP data found for partner: "
-                f"{row['partnerDesc']} in year {row['refYear']} "
-                f"with the index of {row.name}"
-            )
-        return matched_data.iloc[0]
-
-    df1["gdp"] = df1.apply(lambda row: find_gdp(row, df_cgdp_95), axis=1)
-    # df1["gdp"] = df1.apply(lambda row: df_cgdp_95.loc[df_cgdp_95['text'
-    #          ]==row["partnerDesc"], row["refYear"]].iloc[0], axis=1)
-
-    df1["ln_gdp"] = np.log(df1["gdp"])  # Log-transform
-    df1["ln_uv"] = np.log(df1["uv"])
-    df1["ln_netWgt"] = np.log(df1["netWgt"])
-
-    print(
-        f"- Dropped {c1-c2}({(c1-c2)/c1*100:.3f}%) trade with aggregated"
-        " trading partners, e.g.'World', 'Other Europe, nes', ect.\n"
-        f"- Dropped {c2-c3}({(c2-c3)/c1*100:.3f}%) trade with aggregated"
-        " transport modes or customs procedures\n"
-        f"- Dropped {c3-c4}({(c3-c4)/c1*100:.3f}%) trade with zero or empty net weight.\n"
-        "- Adding log-transformed unit price, trade volume, and GDP per capital.\n"
-        f"- Remaining {c4} trade records after cleaning.\n"
-    )
-
-    return df1
 
 def load_config(
     country_file="./pkl/uv_mapping_country.pkl",
     unit_file="./pkl/uv_mapping_unit.pkl",
-    unit_abbr_file="./pkl/uv_mapping_unitAbbr.pkl"):
+    unit_abbr_file="./pkl/uv_mapping_unitAbbr.pkl",
+    input_dir=None,
+    base_dir="."
+    ):
     """Load ISO mappings, group list, quantity unit mappings, and thresholds from pickle files."""
     import pandas as pd
     import pickle
@@ -220,6 +34,14 @@ def load_config(
 
     with open(unit_abbr_file, "rb") as f:
         unit_abbr_map = pickle.load(f)
+    
+    # === Define directory structure ===
+    figures_dir = os.path.join(base_dir, "figures")
+    logs_dir = os.path.join(base_dir, "logs")
+    results_dir = os.path.join(base_dir, "results")
+    reports_dir = os.path.join(base_dir, "reports")
+    input_data_dir = input_dir if input_dir else os.path.join(base_dir, "input")  # 👈 fallback default
+    
 
     # === Define essential columns for early-stage processing ===
     cols_to_keep_early = [
@@ -243,7 +65,7 @@ def load_config(
         "min_records_uv": min_records_uv
     }
 
-def clean_trade_tariff(path, code, year,flow,config):
+def clean_trade(path, code, year,flow,config):
 
     # === Locate file ===
     matches = glob.glob(f"{path}/*{code}*.csv")
@@ -401,7 +223,7 @@ def clean_trade_tariff(path, code, year,flow,config):
             "step_1_valid_non_kg_filter": p6,
             "step_1_fail_reason_non_kg_uv": fail_reason_non_kg_uv
         })
-    return df_uv, df_q, lst_report_cleaning
+    return df_uv, df_q, lst_report_cleaning, f"USD/{unit_abbr}"
     
 
 def detect_outliers(df, value_column, label="Data"):
