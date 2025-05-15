@@ -33,6 +33,9 @@ from sklearn.metrics import silhouette_score
 import subprocess
 from io import StringIO
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from uv_config import load_config
+
+config = load_config()
 
 def bootstrapped_kde_test(data, num_bootstrap=1000):
     bandwidth = 0.9 * np.std(data) * len(data) ** (-1 / 5)
@@ -65,22 +68,8 @@ def bootstrapped_kde_test(data, num_bootstrap=1000):
     return real_peak_count, p_value, bootstrap_peak_counts
 
 
-def dip_test(data):
-    """Return Hartigan's dip statistic and the p-value for unimodality test.
-    Args:
-       data (array-like): A one-dimensional array or pandas Series containing
-                           the data to be tested.
-    Returns:
-        No.
-    """
-    dip_statistic, p_value = diptest(data)
-    if p_value < 0.05:
-        return False, p_value  # False indicates multimodal
-    else:
-        return True, p_value  # True indicates unimodal
 
-
-def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", methods=None, cap_size=25000):
+def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", methods=None, cap_size=25000, logger = None):
     """
     Run R-based modality tests on a univariate column from a pandas DataFrame.
 
@@ -109,8 +98,18 @@ def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", m
     """
     full_df = df[col].dropna()
     original_n = len(full_df)
+    
+    if original_n == 0:
+        logger.warning(f"⚠️ No valid data in column '{col}' for modality test.")
+        return {
+            "step_3_name": "test_modality",
+            "t_modality_votes": 0,
+            "t_sample_capped": False,
+            "t_sample_used": 0,
+            "t_sample_original": 0
+        }, None
 
-    # Decide if capping is needed based on methods
+    # Decide if capping is needed
     boot_methods = {"SI", "HY", "CH", "ACR"}
     cap_needed = methods is None or any(m in boot_methods for m in methods)
     
@@ -124,12 +123,8 @@ def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", m
     values = sampled.to_numpy()
     csv_data = "\n".join(f"{v}" for v in values)
 
-    # Path to the Rscript executable (not the .R script)
-    rscript_exec = "C:/Users/lik6/AppData/Local/Programs/R/R-4.5.0/bin/x64/Rscript.exe"
-    #rscript_exec = "C:/Program Files/R/R-4.4.1/bin/x64/Rscript.exe"
-
     # Compose command
-    cmd = [rscript_exec, r_script_path, str(mod0)]
+    cmd = [config["rscript_exec"], r_script_path, str(mod0)]
     if methods:
         cmd += methods
 
@@ -143,49 +138,52 @@ def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", m
         )
         pvals_df = pd.read_csv(StringIO(process.stdout))
 
-        # Determine decision per method
+        # Decision logic
         reject = pvals_df["P_Value"] < 0.05
         pvals_df["Decision"] = reject.map(lambda x: "reject" if x else "fail to reject")
         n_reject = reject.sum()
-        
         final_decision = "multimodal" if n_reject >= (len(pvals_df) // 2 + 1) else "unimodal"
 
-        # Compose output dictionary
+        # Summary report
         report_modality = {
-            "step": "modality_test",
-            "method": "majority",
-            "modality_decision": final_decision,
-            "modality_votes": n_reject,
-            "modality_sample_capped": was_capped,
-            "modality_used_n": len(sampled),
-            "modality_original_n": original_n
+            "t_name": "modality_test",
+            "t_method": "majority",
+            "t_modality_decision": final_decision,
+            "t_modality_votes": n_reject,
+            "t_sample_capped": was_capped,
+            "t_sample_used": len(sampled),
+            "t_sample_original": original_n
         }
 
         for _, row in pvals_df.iterrows():
             method_name = row["Method"]
-            report_modality[f"{method_name}_P"] = row["P_Value"]
-            report_modality[f"{method_name}_Decision"] = row["Decision"]
+            report_modality[f"t_{method_name}_P"] = row["P_Value"]
+            report_modality[f"t_{method_name}_decision"] = row["Decision"]
 
-        print("📈 Modality Test Summary"
-             f"\n- Column tested: {col}"
-             f"\n- Original sample size: {original_n}")
+        logger.info("📈 Modality Test Summary:")
+        logger.info(f"- Column tested: {col}")
+        logger.info(f"- Original sample size: {original_n}")
         if was_capped:
-            print(f"❗ Sample capped at {cap_size} for efficiency.")
+            logger.warning(f"❗ Sample capped at {cap_size} for efficiency.")
         else:
-            print("✅ Full sample used (no capping applied).")
-        print(f"\n- Final decision: {final_decision} ({n_reject} reject out of {len(pvals_df)})\n")
+            logger.info("✅ Full sample used (no capping applied).")
+        logger.info(f"- Final decision: {final_decision} ({n_reject} reject out of {len(pvals_df)})")
 
-        return report_modality
+        return report_modality, report_modality["t_modality_decision"]
 
     except subprocess.CalledProcessError as e:
-        print("R script failed.\nSTDERR:\n", e.stderr)
-        return {
-            "step": "modality_test",
-            "modality_error": str(e),
-            "modality_sample_capped": was_capped,
-            "modality_used_n": len(sampled),
-            "modality_original_n": original_n
+        logger.error("❌ R script for modality test failed.")
+        logger.error(f"STDERR:\n{e.stderr}")
+        report_modality = {
+            "t_name": "modality_test",
+            "t_modality_error": str(e),
+            "t_modality_decision": "error",
+            "t_sample_capped": was_capped,
+            "t_sample_used": len(sampled),
+            "t_sample_original": original_n
         }
+        
+        return report_modality, "error"
     
 
 def estimate_mode(dist, args, data):
@@ -198,22 +196,11 @@ def estimate_mode(dist, args, data):
     return result.x
 
 
-def fit_normal(data, pt=False):
-    """
-    Fit a normal distribution to the data and return the parameters.
-    Args:
-        data (array-like): Input data to fit.
-        pt (bool): If True, prints the results.
-    Returns:
-        dict: A dictionary containing the fitted parameters, statistics,
-        and log-likelihood.
-    """
+def fit_normal(data, logger=None):
     mu, sigma = norm.fit(data)
     loglik = np.sum(norm.logpdf(data, mu, sigma))
     mean, var, skew, kurt = norm.stats(mu, sigma, moments="mvsk")
-    sample_var = np.var(
-        data, ddof=1
-    )  # sample variance (ddof=1 for unbiased estimate)
+    sample_var = np.var(data, ddof=1)
     median = mu
     mode = mu
     n = len(data)
@@ -221,33 +208,30 @@ def fit_normal(data, pt=False):
     bic = 2 * np.log(n) - 2 * loglik
 
     results = {
-        "mu_norm": mu,
-        "sigma_norm": sigma,
-        "log_likelihood_norm": loglik,
-        "mean_norm": mean,
-        "median_norm": median,
-        "mode_norm": mode,
-        "variance_norm": var,
-        "sample_variance_norm": sample_var,
-        "skew_norm": skew,
-        "kurtosis_norm": kurt,
-        "aic_norm": aic,
-        "bic_norm": bic,
+        "norm_mu": mu,
+        "norm_sigma": sigma,
+        "norm_log_likelihood": loglik,
+        "norm_mean": mean,
+        "norm_median": median,
+        "norm_mode": mode,
+        "norm_variance": var,
+        "norm_sample_variance": sample_var,
+        "norm_skew": skew,
+        "norm_kurtosis": kurt,
+        "norm_aic": aic,
+        "norm_bic": bic,
     }
 
-    if pt:
-        print("Fitted Normal Distribution:")
+    if logger:
+        logger.info("Fitted Normal Distribution:")
         for k, v in results.items():
-            print(
-                f"{k}: {v:.3f}"
-                if isinstance(v, (float, int))
-                else f"{k}: {v}"
-            )
+            logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
+                        else f"  {k}: {v}")
 
     return results
 
 
-def fit_skewnormal(data, pt=False):
+def fit_skewnormal(data, logger=None):
     """
     Fit a skew-normal distribution to the data and return the parameters.
     Args:
@@ -259,12 +243,8 @@ def fit_skewnormal(data, pt=False):
     """
     a, loc, scale = skewnorm.fit(data)
     loglik = np.sum(skewnorm.logpdf(data, a, loc, scale))
-    mean, var, skew, kurt = skewnorm.stats(
-        a, loc=loc, scale=scale, moments="mvsk"
-    )
-    sample_var = np.var(
-        data, ddof=1
-    )  # sample variance (ddof=1 for unbiased estimate)
+    mean, var, skew, kurt = skewnorm.stats(a, loc=loc, scale=scale, moments="mvsk")
+    sample_var = np.var(data, ddof=1)
     median = skewnorm.median(a, loc=loc, scale=scale)
     mode = estimate_mode(skewnorm, (a, loc, scale), data)
     n = len(data)
@@ -272,34 +252,31 @@ def fit_skewnormal(data, pt=False):
     bic = 3 * np.log(n) - 2 * loglik
 
     results = {
-        "a_skew": a,
-        "loc_skew": loc,
-        "scale_skew": scale,
-        "log_likelihood_skewnorm": loglik,
-        "mean_skew": mean,
-        "median_skew": median,
-        "mode_skew": mode,
-        "variance_skew": var,
-        "sample_variance_skew": sample_var,
+        "skew_a": a,
+        "skew_loc": loc,
+        "skew_scale": scale,
+        "skew_log_likelihood": loglik,
+        "skew_mean": mean,
+        "skew_median": median,
+        "skew_mode": mode,
+        "skew_variance": var,
+        "skew_sample_variance": sample_var,
         "skew_skew": skew,
-        "kurtosis_skew": kurt,
-        "aic_skewnorm": aic,
-        "bic_skewnorm": bic,
+        "skew_kurtosis": kurt,
+        "skew_aic": aic,
+        "skew_bic": bic,
     }
 
-    if pt:
-        print("Fitted Skew-Normal Distribution:")
+    if logger:
+        logger.info("Fitted Skew-Normal Distribution:")
         for k, v in results.items():
-            print(
-                f"{k}: {v:.3f}"
-                if isinstance(v, (float, int))
-                else f"{k}: {v}"
-            )
+            logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
+                        else f"  {k}: {v}")
 
     return results
 
 
-def fit_studentt(data, pt=False):
+def fit_studentt(data, logger=None):
     """
     Fit a Student's t-distribution to the data and return the parameters.
     Args:
@@ -320,34 +297,31 @@ def fit_studentt(data, pt=False):
     bic = 3 * np.log(n) - 2 * loglik
 
     results = {
-        "df_t": df,
-        "loc_t": loc,
-        "scale_t": scale,
-        "log_likelihood_t": loglik,
-        "mean_t": mean,
-        "median_t": median,
-        "mode_t": mode,
-        "variance_t": var,
-        "sample_variance_t": sample_var,
-        "skew_t": skew,
-        "kurtosis_t": kurt,
-        "aic_t": aic,
-        "bic_t": bic,
+        "t_df": df,
+        "t_loc": loc,
+        "t_scale": scale,
+        "t_log_likelihood": loglik,
+        "t_mean": mean,
+        "t_median": median,
+        "t_mode": mode,
+        "t_variance": var,
+        "t_sample_variance": sample_var,
+        "t_skew": skew,
+        "t_kurtosis": kurt,
+        "t_aic": aic,
+        "t_bic": bic,
     }
 
-    if pt:
-        print("Fitted Student-t Distribution:")
+    if logger:
+        logger.info("Fitted Student-t Distribution:")
         for k, v in results.items():
-            print(
-                f"{k}: {v:.3f}"
-                if isinstance(v, (float, int))
-                else f"{k}: {v}"
-            )
+            logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
+                        else f"  {k}: {v}")
 
     return results
 
 
-def fit_gennorm(data, pt=False):
+def fit_gennorm(data, logger=None):
     """
     Fit a generalized normal (exponential power) distribution to the data and 
     return the parameters.
@@ -369,34 +343,31 @@ def fit_gennorm(data, pt=False):
     bic = 3 * np.log(n) - 2 * loglik
 
     results = {
-        "beta_gn": beta,
-        "loc_gn": loc,
-        "scale_gn": scale,
-        "log_likelihood_gn": loglik,
-        "mean_gn": mean,
-        "median_gn": median,
-        "mode_gn": mode,
-        "variance_gn": var,
-        "sample_variance_gn": sample_var,
-        "skew_gn": skew,
-        "kurtosis_gn": kurt,
-        "aic_gn": aic,
-        "bic_gn": bic,
+        "gn_beta": beta,
+        "gn_loc": loc,
+        "gn_scale": scale,
+        "gn_log_likelihood": loglik,
+        "gn_mean": mean,
+        "gn_median": median,
+        "gn_mode": mode,
+        "gn_variance": var,
+        "gn_sample_variance": sample_var,
+        "gn_skew": skew,
+        "gn_kurtosis": kurt,
+        "gn_aic": aic,
+        "gn_bic": bic,
     }
 
-    if pt:
-        print("Fitted Generalized Normal Distribution:")
+    if logger:
+        logger.info("Fitted Generalized Normal Distribution:")
         for k, v in results.items():
-            print(
-                f"{k}: {v:.3f}"
-                if isinstance(v, (float, int))
-                else f"{k}: {v}"
-            )
+            logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
+                        else f"  {k}: {v}")
 
     return results
 
 
-def fit_johnsonsu(data, pt=False):
+def fit_johnsonsu(data, logger=None):
     """
     Fit a Johnson SU distribution to the data and return the parameters.
     Args:
@@ -417,35 +388,31 @@ def fit_johnsonsu(data, pt=False):
     bic = 4 * np.log(n) - 2 * loglik
 
     results = {
-        "a_jsu": a,
-        "b_jsu": b,
-        "loc_jsu": loc,
-        "scale_jsu": scale,
-        "log_likelihood_jsu": loglik,
-        "mean_jsu": mean,
-        "median_jsu": median,
-        "mode_jsu": mode,
-        "variance_jsu": var,
-        "sample_variance_jsu": sample_var,
-        "skew_jsu": skew,
-        "kurtosis_jsu": kurt,
-        "aic_jsu": aic,
-        "bic_jsu": bic,
+        "jsu_a": a,
+        "jsu_b": b,
+        "jsu_loc": loc,
+        "jsu_scale": scale,
+        "jsu_log_likelihood": loglik,
+        "jsu_mean": mean,
+        "jsu_median": median,
+        "jsu_mode": mode,
+        "jsu_variance": var,
+        "jsu_sample_variance": sample_var,
+        "jsu_skew": skew,
+        "jsu_kurtosis": kurt,
+        "jsu_aic": aic,
+        "jsu_bic": bic,
     }
-
-    if pt:
-        print("Fitted Johnson SU Distribution:")
-        for k, v in results.items():
-            print(
-                f"{k}: {v:.3f}"
-                if isinstance(v, (float, int))
-                else f"{k}: {v}"
-            )
-
+    
+    if logger:
+         logger.info("Fitted Johnson SU Distribution:")
+         for k, v in results.items():
+             logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
+                         else f"  {k}: {v}")
+             
     return results
 
-
-def fit_logistic(data, pt=False):
+def fit_logistic(data, logger=None):
     """
     Fit a logistic distribution to the data and return the parameters.
     Args:
@@ -466,28 +433,25 @@ def fit_logistic(data, pt=False):
     bic = 2 * np.log(n) - 2 * loglik
 
     results = {
-        "loc_log": loc,
-        "scale_log": scale,
-        "log_likelihood_logistic": loglik,
-        "mean_logistic": mean,
-        "median_logistic": median,
-        "mode_logistic": mode,
-        "variance_logistic": var,
-        "sample_variance_logistic": sample_var,
-        "skew_logistic": skew,
-        "kurtosis_logistic": kurt,
-        "aic_logistic": aic,
-        "bic_logistic": bic,
+        "log_loc": loc,
+        "log_scale": scale,
+        "log_log_likelihood": loglik,
+        "log_mean": mean,
+        "log_median": median,
+        "log_mode": mode,
+        "log_variance": var,
+        "log_sample_variance": sample_var,
+        "log_skew": skew,
+        "log_kurtosis": kurt,
+        "log_aic": aic,
+        "log_bic": bic,
     }
 
-    if pt:
-        print("Fitted Logistic Distribution:")
+    if logger:
+        logger.info("Fitted Logistic Distribution:")
         for k, v in results.items():
-            print(
-                f"{k}: {v:.3f}"
-                if isinstance(v, (float, int))
-                else f"{k}: {v}"
-            )
+            logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
+                        else f"  {k}: {v}")
 
     return results
 
@@ -597,7 +561,7 @@ def bootstrap_parametric_ci(
     return ci_mean, ci_median, ci_mode, ci_var
 
 
-def fit_all_unimodal_models(data, pt=False):
+def fit_all_unimodal_models(data, logger=None):
     """
     Fit all candidate unimodal distributions and select the best one based 
     on AIC and BIC.
@@ -622,26 +586,102 @@ def fit_all_unimodal_models(data, pt=False):
     scores = {}
 
     for name, func in model_funcs.items():
-        if pt:
-            print("=" * 50)
-            print(f"Fitting {name.capitalize()} Distribution")
-        result = func(data, pt=pt)
+        if logger:
+            logger.info(f"Fitting {name.capitalize()} Distribution")
+        result = func(data, logger=logger)
         results[name] = result
 
         # Find keys for AIC and BIC
-        aic_key = [k for k in result if k.startswith("aic")][0]
-        bic_key = [k for k in result if k.startswith("bic")][0]
+        aic_key = [k for k in result if k.endswith("_aic")][0]
+        bic_key = [k for k in result if k.endswith("_bic")][0]
         scores[name] = (result[aic_key], result[bic_key])
 
     # Select best fit by AIC, then BIC if tie
     best_fit_name = min(scores.items(), key=lambda x: (x[1][0], x[1][1]))[0]
     best_result = results[best_fit_name]
 
-    if pt:
-        print("=" * 50)
-        print(f"Best fit based on AIC/BIC: {best_fit_name.capitalize()}")
+    if logger:
+        logger.info(f"Best fit based on AIC/BIC: {best_fit_name.capitalize()}")
 
     return best_fit_name, best_result, results
+
+def _fit_distribution(dist_name, dist_obj, param_count, data, logger=None):
+    params = dist_obj.fit(data)
+    loglik = np.sum(dist_obj.logpdf(data, *params))
+    mean, var, skew, kurt = dist_obj.stats(*params, moments="mvsk")
+    sample_var = np.var(data, ddof=1)
+    median = dist_obj.median(*params)
+    mode = estimate_mode(dist_obj, params, data)
+
+    n = len(data)
+    aic = 2 * param_count - 2 * loglik
+    bic = param_count * np.log(n) - 2 * loglik
+
+    result = {
+        f"{dist_name}_params": params,
+        f"{dist_name}_loglik": loglik,
+        f"{dist_name}_mean": mean,
+        f"{dist_name}_median": median,
+        f"{dist_name}_mode": mode,
+        f"{dist_name}_variance": var,
+        f"{dist_name}_sample_variance": sample_var,
+        f"{dist_name}_skew": skew,
+        f"{dist_name}_kurtosis": kurt,
+        f"{dist_name}_aic": aic,
+        f"{dist_name}_bic": bic,
+    }
+
+    if logger:
+        logger.info(f"Fitted {dist_name.capitalize()} Distribution")
+        for k, v in result.items():
+            logger.info(f"{k}: {v:.3f}" if isinstance(v, (float, int)) else f"{k}: {v}")
+
+    return result
+
+
+def fit_all_unimodal_models2(data, logger=None):
+    """
+    Fit all candidate unimodal distributions and select the best one based 
+    on AIC and BIC.
+
+    Args:
+        data (array-like): Input data to fit.
+        logger (logging.Logger, optional): Logger for info output.
+
+    Returns:
+        tuple: (best_fit_name, best_fit_result_dict, all_results_dict)
+    """
+    from scipy.stats import norm, skewnorm, t, gennorm, johnsonsu, logistic
+
+    model_defs = {
+        "normal":     (norm,      2),
+        "skewnorm":   (skewnorm,  3),
+        "studentt":   (t,         3),
+        "gennorm":    (gennorm,   3),
+        "johnsonsu":  (johnsonsu, 4),
+        "logistic":   (logistic,  2),
+    }
+
+    all_results = {}
+    scores = {}
+
+    for name, (dist_obj, n_params) in model_defs.items():
+        if logger:
+            logger.info("=" * 50)
+            logger.info(f"Fitting {name.capitalize()} Distribution")
+        result = _fit_distribution(name, dist_obj, n_params, data, logger=logger)
+        all_results.update(result)
+        scores[name] = (result[f"{name}_aic"], result[f"{name}_bic"])  # Use explicit keys
+
+    # Select best fit by AIC, then BIC if tie
+    best_fit_name = min(scores.items(), key=lambda x: (x[1][0], x[1][1]))[0]
+    best_result = {k: v for k, v in all_results.items() if k.startswith(best_fit_name)}
+
+    if logger:
+        logger.info("=" * 50)
+        logger.info(f"Best fit based on AIC/BIC: {best_fit_name.capitalize()}")
+
+    return best_fit_name, best_result, all_results
 
 
 def find_gmm_components(

@@ -1,0 +1,62 @@
+[2025-05-14 22:56:09] INFO     Clean trade data (HS 850511, 2023, M)
+[2025-05-14 22:56:09] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_850511.csv
+[2025-05-14 22:56:10] INFO     🧹 Cleaning Summary:
+[2025-05-14 22:56:10] INFO      - Initial rows: 60625
+[2025-05-14 22:56:10] INFO      - Valid country filter: 55938 (92.27%)
+[2025-05-14 22:56:10] INFO      - Valid trade value filter: 49824 (82.18%)
+[2025-05-14 22:56:10] INFO      - Valid kg-based UV rows: 41001 (67.63%)
+[2025-05-14 22:56:10] INFO     📊 Non-kg UV Subset:
+[2025-05-14 22:56:10] INFO      - Top unit: Number of items (u)
+[2025-05-14 22:56:10] INFO      - Share of valid qty rows: 12.50% (Required: 10%)
+[2025-05-14 22:56:10] INFO      - Valid qty count: 5143 (Required: 100)
+[2025-05-14 22:56:10] INFO     ✅ Non-kg UV subset created.
+[2025-05-14 22:56:10] INFO     ✅ Finished cleaning: HS 850511, Year 2023, Flow M
+[2025-05-14 22:57:34] INFO     Clean trade data (HS 850511, 2023, M)
+[2025-05-14 22:57:34] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_850511.csv
+[2025-05-14 22:57:35] INFO     🧹 Cleaning Summary:
+[2025-05-14 22:57:35] INFO      - Initial rows: 60625
+[2025-05-14 22:57:35] INFO      - Valid country filter: 55938 (92.27%)
+[2025-05-14 22:57:35] INFO      - Valid trade value filter: 49824 (82.18%)
+[2025-05-14 22:57:35] INFO      - Valid kg-based UV rows: 41001 (67.63%)
+[2025-05-14 22:57:35] INFO     📊 Non-kg UV Subset:
+[2025-05-14 22:57:35] INFO      - Top unit: Number of items (u)
+[2025-05-14 22:57:35] INFO      - Share of valid qty rows: 12.50% (Required: 10%)
+[2025-05-14 22:57:35] INFO      - Valid qty count: 5143 (Required: 100)
+[2025-05-14 22:57:35] INFO     ✅ Non-kg UV subset created.
+[2025-05-14 22:57:35] INFO     ✅ Finished cleaning: HS 850511, Year 2023, Flow M
+[2025-05-14 22:57:35] INFO     ✅ Clean trade data completed in 0.30 seconds.
+[2025-05-14 22:57:35] INFO     Outlier detection (HS 850511, 2023, M)
+[2025-05-14 22:57:35] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-14 22:57:35] INFO     - Dropped 179 rows (0.437%).
+[2025-05-14 22:57:35] INFO     - Remaining rows: 40822.
+[2025-05-14 22:57:35] INFO     📊 Outlier Detection on Non-kg-based UV:
+[2025-05-14 22:57:35] INFO     - Dropped 4 rows (0.078%).
+[2025-05-14 22:57:35] INFO     - Remaining rows: 5139.
+[2025-05-14 22:57:35] INFO     ✅ Detect outliers completed in 0.01 seconds.
+[2025-05-14 22:57:35] INFO     Histogram (HS 850511, 2023, M)
+[2025-05-14 22:57:35] INFO     ✅ Histogram completed in 0.75 seconds.
+[2025-05-14 22:57:35] INFO     Modality Test (HS 850511, 2023, M)
+[2025-05-14 22:57:35] INFO     ✅ Modality test completed in 0.00 seconds.
+[2025-05-14 22:58:25] INFO     Modality Test (HS 850511, 2023, M)
+[2025-05-14 22:58:25] INFO     ✅ Modality test completed in 0.00 seconds.
+[2025-05-14 23:01:30] INFO     Modality Test (HS 850511, 2023, M)
+[2025-05-14 23:01:30] INFO     ✅ Modality test completed in 0.00 seconds.
+[2025-05-14 23:01:37] INFO     Modality Test (HS 850511, 2023, M)
+[2025-05-14 23:03:11] INFO     📈 Modality Test Summary:
+[2025-05-14 23:03:11] INFO     - Column tested: ln_uv
+[2025-05-14 23:03:11] INFO     - Original sample size: 40822
+[2025-05-14 23:03:11] WARNING  ❗ Sample capped at 25000 for efficiency.
+[2025-05-14 23:03:11] INFO     - Final decision: unimodal (2 reject out of 5)
+[2025-05-14 23:03:38] INFO     📈 Modality Test Summary:
+[2025-05-14 23:03:38] INFO     - Column tested: ln_uv_q
+[2025-05-14 23:03:38] INFO     - Original sample size: 5139
+[2025-05-14 23:03:38] INFO     ✅ Full sample used (no capping applied).
+[2025-05-14 23:03:38] INFO     - Final decision: multimodal (3 reject out of 5)
+[2025-05-14 23:03:38] INFO     ✅ Modality test completed in 2 min 0.3 sec.
+[2025-05-14 23:08:18] INFO     Unimodal distribution fitting for kg-based UV
+[2025-05-14 23:08:21] INFO     - Gennorm distribution fits best based on AIC and BIC.
+[2025-05-14 23:08:21] INFO     ✅ Unimodal fit (kg-based) completed in 2.41 seconds.
+[2025-05-14 23:08:21] INFO     Bootstrapping CI (kg-based)
+[2025-05-14 23:11:34] INFO     ✅ Bootstrapping CI (kg-based) completed in 3 min 13.3 sec.
+[2025-05-14 23:17:36] INFO     Fitting GMM on non-kg-based UV (multimodal)
+[2025-05-14 23:17:37] INFO     ✅ Fitting GMM on non-kg-based UV (multimodal) completed in 1.31 seconds.
