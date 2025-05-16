@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import (norm, iqr, skewnorm, cauchy, logistic,anderson,
@@ -7,7 +8,10 @@ from sklearn.mixture import GaussianMixture
 import matplotlib as mpl
 import seaborn as sns
 import pandas as pd
-from uv_analysis import fit_all_unimodal_models, fit_logistic,dip_test, fit_normal, fit_skewnormal, fit_studentt, fit_gennorm, fit_johnsonsu, bootstrap_parametric_ci, find_gmm_components, fit_gmm, ensure_cov_matrix,fit_gmm2_flexible,fit_gmm3
+from uv_analysis import bootstrap_parametric_ci, find_gmm_components, fit_gmm, ensure_cov_matrix,fit_gmm2_flexible,fit_gmm3
+from uv_config import load_config
+
+config = load_config()
 
 def plot_histogram(data, code, year, flow, unit_label="USD/kg", save_path=None, ax=None):
     """
@@ -53,6 +57,8 @@ def plot_histogram(data, code, year, flow, unit_label="USD/kg", save_path=None, 
     # Save or show the plot
     if save_path:
         plt.tight_layout()
+        safe_unit_label = unit_label.replace("/", "_")  # e.g., USD/kg → USDperkg
+        save_path = os.path.join(config["dirs"]["figures"], f"hist_{code}_{year}_{flow}_{safe_unit_label}.png")
         plt.savefig(save_path, dpi=300)
         if ax is None:
             plt.close()   
@@ -60,157 +66,114 @@ def plot_histogram(data, code, year, flow, unit_label="USD/kg", save_path=None, 
         plt.tight_layout()
         plt.show()
         
-
-def plot_dist(data, code, year, flow,
-              dist=None, best_fit=None, fit_result=None, all_results=None,
-              ci_mean=None, ci_median=None, ci_mode=None, ci_var=None,
-              save_path=None, ax=None):
+def plot_dist(data, code, year, flow, unit_label="USD/kg", dist=None, 
+              best_fit_name=None, report_best_fit_uni=None, report_all_uni_fit=None, 
+              raw_params_dict=None, ci=None, save_path=None, ax=None):
     """
-    Unified plot function for any supported unimodal distribution.
-    Can plot a single fit or compare all fits with AIC/BIC.
+    Plot histogram with overlaid fitted distributions and summary stats.
 
     Args:
-        data (array-like): The log-transformed unit values.
-        code (str): HS code for labeling.
-        year (int): Year for labeling.
-        flow (str): 'm' for import, 'x' for export.
-        dist (str): Distribution name (used when comparing single fit).
-        best_fit (str): Best-fit distribution name for highlighting.
-        fit_result (dict): Fit result for the selected distribution.
-        all_results (dict): All fit results (for multi-fit plot).
-        ci_mean (tuple): CI for mean.
-        ci_median (tuple): CI for median.
-        ci_mode (tuple): CI for mode.
-        ci_variance (tuple): CI for parametric variance.
-        save_path (str): Optional file path to save the plot.
-        ax (matplotlib axis): Optional axis for subplotting.
+        data (array-like): Log-transformed unit values.
+        code, year, flow: Metadata for title.
+        unit_label (str): e.g., "USD/kg".
+        dist (str): If given, only plot this distribution.
+        best_fit_name (str): Name of best-fit distribution.
+        report_best_fit_uni (dict): Best-fit statistics.
+        report_all_uni_fit (dict): All distribution statistics.
+        raw_params_dict (dict): Raw param tuples by distribution.
+        ci (dict): Flattened CI dict with keys like ci_mean_lower, etc.
+        save_path (str): Optional path to save.
+        ax (matplotlib axis): Optional axis to draw on.
     """
+
+    # === Fixed color map for consistent distribution coloring ===
+    colors = {
+        "norm":      "#66c2a5",  
+        "skewnorm":  "#fc8d62",  
+        "t":         "#8da0cb",  
+        "gennorm":   "#e78ac3",  
+        "johnsonsu": "#a6d854",  
+        "logistic":  "#ffd92f",  
+     }
 
     mpl.rcParams['pdf.fonttype'] = 42
     if ax is None:
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=(8, 5))
 
     x = np.linspace(min(data), max(data), 1000)
-    iqr = np.percentile(data, 75) - np.percentile(data, 25)
-    bin_width = 2 * iqr / len(data) ** (1 / 3)
-    bin_edges = np.arange(min(data), max(data) + bin_width, bin_width)
-
-    ax.hist(data, bins=bin_edges, density=True, alpha=0.4, label="Data", color="gray")
+    ax.hist(data, bins='fd', density=True, alpha=0.4, label="Data", color="gray")
     text_d = 'imports' if flow == 'm' else 'exports'
+    fitted_color = "black"  # default fallback
 
-    colors = {
-        'normal': '#e41a1c',
-        'skewnorm': '#377eb8',
-        'studentt': '#4daf4a',
-        'gennorm': '#984ea3',
-        'johnsonsu': '#ff7f00',
-        'logistic': 'brown'
-    }
-
-    # Compare all distributions
-    if not dist and all_results:
-        for name, res in all_results.items():
-            color = colors.get(name, None)
-            if name == 'normal':
-                y = norm.pdf(x, res['mu_norm'], res['sigma_norm'])
-                label = f"Normal (AIC={res['aic_norm']:.1f}, BIC={res['bic_norm']:.1f})"
-            elif name == 'skewnorm':
-                y = skewnorm.pdf(x, res['a_skew'], res['loc_skew'], res['scale_skew'])
-                label = f"Skewnorm (AIC={res['aic_skewnorm']:.1f}, BIC={res['bic_skewnorm']:.1f})"
-            elif name == 'studentt':
-                y = t.pdf(x, res['df_t'], res['loc_t'], res['scale_t'])
-                label = f"Student-t (AIC={res['aic_t']:.1f}, BIC={res['bic_t']:.1f})"
-            elif name == 'gennorm':
-                y = gennorm.pdf(x, res['beta_gn'], res['loc_gn'], res['scale_gn'])
-                label = f"GenNorm (AIC={res['aic_gn']:.1f}, BIC={res['bic_gn']:.1f})"
-            elif name == 'johnsonsu':
-                y = johnsonsu.pdf(x, res['a_jsu'], res['b_jsu'], res['loc_jsu'], res['scale_jsu'])
-                label = f"Johnson SU (AIC={res['aic_jsu']:.1f}, BIC={res['bic_jsu']:.1f})"
-            elif name == 'logistic':
-                y = logistic.pdf(x, res['loc_log'], res['scale_log'])
-                label = f"Logistic (AIC={res['aic_logistic']:.1f}, BIC={res['bic_logistic']:.1f})"
-            else:
+    # === Plot multiple distributions ===
+    if not dist and report_all_uni_fit and raw_params_dict:
+        for name in set(k.split('_')[0] for k in raw_params_dict if k.endswith('_params')):
+            try:
+                dist_obj = globals()[name]
+                params = raw_params_dict[f"{name}_params"]
+                y = dist_obj.pdf(x, *params)
+                aic = report_all_uni_fit.get(f"{name}_aic", None)
+                bic = report_all_uni_fit.get(f"{name}_bic", None)
+                #lw = 2.5 if name == best_fit_name else 1.5
+                label = f"{name.capitalize()}"
+                if aic is not None and bic is not None:
+                    label += f" (AIC={aic:.1f}, BIC={bic:.1f})"
+                line = ax.plot(x, y, label=label, lw=1.5, alpha=0.9, color=colors.get(name))[0]
+                if name == best_fit_name:
+                    fitted_color = line.get_color()
+            except (KeyError, ValueError):
                 continue
+        ax.set_title(f"Distribution fits of unit values ({unit_label}) for HS {code} {text_d} in {year}")
 
-            lw = 2.5 if name == best_fit else 1.5
-            ax.plot(x, y, label=label, lw=lw, alpha=0.9 if name == best_fit else 0.6, color=color)
+    # === Plot single distribution ===
+    elif dist and report_best_fit_uni and raw_params_dict and f"{dist}_params" in raw_params_dict:
+        try:
+            dist_obj = globals()[dist]
+            params = raw_params_dict[f"{dist}_params"]
+            y = dist_obj.pdf(x, *params)
+            line = ax.plot(x, y, lw=2, label=f"{dist.capitalize()} fit", color=colors.get(dist))[0]
+            fitted_color = line.get_color()
+            ax.set_title(f"Unit values ({unit_label}) in a {dist.capitalize()} distribution for HS {code} {text_d} in {year}")
+        except (KeyError, ValueError):
+            pass
 
-        ax.set_title(f"Distribution fits (AIC/BIC) for HS {code} {text_d} in {year}")
+    # === Plot vertical lines for stats and their CIs ===
+    if report_best_fit_uni and best_fit_name and ci:
+        mean = report_best_fit_uni[f"{best_fit_name}_mean"]
+        median = report_best_fit_uni[f"{best_fit_name}_median"]
+        mode = report_best_fit_uni[f"{best_fit_name}_mode"]
+        var = report_best_fit_uni[f"{best_fit_name}_variance"]
+        sample_var = report_best_fit_uni[f"{best_fit_name}_sample_variance"]
 
-        # Highlight vertical lines for best-fit statistics
-        if fit_result and ci_mean and ci_median and ci_mode and ci_var:
-            mean_key = [k for k in fit_result if k.startswith('mean')][0]
-            mean = fit_result[mean_key]
-            median = fit_result[[k for k in fit_result if 'median' in k][0]]
-            mode = fit_result[[k for k in fit_result if 'mode' in k][0]]
-            var_key = [k for k in fit_result if k.startswith('variance')][0]
-            var = fit_result[var_key]
-            sample_var_key = [k for k in fit_result if k.startswith('sample_variance')][0]
-            sample_var = fit_result[sample_var_key]
-        
+        ax.axvline(mean, color=fitted_color, linestyle='--',
+                   label=f'Mean: {mean:.3f} ({np.exp(mean):.3f} {unit_label})\n95%CI: ({np.exp(ci["ci_mean_lower"]):.3f}, {np.exp(ci["ci_mean_upper"]):.3f})')
+        ax.axvline(median, color=fitted_color, linestyle=':',
+                   label=f'Median: {median:.3f} ({np.exp(median):.3f} {unit_label})\n95%CI: ({np.exp(ci["ci_median_lower"]):.3f}, {np.exp(ci["ci_median_upper"]):.3f})')
+        ax.axvline(mode, color=fitted_color, linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                   label=f'Mode: {mode:.3f} ({np.exp(mode):.3f} {unit_label})\n95%CI: ({np.exp(ci["ci_mode_lower"]):.3f}, {np.exp(ci["ci_mode_upper"]):.3f})')
+        ax.text(0.75, 0.35,
+                f"Best fit in AIC/BIC: {best_fit_name.capitalize()}\nVariance: {var:.4f}\n95%CI: ({ci['ci_variance_lower']:.4f}, {ci['ci_variance_upper']:.4f})\nSample variance: {sample_var:.4f}",
+                transform=ax.transAxes, ha='left', va='top', fontsize=8)
 
-            ax.axvline(mean, color='black', linestyle='--',
-                       label=f'Mean: {mean:.3f} ({np.exp(mean):.3f} USD/kg)\n95%CI: ({np.exp(ci_mean[0]):.3f}, {np.exp(ci_mean[1]):.3f})')
-            ax.axvline(median, color='black', linestyle=':', 
-                       label=f'Median: {median:.3f} ({np.exp(median):.3f} USD/kg)\n95%CI: ({np.exp(ci_median[0]):.3f}, {np.exp(ci_median[1]):.3f})')
-            ax.axvline(mode, color='black', linestyle=(0, (3, 1, 1, 1, 1, 1)),
-                   label=f'Mode (log): {mode:.3f} ({np.exp(mode):.3f} USD/kg)\n95%CI: ({np.exp(ci_mode[0]):.3f}, {np.exp(ci_mode[1]):.3f})')
-            ax.text(0.75, 0.35,
-                    f"Variance: {var:.4f}\n95%CI: ({ci_var[0]:.4f}, {ci_var[1]:.4f})\n"
-                    f"Sample variance: {sample_var:.4f}",
-                    transform=ax.transAxes,
-                    ha='left', va='top', fontsize=10 )
-
+    # === Axes and legend ===
+    if dist:
+        xlabel = f"ln(Unit Value) [{unit_label}] — {dist.capitalize()} distribution"
     else:
-        # Plot single fit distribution
-        if dist == 'normal' and fit_result:
-            y = norm.pdf(x, fit_result['mu_norm'], fit_result['sigma_norm'])
-        elif dist == 'skewnorm' and fit_result:
-            y = skewnorm.pdf(x, fit_result['a_skew'], fit_result['loc_skew'], fit_result['scale_skew'])
-        elif dist == 'studentt' and fit_result:
-            y = t.pdf(x, fit_result['df_t'], fit_result['loc_t'], fit_result['scale_t'])
-        elif dist == 'gennorm' and fit_result:
-            y = gennorm.pdf(x, fit_result['beta_gn'], fit_result['loc_gn'], fit_result['scale_gn'])
-        elif dist == 'johnsonsu' and fit_result:
-            y = johnsonsu.pdf(x, fit_result['a_jsu'], fit_result['b_jsu'], fit_result['loc_jsu'], fit_result['scale_jsu'])
-        elif dist == 'logistic' and fit_result:
-            y = logistic.pdf(x, fit_result['loc_log'], fit_result['scale_log'])
-        else:
-            raise ValueError("Unsupported distribution or missing fit_result.")
-
-        ax.plot(x, y, lw=2, label=f"{dist.capitalize()} fit")
-        ax.set_title(f"Unit values in a {dist.capitalize()} distribution for HS {code} {text_d} in {year}")
-
-        # Plot vertical lines if CI provided
-        if fit_result and ci_mean and ci_median and ci_mode and ci_var:
-            mean_key = [k for k in fit_result if k.startswith('loc') or k.startswith('mean')][0]
-            mean = fit_result[mean_key]
-            median = fit_result[[k for k in fit_result if 'median' in k][0]]
-            mode = fit_result[[k for k in fit_result if 'mode' in k][0]]
-            var_key = [k for k in fit_result if k.startswith('variance')][0]
-            var = fit_result[var_key]
-            sample_var_key = [k for k in fit_result if k.startswith('sample_variance')][0]
-            sample_var = fit_result[sample_var_key]
-
-            ax.axvline(mean, color='black', linestyle='--',
-                       label=f'Mean: {mean:.3f} ({np.exp(mean):.3f} USD/kg)\n95%CI: ({np.exp(ci_mean[0]):.3f}, {np.exp(ci_mean[1]):.3f})')
-            ax.axvline(median, color='black', linestyle=':', 
-                       label=f'Median: {median:.3f} ({np.exp(median):.3f} USD/kg)\n95%CI: ({np.exp(ci_median[0]):.3f}, {np.exp(ci_median[1]):.3f})')
-            ax.axvline(mode, color='black', linestyle=(0, (3, 1, 1, 1, 1, 1)),
-                   label=f'Mode (log): {mode:.3f} ({np.exp(mode):.3f} USD/kg)\n95%CI: ({np.exp(ci_mode[0]):.3f}, {np.exp(ci_mode[1]):.3f})')
-            ax.text(0.75, 0.35,
-                    f"Variance: {var:.4f}\n95%CI: ({ci_var[0]:.4f}, {ci_var[1]:.4f})\n"
-                    f"Sample variance: {sample_var:.4f}",
-                    transform=ax.transAxes,
-                    ha='left', va='top', fontsize=10 )
-
-    ax.set_xlabel("ln(Unit Price)")
+        xlabel = f"ln(Unit Value) [{unit_label}] — fitted distributions"
+    ax.set_xlabel(xlabel)
     ax.set_ylabel("Density")
-    ax.legend(loc='best')
+    ax.legend(loc='best', fontsize=8)
 
+    # === Save or show ===
     if save_path:
-        plt.savefig(save_path)
+        plt.tight_layout()
+        safe_unit_label = unit_label.replace("/", "_")
+        save_path = os.path.join(config["dirs"]["figures"], f"dist_{code}_{year}_{flow}_{safe_unit_label}.png")
+        plt.savefig(save_path, dpi=300)
+        if ax is None:
+            plt.close()
     else:
+        plt.tight_layout()
         plt.show()
         
 def plot_gdpcountry(df, code, year, flow, save_path=None, ax=None):

@@ -18,14 +18,7 @@ from uv_preparation import clean_trade, detect_outliers
 
 from uv_analysis import (
     fit_all_unimodal_models,
-    fit_all_unimodal_models2,
-    fit_logistic,
     modality_test,
-    fit_normal,
-    fit_skewnormal,
-    fit_studentt,
-    fit_gennorm,
-    fit_johnsonsu,
     bootstrap_parametric_ci,
     find_gmm_components,
     fit_gmm,
@@ -111,32 +104,34 @@ def cmltrade_uv(code, year, flow):
     
     # Step 5: Distribution fit
     if modality_decision == "unimodal":
-        logger.info("Unimodal distribution fitting for kg-based UV")
+        logger.info(f"Unimodal distribution fitting for kg-based UV ({year}, {flow.upper()})")
         start_time = time.time()
-
-        best_fit, fit_result, all_results = fit_all_unimodal_models2(df_filtered["ln_uv"], logger = logger)
-        logger.info(f"- {best_fit.capitalize()} distribution fits best based on AIC and BIC.")
+        best_fit_name, report_best_fit_uni, report_all_uni_fit, raw_params_dict = fit_all_unimodal_models(df_filtered["ln_uv"], logger = logger)
+        logger.info(f"- {best_fit_name.capitalize()} distribution fits best based on AIC and BIC.")
         logger_time("Unimodal fit (kg-based)", start_time, logger)
         
         start_time = time.time()
-        logger.info("Bootstrapping CI (kg-based)")
-        ci_mean, ci_median, ci_mode, ci_var = bootstrap_parametric_ci(df_filtered["ln_uv"], dist=best_fit, n_bootstraps=1000)
-        plot_dist(
-            data=df_filtered["ln_uv"],
-            code=code,
-            year=year,
-            flow=flow,
-            dist=None,
-            best_fit=best_fit,
-            fit_result=fit_result,
-            all_results=all_results,
-            ci_mean=ci_mean,
-            ci_median=ci_median,
-            ci_mode=ci_mode,
-            ci_var=ci_var,
-            save_path=f"{code}_{flow}_{year}_uvkg_distribution_fit.pdf"
-        )
+        logger.info(f"Bootstrapping CI (kg-based) ({year}, {flow.upper()})")
+        report_ci_uni = bootstrap_parametric_ci(df_filtered["ln_uv"], dist=best_fit_name, n_bootstraps=1000)
         logger_time("Bootstrapping CI (kg-based)", start_time, logger)
+        
+        logger.info(f"Unimodal distribution fit plot for kg-based UV ({year}, {flow.upper()})")
+        start_time = time.time()
+        plot_dist(
+            df_filtered["ln_uv"], 
+            code, 
+            year, 
+            flow, 
+            unit_label="USD/kg",
+            dist=None, 
+            best_fit_name=best_fit_name, 
+            report_best_fit_uni=report_best_fit_uni, 
+            report_all_uni_fit=report_all_uni_fit, 
+            raw_params_dict=raw_params_dict,
+            ci=report_ci_uni,
+            save_path=True, 
+            ax=None)
+        logger_time("Unimodal distribution fit plot for kg-based UV", start_time, logger)
     else:
         logger.info("Fitting GMM on kg-based UV (multimodal)")
         start_time = time.time()
@@ -159,7 +154,8 @@ def cmltrade_uv(code, year, flow):
         if modality_q_decision == "unimodal":
             logger.info("Unimodal distribution fitting for non-kg UV")
             start_time = time.time()
-            best_fit_q, fit_result_q, all_results_q = fit_all_unimodal_models(df_q_filtered["ln_uv_q"], pt=True)
+            best_fit_q, fit_result_q, all_results_q = fit_all_unimodal_models(
+                                           df_q_filtered["ln_uv_q"], pt=True)
             logger.info(f"- {best_fit_q.capitalize()} distribution fits best (non-kg).")
             logger_time("Unimodal distribution fitting for non-kg UV", start_time, logger)
             

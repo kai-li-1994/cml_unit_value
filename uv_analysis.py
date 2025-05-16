@@ -186,7 +186,7 @@ def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", m
         return report_modality, "error"
     
 
-def estimate_mode(dist, args, data):
+def _estimate_mode(dist, args, data):
     """Estimate mode as the peak of the PDF over the data range."""
     result = minimize_scalar(
         lambda x: -dist.pdf(x, *args),
@@ -195,269 +195,103 @@ def estimate_mode(dist, args, data):
     )
     return result.x
 
+def _fit_distribution(dist_obj, data, logger=None):
+    """
+    Fit a given scipy.stats distribution object to the data and return a dictionary
+    of results with semantically named keys, plus the original params tuple.
 
-def fit_normal(data, logger=None):
-    mu, sigma = norm.fit(data)
-    loglik = np.sum(norm.logpdf(data, mu, sigma))
-    mean, var, skew, kurt = norm.stats(mu, sigma, moments="mvsk")
+    Args:
+        dist_obj: A scipy.stats distribution object (e.g., scipy.stats.norm).
+        data: 1D array-like of data points to fit.
+        logger: Optional logger for info output.
+
+    Returns:
+        dist_name (str), result (dict), params (tuple): Name, result dict, and raw parameter tuple.
+    """
+    dist_name = dist_obj.name
+    params = dist_obj.fit(data)
+    loglik = np.sum(dist_obj.logpdf(data, *params))
+    mean, var, skew, kurt = dist_obj.stats(*params, moments="mvsk")
     sample_var = np.var(data, ddof=1)
-    median = mu
-    mode = mu
+    median = dist_obj.median(*params)
+    mode = _estimate_mode(dist_obj, params, data)
     n = len(data)
-    aic = 2 * 2 - 2 * loglik
-    bic = 2 * np.log(n) - 2 * loglik
 
-    results = {
-        "norm_mu": mu,
-        "norm_sigma": sigma,
-        "norm_log_likelihood": loglik,
-        "norm_mean": mean,
-        "norm_median": median,
-        "norm_mode": mode,
-        "norm_variance": var,
-        "norm_sample_variance": sample_var,
-        "norm_skew": skew,
-        "norm_kurtosis": kurt,
-        "norm_aic": aic,
-        "norm_bic": bic,
+    aic = 2 * len(params) - 2 * loglik
+    bic = len(params) * np.log(n) - 2 * loglik
+
+    # Semantic parameter naming for reporting
+    param_name_map = {
+        "norm":      ["loc", "scale"],
+        "skewnorm":  ["a", "loc", "scale"],
+        "t":         ["df", "loc", "scale"],
+        "gennorm":   ["beta", "loc", "scale"],
+        "johnsonsu": ["a", "b", "loc", "scale"],
+        "logistic":  ["loc", "scale"]
+    }
+
+    param_names = param_name_map.get(dist_name, [f"param{i+1}" for i in range(len(params))])
+    param_dict = {f"{dist_name}_{name}": val for name, val in zip(param_names, params)}
+
+    result = {
+        **param_dict,
+        f"{dist_name}_loglik": loglik,
+        f"{dist_name}_mean": mean,
+        f"{dist_name}_median": median,
+        f"{dist_name}_mode": mode,
+        f"{dist_name}_variance": var,
+        f"{dist_name}_sample_variance": sample_var,
+        f"{dist_name}_skew": skew,
+        f"{dist_name}_kurtosis": kurt,
+        f"{dist_name}_aic": aic,
+        f"{dist_name}_bic": bic,
     }
 
     if logger:
-        logger.info("Fitted Normal Distribution:")
-        for k, v in results.items():
-            logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
-                        else f"  {k}: {v}")
+        logger.info(f"Fitted {dist_name.capitalize()} Distribution")
+        for k, v in result.items():
+            logger.info(f"{k}: {v:.4f}" if isinstance(v, (float, int)) else f"{k}: {v}")
 
-    return results
+    return dist_name, result, params  # Note: returning raw params separately
 
-
-def fit_skewnormal(data, logger=None):
+def fit_all_unimodal_models(data, logger=None):
     """
-    Fit a skew-normal distribution to the data and return the parameters.
+    Fit all candidate unimodal distributions and select the best one based on AIC and BIC.
+
     Args:
         data (array-like): Input data to fit.
-        pt (bool): If True, prints the results.
-    Returns:
-        dict: A dictionary containing the fitted parameters, statistics,
-        and log-likelihood.
-    """
-    a, loc, scale = skewnorm.fit(data)
-    loglik = np.sum(skewnorm.logpdf(data, a, loc, scale))
-    mean, var, skew, kurt = skewnorm.stats(a, loc=loc, scale=scale, moments="mvsk")
-    sample_var = np.var(data, ddof=1)
-    median = skewnorm.median(a, loc=loc, scale=scale)
-    mode = estimate_mode(skewnorm, (a, loc, scale), data)
-    n = len(data)
-    aic = 2 * 3 - 2 * loglik
-    bic = 3 * np.log(n) - 2 * loglik
+        logger (logging.Logger, optional): Logger for info output.
 
-    results = {
-        "skew_a": a,
-        "skew_loc": loc,
-        "skew_scale": scale,
-        "skew_log_likelihood": loglik,
-        "skew_mean": mean,
-        "skew_median": median,
-        "skew_mode": mode,
-        "skew_variance": var,
-        "skew_sample_variance": sample_var,
-        "skew_skew": skew,
-        "skew_kurtosis": kurt,
-        "skew_aic": aic,
-        "skew_bic": bic,
+    Returns:
+        tuple: (best_fit_name, report_best_fit_uni, report_all_uni_fit, raw_params_dict)
+    """
+    from scipy.stats import norm, skewnorm, t, gennorm, johnsonsu, logistic
+    model_objs = [norm, skewnorm, t, gennorm, johnsonsu, logistic]
+
+    report_all_uni_fit = {}
+    raw_params_dict = {}
+    scores = {}
+
+    for dist_obj in model_objs:
+        dist_name, result, params = _fit_distribution(dist_obj, data, logger=logger)
+        report_all_uni_fit.update(result)
+        raw_params_dict[f"{dist_name}_params"] = params
+        scores[dist_name] = (result[f"{dist_name}_aic"], result[f"{dist_name}_bic"])
+
+    best_fit_name = min(scores.items(), key=lambda x: (x[1][0], x[1][1]))[0]
+    report_best_fit_uni = {
+        k: v for k, v in report_all_uni_fit.items() if k.startswith(best_fit_name)
     }
 
-    if logger:
-        logger.info("Fitted Skew-Normal Distribution:")
-        for k, v in results.items():
-            logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
-                        else f"  {k}: {v}")
-
-    return results
-
-
-def fit_studentt(data, logger=None):
-    """
-    Fit a Student's t-distribution to the data and return the parameters.
-    Args:
-        data (array-like): Input data to fit.
-        pt (bool): If True, prints the results.
-    Returns:
-        dict: A dictionary containing the fitted parameters, statistics, 
-              and log-likelihood.
-    """
-    df, loc, scale = t.fit(data)
-    loglik = np.sum(t.logpdf(data, df, loc, scale))
-    mean, var, skew, kurt = t.stats(df, loc, scale, moments="mvsk")
-    sample_var = np.var(data, ddof=1)
-    median = t.median(df, loc, scale)
-    mode = estimate_mode(t, (df, loc, scale), data)
-    n = len(data)
-    aic = 2 * 3 - 2 * loglik
-    bic = 3 * np.log(n) - 2 * loglik
-
-    results = {
-        "t_df": df,
-        "t_loc": loc,
-        "t_scale": scale,
-        "t_log_likelihood": loglik,
-        "t_mean": mean,
-        "t_median": median,
-        "t_mode": mode,
-        "t_variance": var,
-        "t_sample_variance": sample_var,
-        "t_skew": skew,
-        "t_kurtosis": kurt,
-        "t_aic": aic,
-        "t_bic": bic,
-    }
+    report_all_uni_fit["best_fit_name"] = best_fit_name
 
     if logger:
-        logger.info("Fitted Student-t Distribution:")
-        for k, v in results.items():
-            logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
-                        else f"  {k}: {v}")
+        logger.info(f"Best fit based on AIC/BIC: {best_fit_name.capitalize()}")
 
-    return results
-
-
-def fit_gennorm(data, logger=None):
-    """
-    Fit a generalized normal (exponential power) distribution to the data and 
-    return the parameters.
-    Args:
-        data (array-like): Input data to fit.
-        pt (bool): If True, prints the results.
-    Returns:
-        dict: A dictionary containing the fitted parameters, statistics, 
-             and log-likelihood.
-    """
-    beta, loc, scale = gennorm.fit(data)
-    loglik = np.sum(gennorm.logpdf(data, beta, loc, scale))
-    mean, var, skew, kurt = gennorm.stats(beta, loc, scale, moments="mvsk")
-    sample_var = np.var(data, ddof=1)
-    median = gennorm.median(beta, loc, scale)
-    mode = estimate_mode(gennorm, (beta, loc, scale), data)
-    n = len(data)
-    aic = 2 * 3 - 2 * loglik
-    bic = 3 * np.log(n) - 2 * loglik
-
-    results = {
-        "gn_beta": beta,
-        "gn_loc": loc,
-        "gn_scale": scale,
-        "gn_log_likelihood": loglik,
-        "gn_mean": mean,
-        "gn_median": median,
-        "gn_mode": mode,
-        "gn_variance": var,
-        "gn_sample_variance": sample_var,
-        "gn_skew": skew,
-        "gn_kurtosis": kurt,
-        "gn_aic": aic,
-        "gn_bic": bic,
-    }
-
-    if logger:
-        logger.info("Fitted Generalized Normal Distribution:")
-        for k, v in results.items():
-            logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
-                        else f"  {k}: {v}")
-
-    return results
-
-
-def fit_johnsonsu(data, logger=None):
-    """
-    Fit a Johnson SU distribution to the data and return the parameters.
-    Args:
-        data (array-like): Input data to fit.
-        pt (bool): If True, prints the results.
-    Returns:
-        dict: A dictionary containing the fitted parameters, statistics, and 
-              log-likelihood.
-    """
-    a, b, loc, scale = johnsonsu.fit(data)
-    loglik = np.sum(johnsonsu.logpdf(data, a, b, loc, scale))
-    mean, var, skew, kurt = johnsonsu.stats(a, b, loc, scale, moments="mvsk")
-    sample_var = np.var(data, ddof=1)
-    median = johnsonsu.median(a, b, loc, scale)
-    mode = estimate_mode(johnsonsu, (a, b, loc, scale), data)
-    n = len(data)
-    aic = 2 * 4 - 2 * loglik
-    bic = 4 * np.log(n) - 2 * loglik
-
-    results = {
-        "jsu_a": a,
-        "jsu_b": b,
-        "jsu_loc": loc,
-        "jsu_scale": scale,
-        "jsu_log_likelihood": loglik,
-        "jsu_mean": mean,
-        "jsu_median": median,
-        "jsu_mode": mode,
-        "jsu_variance": var,
-        "jsu_sample_variance": sample_var,
-        "jsu_skew": skew,
-        "jsu_kurtosis": kurt,
-        "jsu_aic": aic,
-        "jsu_bic": bic,
-    }
-    
-    if logger:
-         logger.info("Fitted Johnson SU Distribution:")
-         for k, v in results.items():
-             logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
-                         else f"  {k}: {v}")
-             
-    return results
-
-def fit_logistic(data, logger=None):
-    """
-    Fit a logistic distribution to the data and return the parameters.
-    Args:
-        data (array-like): Input data to fit.
-        pt (bool): If True, prints the results.
-    Returns:
-        dict: A dictionary containing the fitted parameters, statistics, 
-              and log-likelihood.
-    """
-    loc, scale = logistic.fit(data)
-    loglik = np.sum(logistic.logpdf(data, loc, scale))
-    mean, var, skew, kurt = logistic.stats(loc, scale, moments="mvsk")
-    sample_var = np.var(data, ddof=1)
-    median = logistic.median(loc, scale)
-    mode = estimate_mode(logistic, (loc, scale), data)
-    n = len(data)
-    aic = 2 * 2 - 2 * loglik
-    bic = 2 * np.log(n) - 2 * loglik
-
-    results = {
-        "log_loc": loc,
-        "log_scale": scale,
-        "log_log_likelihood": loglik,
-        "log_mean": mean,
-        "log_median": median,
-        "log_mode": mode,
-        "log_variance": var,
-        "log_sample_variance": sample_var,
-        "log_skew": skew,
-        "log_kurtosis": kurt,
-        "log_aic": aic,
-        "log_bic": bic,
-    }
-
-    if logger:
-        logger.info("Fitted Logistic Distribution:")
-        for k, v in results.items():
-            logger.info(f"  {k}: {v:.3f}" if isinstance(v, (float, int)) 
-                        else f"  {k}: {v}")
-
-    return results
-
+    return best_fit_name, report_best_fit_uni, report_all_uni_fit, raw_params_dict
 
 def bootstrap_parametric_ci(
-    data, dist="skewnorm", n_bootstraps=1000, confidence=0.95
+    data, dist="skewnorm", n_bootstraps=1000, confidence=0.95, logger=None
 ):
     """
     Bootstrap confidence intervals for mean, median, mode, and variance
@@ -490,31 +324,31 @@ def bootstrap_parametric_ci(
             a, loc, scale = skewnorm.fit(sample)
             mean, var = skewnorm.stats(a, loc=loc, scale=scale, moments="mv")
             median = skewnorm.median(a, loc=loc, scale=scale)
-            mode = estimate_mode(skewnorm, (a, loc, scale), sample)
+            mode = _estimate_mode(skewnorm, (a, loc, scale), sample)
 
         elif dist == "studentt":
             df_, loc_, scale_ = t.fit(sample)
             mean, var = t.stats(df_, loc_, scale_, moments="mv")
             median = t.median(df_, loc_, scale_)
-            mode = estimate_mode(t, (df_, loc_, scale_), sample)
+            mode = _estimate_mode(t, (df_, loc_, scale_), sample)
 
         elif dist == "gennorm":
             beta_, loc_, scale_ = gennorm.fit(sample)
             mean, var = gennorm.stats(beta_, loc_, scale_, moments="mv")
             median = gennorm.median(beta_, loc_, scale_)
-            mode = estimate_mode(gennorm, (beta_, loc_, scale_), sample)
+            mode = _estimate_mode(gennorm, (beta_, loc_, scale_), sample)
 
         elif dist == "johnsonsu":
             a_, b_, loc_, scale_ = johnsonsu.fit(sample)
             mean, var = johnsonsu.stats(a_, b_, loc_, scale_, moments="mv")
             median = johnsonsu.median(a_, b_, loc_, scale_)
-            mode = estimate_mode(johnsonsu, (a_, b_, loc_, scale_), sample)
+            mode = _estimate_mode(johnsonsu, (a_, b_, loc_, scale_), sample)
 
         elif dist == "logistic":
             loc_, scale_ = logistic.fit(sample)
             mean, var = logistic.stats(loc_, scale_, moments="mv")
             median = logistic.median(loc_, scale_)
-            mode = estimate_mode(logistic, (loc_, scale_), sample)
+            mode = _estimate_mode(logistic, (loc_, scale_), sample)
 
         else:
             raise ValueError(f"Unsupported distribution: {dist}")
@@ -524,164 +358,34 @@ def bootstrap_parametric_ci(
         boot_modes.append(mode)
         boot_vars.append(var)
 
-    # Compute confidence intervals after bootstrapping
-    ci_mean = (
-        np.percentile(boot_means, 100 * alpha / 2),
-        np.percentile(boot_means, 100 * (1 - alpha / 2)),
-    )
-    ci_median = (
-        np.percentile(boot_medians, 100 * alpha / 2),
-        np.percentile(boot_medians, 100 * (1 - alpha / 2)),
-    )
-    ci_mode = (
-        np.percentile(boot_modes, 100 * alpha / 2),
-        np.percentile(boot_modes, 100 * (1 - alpha / 2)),
-    )
-    ci_var = (
-        np.percentile(boot_vars, 100 * alpha / 2),
-        np.percentile(boot_vars, 100 * (1 - alpha / 2)),
-    )
+    # === CI Computation ===
+    def _ci_bounds(arr):
+        return (
+            np.percentile(arr, 100 * alpha / 2),
+            np.percentile(arr, 100 * (1 - alpha / 2))
+        )
 
-    print(
-        f"{confidence*100:.0f}% CI for Mean:\n{ci_mean[0]:.3f} – {ci_mean[1]:.3f} (log), "
-        f"{np.exp(ci_mean[0]):.3f} – {np.exp(ci_mean[1]):.3f} USD/kg"
-    )
-    print(
-        f"{confidence*100:.0f}% CI for Median:\n{ci_median[0]:.3f} – {ci_median[1]:.3f} (log), "
-        f"{np.exp(ci_median[0]):.3f} – {np.exp(ci_median[1]):.3f} USD/kg"
-    )
-    print(
-        f"{confidence*100:.0f}% CI for Mode:\n{ci_mode[0]:.3f} – {ci_mode[1]:.3f} (log), "
-        f"{np.exp(ci_mode[0]):.3f} – {np.exp(ci_mode[1]):.3f} USD/kg"
-    )
-    print(
-        f"{confidence*100:.0f}% CI for Variance:\n{ci_var[0]:.3f} – {ci_var[1]:.3f}"
-    )
-
-    return ci_mean, ci_median, ci_mode, ci_var
-
-
-def fit_all_unimodal_models(data, logger=None):
-    """
-    Fit all candidate unimodal distributions and select the best one based 
-    on AIC and BIC.
-
-    Args:
-        data (array-like): Input data to fit.
-        pt (bool): If True, prints the results for each fitted distribution.
-
-    Returns:
-        tuple: (best_fit_name, best_fit_result_dict, all_results_dict)
-    """
-    model_funcs = {
-        "normal": fit_normal,
-        "skewnorm": fit_skewnormal,
-        "studentt": fit_studentt,
-        "gennorm": fit_gennorm,
-        "johnsonsu": fit_johnsonsu,
-        "logistic": fit_logistic,
-    }
-
-    results = {}
-    scores = {}
-
-    for name, func in model_funcs.items():
-        if logger:
-            logger.info(f"Fitting {name.capitalize()} Distribution")
-        result = func(data, logger=logger)
-        results[name] = result
-
-        # Find keys for AIC and BIC
-        aic_key = [k for k in result if k.endswith("_aic")][0]
-        bic_key = [k for k in result if k.endswith("_bic")][0]
-        scores[name] = (result[aic_key], result[bic_key])
-
-    # Select best fit by AIC, then BIC if tie
-    best_fit_name = min(scores.items(), key=lambda x: (x[1][0], x[1][1]))[0]
-    best_result = results[best_fit_name]
+    ci_mean = _ci_bounds(boot_means)
+    ci_median = _ci_bounds(boot_medians)
+    ci_mode = _ci_bounds(boot_modes)
+    ci_var = _ci_bounds(boot_vars)
 
     if logger:
-        logger.info(f"Best fit based on AIC/BIC: {best_fit_name.capitalize()}")
+        logger.info(f"{confidence:.0%} CI for Mean: {ci_mean[0]:.3f} – {ci_mean[1]:.3f} (log), {np.exp(ci_mean[0]):.3f} – {np.exp(ci_mean[1]):.3f} USD/kg")
+        logger.info(f"{confidence:.0%} CI for Median: {ci_median[0]:.3f} – {ci_median[1]:.3f} (log), {np.exp(ci_median[0]):.3f} – {np.exp(ci_median[1]):.3f} USD/kg")
+        logger.info(f"{confidence:.0%} CI for Mode: {ci_mode[0]:.3f} – {ci_mode[1]:.3f} (log), {np.exp(ci_mode[0]):.3f} – {np.exp(ci_mode[1]):.3f} USD/kg")
+        logger.info(f"{confidence:.0%} CI for Variance: {ci_var[0]:.3f} – {ci_var[1]:.3f}")
 
-    return best_fit_name, best_result, results
-
-def _fit_distribution(dist_name, dist_obj, param_count, data, logger=None):
-    params = dist_obj.fit(data)
-    loglik = np.sum(dist_obj.logpdf(data, *params))
-    mean, var, skew, kurt = dist_obj.stats(*params, moments="mvsk")
-    sample_var = np.var(data, ddof=1)
-    median = dist_obj.median(*params)
-    mode = estimate_mode(dist_obj, params, data)
-
-    n = len(data)
-    aic = 2 * param_count - 2 * loglik
-    bic = param_count * np.log(n) - 2 * loglik
-
-    result = {
-        f"{dist_name}_params": params,
-        f"{dist_name}_loglik": loglik,
-        f"{dist_name}_mean": mean,
-        f"{dist_name}_median": median,
-        f"{dist_name}_mode": mode,
-        f"{dist_name}_variance": var,
-        f"{dist_name}_sample_variance": sample_var,
-        f"{dist_name}_skew": skew,
-        f"{dist_name}_kurtosis": kurt,
-        f"{dist_name}_aic": aic,
-        f"{dist_name}_bic": bic,
-    }
-
-    if logger:
-        logger.info(f"Fitted {dist_name.capitalize()} Distribution")
-        for k, v in result.items():
-            logger.info(f"{k}: {v:.3f}" if isinstance(v, (float, int)) else f"{k}: {v}")
-
-    return result
-
-
-def fit_all_unimodal_models2(data, logger=None):
-    """
-    Fit all candidate unimodal distributions and select the best one based 
-    on AIC and BIC.
-
-    Args:
-        data (array-like): Input data to fit.
-        logger (logging.Logger, optional): Logger for info output.
-
-    Returns:
-        tuple: (best_fit_name, best_fit_result_dict, all_results_dict)
-    """
-    from scipy.stats import norm, skewnorm, t, gennorm, johnsonsu, logistic
-
-    model_defs = {
-        "normal":     (norm,      2),
-        "skewnorm":   (skewnorm,  3),
-        "studentt":   (t,         3),
-        "gennorm":    (gennorm,   3),
-        "johnsonsu":  (johnsonsu, 4),
-        "logistic":   (logistic,  2),
-    }
-
-    all_results = {}
-    scores = {}
-
-    for name, (dist_obj, n_params) in model_defs.items():
-        if logger:
-            logger.info("=" * 50)
-            logger.info(f"Fitting {name.capitalize()} Distribution")
-        result = _fit_distribution(name, dist_obj, n_params, data, logger=logger)
-        all_results.update(result)
-        scores[name] = (result[f"{name}_aic"], result[f"{name}_bic"])  # Use explicit keys
-
-    # Select best fit by AIC, then BIC if tie
-    best_fit_name = min(scores.items(), key=lambda x: (x[1][0], x[1][1]))[0]
-    best_result = {k: v for k, v in all_results.items() if k.startswith(best_fit_name)}
-
-    if logger:
-        logger.info("=" * 50)
-        logger.info(f"Best fit based on AIC/BIC: {best_fit_name.capitalize()}")
-
-    return best_fit_name, best_result, all_results
+    return {
+    "ci_mean_lower": ci_mean[0],
+    "ci_mean_upper": ci_mean[1],
+    "ci_median_lower": ci_median[0],
+    "ci_median_upper": ci_median[1],
+    "ci_mode_lower": ci_mode[0],
+    "ci_mode_upper": ci_mode[1],
+    "ci_variance_lower": ci_var[0],
+    "ci_variance_upper": ci_var[1]
+}
 
 
 def find_gmm_components(

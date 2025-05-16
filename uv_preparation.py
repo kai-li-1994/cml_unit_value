@@ -1,76 +1,19 @@
 import pandas as pd
 import numpy as np
 import glob
-from uv_logger_setup import logger_setup
 import os
 
-logger = logger_setup("trade_logger")
 
-def load_config(
-    country_file="./pkl/uv_mapping_country.pkl",
-    unit_file="./pkl/uv_mapping_unit.pkl",
-    unit_abbr_file="./pkl/uv_mapping_unitAbbr.pkl",
-    input_dir=None,
-    base_dir="."
-    ):
-    """Load ISO mappings, group list, quantity unit mappings, and thresholds from pickle files."""
-    import pandas as pd
-    import pickle
-
-    # === ISO country mapping ===
-    df_cmap = pd.read_pickle(country_file)
-    iso_map = df_cmap.set_index("Code")["IsoAlpha3"].str.strip().to_dict()
-
-    # === Group codes to filter out ===
-    lst_gp = [
-        "_AC", "ATA", "_X", "X1", "R91", "A49", "E29", "R20", "X2", "A79",
-        "NTZ", "A59", "F49", "O19", "F19", "E19", "ZA1", "XX", "F97", "W00",
-        "R4", "EUR"
-    ]
-
-    # === Quantity unit mappings ===
-    with open(unit_file, "rb") as f:
-        unit_map = pickle.load(f)
-
-    with open(unit_abbr_file, "rb") as f:
-        unit_abbr_map = pickle.load(f)
+def clean_trade(code, year, flow, config, logger):
     
-    # === Define directory structure ===
-    figures_dir = os.path.join(base_dir, "figures")
-    logs_dir = os.path.join(base_dir, "logs")
-    results_dir = os.path.join(base_dir, "results")
-    reports_dir = os.path.join(base_dir, "reports")
-    input_data_dir = input_dir if input_dir else os.path.join(base_dir, "input")  # 👈 fallback default
-    
-
-    # === Define essential columns for early-stage processing ===
-    cols_to_keep_early = [
-        "period", "reporterCode", "flowCategory", "partnerCode",
-        "cmdCode", "qtyUnitCode", "qty", "netWgt", "cifValue", "fobValue"
-    ]
-
-    # === Define thresholds ===
-    q_share_threshold = 0.10  # 10% for non-kg units
-    min_records_q = 100       # 100 records for non-kg
-    min_records_uv = 100      # 100 records for kg-based unit value
-
-    return {
-        "iso_map": iso_map,
-        "lst_gp": lst_gp,
-        "unit_map": unit_map,
-        "unit_abbr_map": unit_abbr_map,
-        "cols_to_keep_early": cols_to_keep_early,
-        "q_share_threshold": q_share_threshold,
-        "min_records_q": min_records_q,
-        "min_records_uv": min_records_uv
-    }
-
-def clean_trade(path, code, year,flow,config):
 
     # === Locate file ===
-    matches = glob.glob(f"{path}/*{code}*.csv")
+    year_folder = f"split_by_hs_{year}_numpy"
+    input_subdir = os.path.join(config["dirs"]["input"], year_folder)
+    matches = glob.glob(os.path.join(input_subdir, f"*{code}*.csv"))
+
     if not matches:
-        logger.error(f"No matching file found for code {code} in path {path}")
+        logger.error(f"No matching file found for code {code} in path {input_subdir}")
         raise FileNotFoundError
     logger.info(f"📄 Found file: {matches[0]}")
     df = pd.read_csv(matches[0])
@@ -125,7 +68,7 @@ def clean_trade(path, code, year,flow,config):
 
     df_uv["ln_uv"] = np.log(df_uv["uv"])
     df_uv["ln_netWgt"] = np.log(df_uv["netWgt"])
-    df_uv.drop(columns=["cifValue", "fobValue", "qty", "ln_qty"], errors="ignore", inplace=True)
+    df_uv.drop(columns=["qty", "ln_qty"], errors="ignore", inplace=True)
 
     # === Subset: non-kg-based UV ===
     df_q_valid = df[df["qty"].fillna(0) > 0].copy()
@@ -174,8 +117,7 @@ def clean_trade(path, code, year,flow,config):
             df_q["ln_uv_q"] = np.log(df_q["uv_q"])
             df_q["ln_qty"] = np.log(df_q["qty"])
             df_q.drop(columns=[
-                "netWgt", "uv", "ln_uv", "ln_netWgt", "cifValue", "fobValue"
-            ], errors="ignore", inplace=True)
+                "netWgt", "uv", "ln_uv", "ln_netWgt" ], errors="ignore", inplace=True)
 
             fail_reason_non_kg_uv = None
             logger.info("✅ Non-kg UV subset created.")
@@ -201,15 +143,15 @@ def clean_trade(path, code, year,flow,config):
         "year": year,
         "flow": flow,
         "uv_type": "USD/kg",
-        "step_1_name": "data_cleaning",
-        "step_1_initial_rows": p1,
-        "step_1_valid_country_filter": p2,
-        "step_1_valid_trade_value_filter": p4
+        "step_1_name": "Clean_trade_data",
+        "c_initial_rows": p1,
+        "c_valid_country_rows": p2,
+        "c_valid_value_rows": p4
     }
     report_kg = {
     **report_base,
-    "step_1_valid_net_weight_filter": p5,
-    "step_1_fail_reason_non_kg_uv": fail_reason_non_kg_uv
+    "c_valid_weight_rows": p5,
+    "c_fail_reason_non_kg_uv": fail_reason_non_kg_uv
 }
 
     lst_report_cleaning.append(report_kg)
@@ -218,15 +160,15 @@ def clean_trade(path, code, year,flow,config):
         lst_report_cleaning.append({
             **report_base,
             "uv_type": f"USD/{unit_abbr}",
-            "step_1_non_kg_top_unit": non_kg_top_unit,
-            "step_1_non_kg_top_unit_share": non_kg_top_unit_share,
-            "step_1_valid_non_kg_filter": p6,
-            "step_1_fail_reason_non_kg_uv": fail_reason_non_kg_uv
+            "c_non_kg_top_unit": non_kg_top_unit,
+            "c_non_kg_top_unit_share": non_kg_top_unit_share,
+            "c_valid_non_kg_top_unit_rows": p6,
+            "c_fail_reason_non_kg_uv": fail_reason_non_kg_uv
         })
     return df_uv, df_q, lst_report_cleaning, f"USD/{unit_abbr}"
     
 
-def detect_outliers(df, value_column, label="Data"):
+def detect_outliers(df, value_column,  code, year, flow, logger,label="Data"):
     """
     Detect outliers in a DataFrame using the modified Z-score method.
 
@@ -249,10 +191,11 @@ def detect_outliers(df, value_column, label="Data"):
     if mad == 0:
         logger.warning(f"⚠️ Outlier Detection: MAD=0 for {value_column} — skipping detection.")
         return df.copy().reset_index(drop=True), df.iloc[0:0].copy(), {
-            "step_2_initial_rows": len(df),
-            "step_2_outliers_removed": 0,
-            "step_2_outlier_rate": 0.0,
-            "step_2_rows_after_outliers": len(df)
+            "step_2_name": "detect_outliers",
+            "d_initial_rows": len(df),
+            "d_outliers_removed": 0,
+            "d_outlier_rate": 0.0,
+            "d_rows_after_outliers": len(df)
         }
     
     modified_z_scores = 0.6745 * (raw_data - median) / mad
@@ -269,10 +212,11 @@ def detect_outliers(df, value_column, label="Data"):
     
     # === Prepare outlier report
     report_outlier = {
-        "step_2_initial_rows": len(df),
-        "step_2_outliers_removed": len(df_outliers),
-        "step_2_outlier_rate": dp_rate,
-        "step_2_rows_after_outliers": len(df_filtered)
+        "step_2_name": "detect_outliers",
+        "d_initial_rows": len(df),
+        "d_outliers_removed": len(df_outliers),
+        "d_outlier_rate": dp_rate,
+        "d_rows_after_outliers": len(df_filtered)
     }
 
     return df_filtered, df_outliers, report_outlier

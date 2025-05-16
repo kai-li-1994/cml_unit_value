@@ -176,3 +176,180 @@
 [2025-05-15 17:05:47] INFO     Best fit based on AIC/BIC: Gennorm
 [2025-05-15 17:05:47] INFO     - Gennorm distribution fits best based on AIC and BIC.
 [2025-05-15 17:05:47] INFO     ✅ Unimodal fit (kg-based) completed in 3.19 seconds.
+[2025-05-15 22:54:59] INFO     ==================================================
+[2025-05-15 22:54:59] INFO     Fitting Normal Distribution
+[2025-05-15 22:54:59] INFO     Fitted Normal Distribution
+[2025-05-15 22:54:59] INFO     normal_params: (3.9562362689549526, 1.6723795573644589)
+[2025-05-15 22:54:59] INFO     normal_loglik: -78916.520
+[2025-05-15 22:54:59] INFO     normal_mean: 3.956
+[2025-05-15 22:54:59] INFO     normal_median: 3.956
+[2025-05-15 22:54:59] INFO     normal_mode: 3.956
+[2025-05-15 22:54:59] INFO     normal_variance: 2.797
+[2025-05-15 22:54:59] INFO     normal_sample_variance: 2.797
+[2025-05-15 22:54:59] INFO     normal_skew: 0.000
+[2025-05-15 22:54:59] INFO     normal_kurtosis: 0.000
+[2025-05-15 22:54:59] INFO     normal_aic: 157837.040
+[2025-05-15 22:54:59] INFO     normal_bic: 157854.274
+[2025-05-15 22:54:59] INFO     ==================================================
+[2025-05-15 22:54:59] INFO     Fitting Skewnorm Distribution
+[2025-05-15 22:54:59] INFO     Fitted Skewnorm Distribution
+[2025-05-15 22:54:59] INFO     skewnorm_params: (0.698049461295431, 3.0978326209156144, 1.8798137068631435)
+[2025-05-15 22:54:59] INFO     skewnorm_loglik: -78904.958
+[2025-05-15 22:54:59] INFO     skewnorm_mean: 3.956
+[2025-05-15 22:54:59] INFO     skewnorm_median: 3.940
+[2025-05-15 22:54:59] INFO     skewnorm_mode: 3.907
+[2025-05-15 22:54:59] INFO     skewnorm_variance: 2.797
+[2025-05-15 22:54:59] INFO     skewnorm_sample_variance: 2.797
+[2025-05-15 22:54:59] INFO     skewnorm_skew: 0.058
+[2025-05-15 22:54:59] INFO     skewnorm_kurtosis: 0.020
+[2025-05-15 22:54:59] INFO     skewnorm_aic: 157815.916
+[2025-05-15 22:54:59] INFO     skewnorm_bic: 157841.767
+[2025-05-15 22:54:59] INFO     ==================================================
+[2025-05-15 22:54:59] INFO     Fitting Studentt Distribution
+[2025-05-15 22:55:01] INFO     Fitted Studentt Distribution
+[2025-05-15 22:55:01] INFO     studentt_params: (25.945668410304073, 3.953603632748342, 1.6071836170481242)
+[2025-05-15 22:55:01] INFO     studentt_loglik: -78881.396
+[2025-05-15 22:55:01] INFO     studentt_mean: 3.954
+[2025-05-15 22:55:01] INFO     studentt_median: 3.954
+[2025-05-15 22:55:01] INFO     studentt_mode: 3.954
+[2025-05-15 22:55:01] INFO     studentt_variance: 2.799
+[2025-05-15 22:55:01] INFO     studentt_sample_variance: 2.797
+[2025-05-15 22:55:01] INFO     studentt_skew: 0.000
+[2025-05-15 22:55:01] INFO     studentt_kurtosis: 0.273
+[2025-05-15 22:55:01] INFO     studentt_aic: 157768.792
+[2025-05-15 22:55:01] INFO     studentt_bic: 157794.643
+[2025-05-15 22:55:01] INFO     ==================================================
+[2025-05-15 22:55:01] INFO     Fitting Gennorm Distribution
+[2025-05-15 22:55:01] INFO     Fitted Gennorm Distribution
+[2025-05-15 22:55:01] INFO     gennorm_params: (1.7362477127710436, 3.9545621552954735, 2.1758755251044737)
+[2025-05-15 22:55:01] INFO     gennorm_loglik: -78833.844
+[2025-05-15 22:55:01] INFO     gennorm_mean: 3.955
+[2025-05-15 22:55:01] INFO     gennorm_median: 3.955
+[2025-05-15 22:55:01] INFO     gennorm_mode: 3.955
+[2025-05-15 22:55:01] INFO     gennorm_variance: 2.798
+[2025-05-15 22:55:01] INFO     gennorm_sample_variance: 2.797
+[2025-05-15 22:55:01] INFO     gennorm_skew: 0.000
+[2025-05-15 22:55:01] INFO     gennorm_kurtosis: 0.323
+[2025-05-15 22:55:01] INFO     gennorm_aic: 157673.688
+[2025-05-15 22:55:01] INFO     gennorm_bic: 157699.539
+[2025-05-15 22:55:01] INFO     ==================================================
+[2025-05-15 22:55:01] INFO     Fitting Johnsonsu Distribution
+[2025-05-15 22:55:01] INFO     Fitted Johnsonsu Distribution
+[2025-05-15 22:55:01] INFO     johnsonsu_params: (-0.2354226772607876, 3.955449166043041, 3.5629729833132746, 6.395529695687911)
+[2025-05-15 22:55:01] INFO     johnsonsu_loglik: -78873.397
+[2025-05-15 22:55:01] INFO     johnsonsu_mean: 3.956
+[2025-05-15 22:55:01] INFO     johnsonsu_median: 3.944
+[2025-05-15 22:55:01] INFO     johnsonsu_mode: 3.921
+[2025-05-15 22:55:01] INFO     johnsonsu_variance: 2.799
+[2025-05-15 22:55:02] INFO     johnsonsu_sample_variance: 2.797
+[2025-05-15 22:55:02] INFO     johnsonsu_skew: 0.048
+[2025-05-15 22:55:02] INFO     johnsonsu_kurtosis: 0.285
+[2025-05-15 22:55:02] INFO     johnsonsu_aic: 157754.793
+[2025-05-15 22:55:02] INFO     johnsonsu_bic: 157789.261
+[2025-05-15 22:55:02] INFO     ==================================================
+[2025-05-15 22:55:02] INFO     Fitting Logistic Distribution
+[2025-05-15 22:55:02] INFO     Fitted Logistic Distribution
+[2025-05-15 22:55:02] INFO     logistic_params: (3.9507543366832234, 0.9442350181966365)
+[2025-05-15 22:55:02] INFO     logistic_loglik: -79016.876
+[2025-05-15 22:55:02] INFO     logistic_mean: 3.951
+[2025-05-15 22:55:02] INFO     logistic_median: 3.951
+[2025-05-15 22:55:02] INFO     logistic_mode: 3.951
+[2025-05-15 22:55:02] INFO     logistic_variance: 2.933
+[2025-05-15 22:55:02] INFO     logistic_sample_variance: 2.797
+[2025-05-15 22:55:02] INFO     logistic_skew: 0.000
+[2025-05-15 22:55:02] INFO     logistic_kurtosis: 1.200
+[2025-05-15 22:55:02] INFO     logistic_aic: 158037.752
+[2025-05-15 22:55:02] INFO     logistic_bic: 158054.985
+[2025-05-15 22:55:02] INFO     ==================================================
+[2025-05-15 22:55:02] INFO     Best fit based on AIC/BIC: Gennorm
+[2025-05-15 22:55:11] INFO     Unimodal distribution fitting for kg-based UV
+[2025-05-15 22:55:11] INFO     ==================================================
+[2025-05-15 22:55:11] INFO     Fitting Normal Distribution
+[2025-05-15 22:55:11] INFO     Fitted Normal Distribution
+[2025-05-15 22:55:11] INFO     normal_params: (3.9562362689549526, 1.6723795573644589)
+[2025-05-15 22:55:11] INFO     normal_loglik: -78916.520
+[2025-05-15 22:55:11] INFO     normal_mean: 3.956
+[2025-05-15 22:55:11] INFO     normal_median: 3.956
+[2025-05-15 22:55:11] INFO     normal_mode: 3.956
+[2025-05-15 22:55:11] INFO     normal_variance: 2.797
+[2025-05-15 22:55:11] INFO     normal_sample_variance: 2.797
+[2025-05-15 22:55:11] INFO     normal_skew: 0.000
+[2025-05-15 22:55:11] INFO     normal_kurtosis: 0.000
+[2025-05-15 22:55:11] INFO     normal_aic: 157837.040
+[2025-05-15 22:55:11] INFO     normal_bic: 157854.274
+[2025-05-15 22:55:11] INFO     ==================================================
+[2025-05-15 22:55:11] INFO     Fitting Skewnorm Distribution
+[2025-05-15 22:55:11] INFO     Fitted Skewnorm Distribution
+[2025-05-15 22:55:11] INFO     skewnorm_params: (0.698049461295431, 3.0978326209156144, 1.8798137068631435)
+[2025-05-15 22:55:11] INFO     skewnorm_loglik: -78904.958
+[2025-05-15 22:55:11] INFO     skewnorm_mean: 3.956
+[2025-05-15 22:55:11] INFO     skewnorm_median: 3.940
+[2025-05-15 22:55:11] INFO     skewnorm_mode: 3.907
+[2025-05-15 22:55:11] INFO     skewnorm_variance: 2.797
+[2025-05-15 22:55:11] INFO     skewnorm_sample_variance: 2.797
+[2025-05-15 22:55:11] INFO     skewnorm_skew: 0.058
+[2025-05-15 22:55:11] INFO     skewnorm_kurtosis: 0.020
+[2025-05-15 22:55:11] INFO     skewnorm_aic: 157815.916
+[2025-05-15 22:55:11] INFO     skewnorm_bic: 157841.767
+[2025-05-15 22:55:11] INFO     ==================================================
+[2025-05-15 22:55:11] INFO     Fitting Studentt Distribution
+[2025-05-15 22:55:13] INFO     Fitted Studentt Distribution
+[2025-05-15 22:55:13] INFO     studentt_params: (25.945668410304073, 3.953603632748342, 1.6071836170481242)
+[2025-05-15 22:55:13] INFO     studentt_loglik: -78881.396
+[2025-05-15 22:55:13] INFO     studentt_mean: 3.954
+[2025-05-15 22:55:13] INFO     studentt_median: 3.954
+[2025-05-15 22:55:13] INFO     studentt_mode: 3.954
+[2025-05-15 22:55:13] INFO     studentt_variance: 2.799
+[2025-05-15 22:55:13] INFO     studentt_sample_variance: 2.797
+[2025-05-15 22:55:13] INFO     studentt_skew: 0.000
+[2025-05-15 22:55:13] INFO     studentt_kurtosis: 0.273
+[2025-05-15 22:55:13] INFO     studentt_aic: 157768.792
+[2025-05-15 22:55:13] INFO     studentt_bic: 157794.643
+[2025-05-15 22:55:13] INFO     ==================================================
+[2025-05-15 22:55:13] INFO     Fitting Gennorm Distribution
+[2025-05-15 22:55:13] INFO     Fitted Gennorm Distribution
+[2025-05-15 22:55:13] INFO     gennorm_params: (1.7362477127710436, 3.9545621552954735, 2.1758755251044737)
+[2025-05-15 22:55:13] INFO     gennorm_loglik: -78833.844
+[2025-05-15 22:55:13] INFO     gennorm_mean: 3.955
+[2025-05-15 22:55:13] INFO     gennorm_median: 3.955
+[2025-05-15 22:55:13] INFO     gennorm_mode: 3.955
+[2025-05-15 22:55:13] INFO     gennorm_variance: 2.798
+[2025-05-15 22:55:13] INFO     gennorm_sample_variance: 2.797
+[2025-05-15 22:55:13] INFO     gennorm_skew: 0.000
+[2025-05-15 22:55:13] INFO     gennorm_kurtosis: 0.323
+[2025-05-15 22:55:13] INFO     gennorm_aic: 157673.688
+[2025-05-15 22:55:13] INFO     gennorm_bic: 157699.539
+[2025-05-15 22:55:13] INFO     ==================================================
+[2025-05-15 22:55:13] INFO     Fitting Johnsonsu Distribution
+[2025-05-15 22:55:13] INFO     Fitted Johnsonsu Distribution
+[2025-05-15 22:55:13] INFO     johnsonsu_params: (-0.2354226772607876, 3.955449166043041, 3.5629729833132746, 6.395529695687911)
+[2025-05-15 22:55:13] INFO     johnsonsu_loglik: -78873.397
+[2025-05-15 22:55:13] INFO     johnsonsu_mean: 3.956
+[2025-05-15 22:55:13] INFO     johnsonsu_median: 3.944
+[2025-05-15 22:55:13] INFO     johnsonsu_mode: 3.921
+[2025-05-15 22:55:13] INFO     johnsonsu_variance: 2.799
+[2025-05-15 22:55:13] INFO     johnsonsu_sample_variance: 2.797
+[2025-05-15 22:55:13] INFO     johnsonsu_skew: 0.048
+[2025-05-15 22:55:13] INFO     johnsonsu_kurtosis: 0.285
+[2025-05-15 22:55:13] INFO     johnsonsu_aic: 157754.793
+[2025-05-15 22:55:13] INFO     johnsonsu_bic: 157789.261
+[2025-05-15 22:55:13] INFO     ==================================================
+[2025-05-15 22:55:13] INFO     Fitting Logistic Distribution
+[2025-05-15 22:55:13] INFO     Fitted Logistic Distribution
+[2025-05-15 22:55:13] INFO     logistic_params: (3.9507543366832234, 0.9442350181966365)
+[2025-05-15 22:55:13] INFO     logistic_loglik: -79016.876
+[2025-05-15 22:55:13] INFO     logistic_mean: 3.951
+[2025-05-15 22:55:13] INFO     logistic_median: 3.951
+[2025-05-15 22:55:13] INFO     logistic_mode: 3.951
+[2025-05-15 22:55:13] INFO     logistic_variance: 2.933
+[2025-05-15 22:55:13] INFO     logistic_sample_variance: 2.797
+[2025-05-15 22:55:13] INFO     logistic_skew: 0.000
+[2025-05-15 22:55:13] INFO     logistic_kurtosis: 1.200
+[2025-05-15 22:55:13] INFO     logistic_aic: 158037.752
+[2025-05-15 22:55:13] INFO     logistic_bic: 158054.985
+[2025-05-15 22:55:13] INFO     ==================================================
+[2025-05-15 22:55:13] INFO     Best fit based on AIC/BIC: Gennorm
+[2025-05-15 22:55:13] INFO     - Gennorm distribution fits best based on AIC and BIC.
+[2025-05-15 22:55:13] INFO     ✅ Unimodal fit (kg-based) completed in 2.39 seconds.
+[2025-05-15 22:56:51] INFO     Bootstrapping CI (kg-based)
+[2025-05-15 22:59:58] INFO     ✅ Bootstrapping CI (kg-based) completed in 3 min 7.7 sec.

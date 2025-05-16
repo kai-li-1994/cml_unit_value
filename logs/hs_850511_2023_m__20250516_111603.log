@@ -1,0 +1,454 @@
+[2025-05-16 11:16:10] INFO     Clean trade data (HS 850511, 2023, M)
+[2025-05-16 11:16:10] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_850511.csv
+[2025-05-16 11:16:11] INFO     🧹 Cleaning Summary:
+[2025-05-16 11:16:11] INFO      - Initial rows: 60625
+[2025-05-16 11:16:11] INFO      - Valid country filter: 55938 (92.27%)
+[2025-05-16 11:16:11] INFO      - Valid trade value filter: 49824 (82.18%)
+[2025-05-16 11:16:11] INFO      - Valid kg-based UV rows: 41001 (67.63%)
+[2025-05-16 11:16:11] INFO     📊 Non-kg UV Subset:
+[2025-05-16 11:16:11] INFO      - Top unit: Number of items (u)
+[2025-05-16 11:16:11] INFO      - Share of valid qty rows: 12.50% (Required: 10%)
+[2025-05-16 11:16:11] INFO      - Valid qty count: 5143 (Required: 100)
+[2025-05-16 11:16:11] INFO     ✅ Non-kg UV subset created.
+[2025-05-16 11:16:11] INFO     ✅ Finished cleaning: HS 850511, Year 2023, Flow M
+[2025-05-16 11:16:11] INFO     ✅ Clean trade data completed in 0.51 seconds.
+[2025-05-16 11:16:11] INFO     Outlier detection (HS 850511, 2023, M)
+[2025-05-16 11:16:11] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-16 11:16:11] INFO     - Dropped 179 rows (0.437%).
+[2025-05-16 11:16:11] INFO     - Remaining rows: 40822.
+[2025-05-16 11:16:11] INFO     📊 Outlier Detection on Non-kg-based UV:
+[2025-05-16 11:16:11] INFO     - Dropped 4 rows (0.078%).
+[2025-05-16 11:16:11] INFO     - Remaining rows: 5139.
+[2025-05-16 11:16:11] INFO     ✅ Detect outliers completed in 0.01 seconds.
+[2025-05-16 11:16:11] INFO     Histogram (HS 850511, 2023, M)
+[2025-05-16 11:16:12] INFO     ✅ Histogram completed in 0.79 seconds.
+[2025-05-16 11:16:12] INFO     Modality Test (HS 850511, 2023, M)
+[2025-05-16 11:17:37] INFO     📈 Modality Test Summary:
+[2025-05-16 11:17:37] INFO     - Column tested: ln_uv
+[2025-05-16 11:17:37] INFO     - Original sample size: 40822
+[2025-05-16 11:17:37] WARNING  ❗ Sample capped at 25000 for efficiency.
+[2025-05-16 11:17:37] INFO     - Final decision: unimodal (2 reject out of 5)
+[2025-05-16 11:18:03] INFO     📈 Modality Test Summary:
+[2025-05-16 11:18:03] INFO     - Column tested: ln_uv_q
+[2025-05-16 11:18:03] INFO     - Original sample size: 5139
+[2025-05-16 11:18:03] INFO     ✅ Full sample used (no capping applied).
+[2025-05-16 11:18:03] INFO     - Final decision: multimodal (3 reject out of 5)
+[2025-05-16 11:18:03] INFO     ✅ Modality test completed in 1 min 51.1 sec.
+[2025-05-16 11:21:30] INFO     Unimodal distribution fitting for kg-based UV
+[2025-05-16 11:21:30] INFO     ==================================================
+[2025-05-16 11:21:30] INFO     Fitting Normal Distribution
+[2025-05-16 11:21:30] INFO     Fitted Normal Distribution
+[2025-05-16 11:21:30] INFO     normal_params: (3.9562362689549526, 1.6723795573644589)
+[2025-05-16 11:21:30] INFO     normal_loglik: -78916.520
+[2025-05-16 11:21:30] INFO     normal_mean: 3.956
+[2025-05-16 11:21:30] INFO     normal_median: 3.956
+[2025-05-16 11:21:30] INFO     normal_mode: 3.956
+[2025-05-16 11:21:30] INFO     normal_variance: 2.797
+[2025-05-16 11:21:30] INFO     normal_sample_variance: 2.797
+[2025-05-16 11:21:30] INFO     normal_skew: 0.000
+[2025-05-16 11:21:30] INFO     normal_kurtosis: 0.000
+[2025-05-16 11:21:30] INFO     normal_aic: 157837.040
+[2025-05-16 11:21:30] INFO     normal_bic: 157854.274
+[2025-05-16 11:21:30] INFO     ==================================================
+[2025-05-16 11:21:30] INFO     Fitting Skewnorm Distribution
+[2025-05-16 11:21:30] INFO     Fitted Skewnorm Distribution
+[2025-05-16 11:21:30] INFO     skewnorm_params: (0.698049461295431, 3.0978326209156144, 1.8798137068631435)
+[2025-05-16 11:21:30] INFO     skewnorm_loglik: -78904.958
+[2025-05-16 11:21:30] INFO     skewnorm_mean: 3.956
+[2025-05-16 11:21:30] INFO     skewnorm_median: 3.940
+[2025-05-16 11:21:30] INFO     skewnorm_mode: 3.907
+[2025-05-16 11:21:30] INFO     skewnorm_variance: 2.797
+[2025-05-16 11:21:30] INFO     skewnorm_sample_variance: 2.797
+[2025-05-16 11:21:30] INFO     skewnorm_skew: 0.058
+[2025-05-16 11:21:30] INFO     skewnorm_kurtosis: 0.020
+[2025-05-16 11:21:30] INFO     skewnorm_aic: 157815.916
+[2025-05-16 11:21:30] INFO     skewnorm_bic: 157841.767
+[2025-05-16 11:21:30] INFO     ==================================================
+[2025-05-16 11:21:30] INFO     Fitting Studentt Distribution
+[2025-05-16 11:21:31] INFO     Fitted Studentt Distribution
+[2025-05-16 11:21:31] INFO     studentt_params: (25.945668410304073, 3.953603632748342, 1.6071836170481242)
+[2025-05-16 11:21:31] INFO     studentt_loglik: -78881.396
+[2025-05-16 11:21:31] INFO     studentt_mean: 3.954
+[2025-05-16 11:21:31] INFO     studentt_median: 3.954
+[2025-05-16 11:21:31] INFO     studentt_mode: 3.954
+[2025-05-16 11:21:31] INFO     studentt_variance: 2.799
+[2025-05-16 11:21:31] INFO     studentt_sample_variance: 2.797
+[2025-05-16 11:21:31] INFO     studentt_skew: 0.000
+[2025-05-16 11:21:31] INFO     studentt_kurtosis: 0.273
+[2025-05-16 11:21:31] INFO     studentt_aic: 157768.792
+[2025-05-16 11:21:31] INFO     studentt_bic: 157794.643
+[2025-05-16 11:21:31] INFO     ==================================================
+[2025-05-16 11:21:31] INFO     Fitting Gennorm Distribution
+[2025-05-16 11:21:32] INFO     Fitted Gennorm Distribution
+[2025-05-16 11:21:32] INFO     gennorm_params: (1.7362477127710436, 3.9545621552954735, 2.1758755251044737)
+[2025-05-16 11:21:32] INFO     gennorm_loglik: -78833.844
+[2025-05-16 11:21:32] INFO     gennorm_mean: 3.955
+[2025-05-16 11:21:32] INFO     gennorm_median: 3.955
+[2025-05-16 11:21:32] INFO     gennorm_mode: 3.955
+[2025-05-16 11:21:32] INFO     gennorm_variance: 2.798
+[2025-05-16 11:21:32] INFO     gennorm_sample_variance: 2.797
+[2025-05-16 11:21:32] INFO     gennorm_skew: 0.000
+[2025-05-16 11:21:32] INFO     gennorm_kurtosis: 0.323
+[2025-05-16 11:21:32] INFO     gennorm_aic: 157673.688
+[2025-05-16 11:21:32] INFO     gennorm_bic: 157699.539
+[2025-05-16 11:21:32] INFO     ==================================================
+[2025-05-16 11:21:32] INFO     Fitting Johnsonsu Distribution
+[2025-05-16 11:21:32] INFO     Fitted Johnsonsu Distribution
+[2025-05-16 11:21:32] INFO     johnsonsu_params: (-0.2354226772607876, 3.955449166043041, 3.5629729833132746, 6.395529695687911)
+[2025-05-16 11:21:32] INFO     johnsonsu_loglik: -78873.397
+[2025-05-16 11:21:32] INFO     johnsonsu_mean: 3.956
+[2025-05-16 11:21:32] INFO     johnsonsu_median: 3.944
+[2025-05-16 11:21:32] INFO     johnsonsu_mode: 3.921
+[2025-05-16 11:21:32] INFO     johnsonsu_variance: 2.799
+[2025-05-16 11:21:32] INFO     johnsonsu_sample_variance: 2.797
+[2025-05-16 11:21:32] INFO     johnsonsu_skew: 0.048
+[2025-05-16 11:21:32] INFO     johnsonsu_kurtosis: 0.285
+[2025-05-16 11:21:32] INFO     johnsonsu_aic: 157754.793
+[2025-05-16 11:21:32] INFO     johnsonsu_bic: 157789.261
+[2025-05-16 11:21:32] INFO     ==================================================
+[2025-05-16 11:21:32] INFO     Fitting Logistic Distribution
+[2025-05-16 11:21:32] INFO     Fitted Logistic Distribution
+[2025-05-16 11:21:32] INFO     logistic_params: (3.9507543366832234, 0.9442350181966365)
+[2025-05-16 11:21:32] INFO     logistic_loglik: -79016.876
+[2025-05-16 11:21:32] INFO     logistic_mean: 3.951
+[2025-05-16 11:21:32] INFO     logistic_median: 3.951
+[2025-05-16 11:21:32] INFO     logistic_mode: 3.951
+[2025-05-16 11:21:32] INFO     logistic_variance: 2.933
+[2025-05-16 11:21:32] INFO     logistic_sample_variance: 2.797
+[2025-05-16 11:21:32] INFO     logistic_skew: 0.000
+[2025-05-16 11:21:32] INFO     logistic_kurtosis: 1.200
+[2025-05-16 11:21:32] INFO     logistic_aic: 158037.752
+[2025-05-16 11:21:32] INFO     logistic_bic: 158054.985
+[2025-05-16 11:21:32] INFO     ==================================================
+[2025-05-16 11:21:32] INFO     Best fit based on AIC/BIC: Gennorm
+[2025-05-16 11:21:32] INFO     - Gennorm distribution fits best based on AIC and BIC.
+[2025-05-16 11:21:32] INFO     ✅ Unimodal fit (kg-based) completed in 2.38 seconds.
+[2025-05-16 11:21:54] INFO     Bootstrapping CI (kg-based)
+[2025-05-16 11:24:56] INFO     ✅ Bootstrapping CI (kg-based) completed in 3 min 2.9 sec.
+[2025-05-16 14:42:21] INFO     Unimodal distribution fitting for kg-based UV
+[2025-05-16 14:42:21] INFO     Fitted Norm Distribution
+[2025-05-16 14:42:21] INFO     norm_loc: 3.9562
+[2025-05-16 14:42:21] INFO     norm_scale: 1.6724
+[2025-05-16 14:42:21] INFO     norm_loglik: -78916.5201
+[2025-05-16 14:42:21] INFO     norm_mean: 3.9562
+[2025-05-16 14:42:21] INFO     norm_median: 3.9562
+[2025-05-16 14:42:21] INFO     norm_mode: 3.9562
+[2025-05-16 14:42:21] INFO     norm_variance: 2.7969
+[2025-05-16 14:42:21] INFO     norm_sample_variance: 2.7969
+[2025-05-16 14:42:21] INFO     norm_skew: 0.0000
+[2025-05-16 14:42:21] INFO     norm_kurtosis: 0.0000
+[2025-05-16 14:42:21] INFO     norm_aic: 157837.0402
+[2025-05-16 14:42:21] INFO     norm_bic: 157854.2742
+[2025-05-16 14:42:22] INFO     Fitted Skewnorm Distribution
+[2025-05-16 14:42:22] INFO     skewnorm_a: 0.6980
+[2025-05-16 14:42:22] INFO     skewnorm_loc: 3.0978
+[2025-05-16 14:42:22] INFO     skewnorm_scale: 1.8798
+[2025-05-16 14:42:22] INFO     skewnorm_loglik: -78904.9582
+[2025-05-16 14:42:22] INFO     skewnorm_mean: 3.9563
+[2025-05-16 14:42:22] INFO     skewnorm_median: 3.9400
+[2025-05-16 14:42:22] INFO     skewnorm_mode: 3.9073
+[2025-05-16 14:42:22] INFO     skewnorm_variance: 2.7967
+[2025-05-16 14:42:22] INFO     skewnorm_sample_variance: 2.7969
+[2025-05-16 14:42:22] INFO     skewnorm_skew: 0.0581
+[2025-05-16 14:42:22] INFO     skewnorm_kurtosis: 0.0197
+[2025-05-16 14:42:22] INFO     skewnorm_aic: 157815.9164
+[2025-05-16 14:42:22] INFO     skewnorm_bic: 157841.7673
+[2025-05-16 14:42:23] INFO     Fitted T Distribution
+[2025-05-16 14:42:23] INFO     t_df: 25.9457
+[2025-05-16 14:42:23] INFO     t_loc: 3.9536
+[2025-05-16 14:42:23] INFO     t_scale: 1.6072
+[2025-05-16 14:42:23] INFO     t_loglik: -78881.3958
+[2025-05-16 14:42:23] INFO     t_mean: 3.9536
+[2025-05-16 14:42:23] INFO     t_median: 3.9536
+[2025-05-16 14:42:23] INFO     t_mode: 3.9536
+[2025-05-16 14:42:23] INFO     t_variance: 2.7988
+[2025-05-16 14:42:23] INFO     t_sample_variance: 2.7969
+[2025-05-16 14:42:23] INFO     t_skew: 0.0000
+[2025-05-16 14:42:23] INFO     t_kurtosis: 0.2734
+[2025-05-16 14:42:23] INFO     t_aic: 157768.7917
+[2025-05-16 14:42:23] INFO     t_bic: 157794.6426
+[2025-05-16 14:42:23] INFO     Fitted Gennorm Distribution
+[2025-05-16 14:42:23] INFO     gennorm_beta: 1.7362
+[2025-05-16 14:42:23] INFO     gennorm_loc: 3.9546
+[2025-05-16 14:42:23] INFO     gennorm_scale: 2.1759
+[2025-05-16 14:42:23] INFO     gennorm_loglik: -78833.8441
+[2025-05-16 14:42:23] INFO     gennorm_mean: 3.9546
+[2025-05-16 14:42:23] INFO     gennorm_median: 3.9546
+[2025-05-16 14:42:23] INFO     gennorm_mode: 3.9546
+[2025-05-16 14:42:23] INFO     gennorm_variance: 2.7978
+[2025-05-16 14:42:23] INFO     gennorm_sample_variance: 2.7969
+[2025-05-16 14:42:23] INFO     gennorm_skew: 0.0000
+[2025-05-16 14:42:23] INFO     gennorm_kurtosis: 0.3229
+[2025-05-16 14:42:23] INFO     gennorm_aic: 157673.6882
+[2025-05-16 14:42:23] INFO     gennorm_bic: 157699.5391
+[2025-05-16 14:42:24] INFO     Fitted Johnsonsu Distribution
+[2025-05-16 14:42:24] INFO     johnsonsu_a: -0.2354
+[2025-05-16 14:42:24] INFO     johnsonsu_b: 3.9554
+[2025-05-16 14:42:24] INFO     johnsonsu_loc: 3.5630
+[2025-05-16 14:42:24] INFO     johnsonsu_scale: 6.3955
+[2025-05-16 14:42:24] INFO     johnsonsu_loglik: -78873.3966
+[2025-05-16 14:42:24] INFO     johnsonsu_mean: 3.9562
+[2025-05-16 14:42:24] INFO     johnsonsu_median: 3.9439
+[2025-05-16 14:42:24] INFO     johnsonsu_mode: 3.9210
+[2025-05-16 14:42:24] INFO     johnsonsu_variance: 2.7990
+[2025-05-16 14:42:24] INFO     johnsonsu_sample_variance: 2.7969
+[2025-05-16 14:42:24] INFO     johnsonsu_skew: 0.0481
+[2025-05-16 14:42:24] INFO     johnsonsu_kurtosis: 0.2851
+[2025-05-16 14:42:24] INFO     johnsonsu_aic: 157754.7932
+[2025-05-16 14:42:24] INFO     johnsonsu_bic: 157789.2612
+[2025-05-16 14:42:24] INFO     Fitted Logistic Distribution
+[2025-05-16 14:42:24] INFO     logistic_loc: 3.9508
+[2025-05-16 14:42:24] INFO     logistic_scale: 0.9442
+[2025-05-16 14:42:24] INFO     logistic_loglik: -79016.8758
+[2025-05-16 14:42:24] INFO     logistic_mean: 3.9508
+[2025-05-16 14:42:24] INFO     logistic_median: 3.9508
+[2025-05-16 14:42:24] INFO     logistic_mode: 3.9508
+[2025-05-16 14:42:24] INFO     logistic_variance: 2.9332
+[2025-05-16 14:42:24] INFO     logistic_sample_variance: 2.7969
+[2025-05-16 14:42:24] INFO     logistic_skew: 0.0000
+[2025-05-16 14:42:24] INFO     logistic_kurtosis: 1.2000
+[2025-05-16 14:42:24] INFO     logistic_aic: 158037.7515
+[2025-05-16 14:42:24] INFO     logistic_bic: 158054.9855
+[2025-05-16 14:42:24] INFO     ==================================================
+[2025-05-16 14:42:24] INFO     Best fit based on AIC/BIC: Gennorm
+[2025-05-16 14:42:24] INFO     - Gennorm distribution fits best based on AIC and BIC.
+[2025-05-16 14:42:24] INFO     ✅ Unimodal fit (kg-based) completed in 2.60 seconds.
+[2025-05-16 15:29:31] INFO     Fitted Norm Distribution
+[2025-05-16 15:29:31] INFO     norm_loc: 3.9562
+[2025-05-16 15:29:31] INFO     norm_scale: 1.6724
+[2025-05-16 15:29:31] INFO     norm_loglik: -78916.5201
+[2025-05-16 15:29:31] INFO     norm_mean: 3.9562
+[2025-05-16 15:29:31] INFO     norm_median: 3.9562
+[2025-05-16 15:29:31] INFO     norm_mode: 3.9562
+[2025-05-16 15:29:31] INFO     norm_variance: 2.7969
+[2025-05-16 15:29:31] INFO     norm_sample_variance: 2.7969
+[2025-05-16 15:29:31] INFO     norm_skew: 0.0000
+[2025-05-16 15:29:31] INFO     norm_kurtosis: 0.0000
+[2025-05-16 15:29:31] INFO     norm_aic: 157837.0402
+[2025-05-16 15:29:31] INFO     norm_bic: 157854.2742
+[2025-05-16 15:29:31] INFO     Fitted Skewnorm Distribution
+[2025-05-16 15:29:31] INFO     skewnorm_a: 0.6980
+[2025-05-16 15:29:31] INFO     skewnorm_loc: 3.0978
+[2025-05-16 15:29:31] INFO     skewnorm_scale: 1.8798
+[2025-05-16 15:29:31] INFO     skewnorm_loglik: -78904.9582
+[2025-05-16 15:29:31] INFO     skewnorm_mean: 3.9563
+[2025-05-16 15:29:31] INFO     skewnorm_median: 3.9400
+[2025-05-16 15:29:31] INFO     skewnorm_mode: 3.9073
+[2025-05-16 15:29:31] INFO     skewnorm_variance: 2.7967
+[2025-05-16 15:29:31] INFO     skewnorm_sample_variance: 2.7969
+[2025-05-16 15:29:31] INFO     skewnorm_skew: 0.0581
+[2025-05-16 15:29:31] INFO     skewnorm_kurtosis: 0.0197
+[2025-05-16 15:29:31] INFO     skewnorm_aic: 157815.9164
+[2025-05-16 15:29:31] INFO     skewnorm_bic: 157841.7673
+[2025-05-16 15:29:33] INFO     Fitted T Distribution
+[2025-05-16 15:29:33] INFO     t_df: 25.9457
+[2025-05-16 15:29:33] INFO     t_loc: 3.9536
+[2025-05-16 15:29:33] INFO     t_scale: 1.6072
+[2025-05-16 15:29:33] INFO     t_loglik: -78881.3958
+[2025-05-16 15:29:33] INFO     t_mean: 3.9536
+[2025-05-16 15:29:33] INFO     t_median: 3.9536
+[2025-05-16 15:29:33] INFO     t_mode: 3.9536
+[2025-05-16 15:29:33] INFO     t_variance: 2.7988
+[2025-05-16 15:29:33] INFO     t_sample_variance: 2.7969
+[2025-05-16 15:29:33] INFO     t_skew: 0.0000
+[2025-05-16 15:29:33] INFO     t_kurtosis: 0.2734
+[2025-05-16 15:29:33] INFO     t_aic: 157768.7917
+[2025-05-16 15:29:33] INFO     t_bic: 157794.6426
+[2025-05-16 15:29:33] INFO     Fitted Gennorm Distribution
+[2025-05-16 15:29:33] INFO     gennorm_beta: 1.7362
+[2025-05-16 15:29:33] INFO     gennorm_loc: 3.9546
+[2025-05-16 15:29:33] INFO     gennorm_scale: 2.1759
+[2025-05-16 15:29:33] INFO     gennorm_loglik: -78833.8441
+[2025-05-16 15:29:33] INFO     gennorm_mean: 3.9546
+[2025-05-16 15:29:33] INFO     gennorm_median: 3.9546
+[2025-05-16 15:29:33] INFO     gennorm_mode: 3.9546
+[2025-05-16 15:29:33] INFO     gennorm_variance: 2.7978
+[2025-05-16 15:29:33] INFO     gennorm_sample_variance: 2.7969
+[2025-05-16 15:29:33] INFO     gennorm_skew: 0.0000
+[2025-05-16 15:29:33] INFO     gennorm_kurtosis: 0.3229
+[2025-05-16 15:29:33] INFO     gennorm_aic: 157673.6882
+[2025-05-16 15:29:33] INFO     gennorm_bic: 157699.5391
+[2025-05-16 15:29:34] INFO     Fitted Johnsonsu Distribution
+[2025-05-16 15:29:34] INFO     johnsonsu_a: -0.2354
+[2025-05-16 15:29:34] INFO     johnsonsu_b: 3.9554
+[2025-05-16 15:29:34] INFO     johnsonsu_loc: 3.5630
+[2025-05-16 15:29:34] INFO     johnsonsu_scale: 6.3955
+[2025-05-16 15:29:34] INFO     johnsonsu_loglik: -78873.3966
+[2025-05-16 15:29:34] INFO     johnsonsu_mean: 3.9562
+[2025-05-16 15:29:34] INFO     johnsonsu_median: 3.9439
+[2025-05-16 15:29:34] INFO     johnsonsu_mode: 3.9210
+[2025-05-16 15:29:34] INFO     johnsonsu_variance: 2.7990
+[2025-05-16 15:29:34] INFO     johnsonsu_sample_variance: 2.7969
+[2025-05-16 15:29:34] INFO     johnsonsu_skew: 0.0481
+[2025-05-16 15:29:34] INFO     johnsonsu_kurtosis: 0.2851
+[2025-05-16 15:29:34] INFO     johnsonsu_aic: 157754.7932
+[2025-05-16 15:29:34] INFO     johnsonsu_bic: 157789.2612
+[2025-05-16 15:29:34] INFO     Fitted Logistic Distribution
+[2025-05-16 15:29:34] INFO     logistic_loc: 3.9508
+[2025-05-16 15:29:34] INFO     logistic_scale: 0.9442
+[2025-05-16 15:29:34] INFO     logistic_loglik: -79016.8758
+[2025-05-16 15:29:34] INFO     logistic_mean: 3.9508
+[2025-05-16 15:29:34] INFO     logistic_median: 3.9508
+[2025-05-16 15:29:34] INFO     logistic_mode: 3.9508
+[2025-05-16 15:29:34] INFO     logistic_variance: 2.9332
+[2025-05-16 15:29:34] INFO     logistic_sample_variance: 2.7969
+[2025-05-16 15:29:34] INFO     logistic_skew: 0.0000
+[2025-05-16 15:29:34] INFO     logistic_kurtosis: 1.2000
+[2025-05-16 15:29:34] INFO     logistic_aic: 158037.7515
+[2025-05-16 15:29:34] INFO     logistic_bic: 158054.9855
+[2025-05-16 15:29:34] INFO     ==================================================
+[2025-05-16 15:29:34] INFO     Best fit based on AIC/BIC: Gennorm
+[2025-05-16 16:43:17] INFO     Unimodal distribution fitting for kg-based UV
+[2025-05-16 16:43:17] INFO     Fitted Norm Distribution
+[2025-05-16 16:43:17] INFO     norm_loc: 3.9562
+[2025-05-16 16:43:17] INFO     norm_scale: 1.6724
+[2025-05-16 16:43:17] INFO     norm_loglik: -78916.5201
+[2025-05-16 16:43:17] INFO     norm_mean: 3.9562
+[2025-05-16 16:43:17] INFO     norm_median: 3.9562
+[2025-05-16 16:43:17] INFO     norm_mode: 3.9562
+[2025-05-16 16:43:17] INFO     norm_variance: 2.7969
+[2025-05-16 16:43:17] INFO     norm_sample_variance: 2.7969
+[2025-05-16 16:43:17] INFO     norm_skew: 0.0000
+[2025-05-16 16:43:17] INFO     norm_kurtosis: 0.0000
+[2025-05-16 16:43:17] INFO     norm_aic: 157837.0402
+[2025-05-16 16:43:17] INFO     norm_bic: 157854.2742
+[2025-05-16 16:43:17] INFO     Fitted Skewnorm Distribution
+[2025-05-16 16:43:17] INFO     skewnorm_a: 0.6980
+[2025-05-16 16:43:17] INFO     skewnorm_loc: 3.0978
+[2025-05-16 16:43:17] INFO     skewnorm_scale: 1.8798
+[2025-05-16 16:43:17] INFO     skewnorm_loglik: -78904.9582
+[2025-05-16 16:43:17] INFO     skewnorm_mean: 3.9563
+[2025-05-16 16:43:17] INFO     skewnorm_median: 3.9400
+[2025-05-16 16:43:17] INFO     skewnorm_mode: 3.9073
+[2025-05-16 16:43:17] INFO     skewnorm_variance: 2.7967
+[2025-05-16 16:43:17] INFO     skewnorm_sample_variance: 2.7969
+[2025-05-16 16:43:17] INFO     skewnorm_skew: 0.0581
+[2025-05-16 16:43:17] INFO     skewnorm_kurtosis: 0.0197
+[2025-05-16 16:43:17] INFO     skewnorm_aic: 157815.9164
+[2025-05-16 16:43:17] INFO     skewnorm_bic: 157841.7673
+[2025-05-16 16:43:18] INFO     Fitted T Distribution
+[2025-05-16 16:43:18] INFO     t_df: 25.9457
+[2025-05-16 16:43:18] INFO     t_loc: 3.9536
+[2025-05-16 16:43:18] INFO     t_scale: 1.6072
+[2025-05-16 16:43:18] INFO     t_loglik: -78881.3958
+[2025-05-16 16:43:18] INFO     t_mean: 3.9536
+[2025-05-16 16:43:18] INFO     t_median: 3.9536
+[2025-05-16 16:43:18] INFO     t_mode: 3.9536
+[2025-05-16 16:43:18] INFO     t_variance: 2.7988
+[2025-05-16 16:43:18] INFO     t_sample_variance: 2.7969
+[2025-05-16 16:43:18] INFO     t_skew: 0.0000
+[2025-05-16 16:43:18] INFO     t_kurtosis: 0.2734
+[2025-05-16 16:43:18] INFO     t_aic: 157768.7917
+[2025-05-16 16:43:18] INFO     t_bic: 157794.6426
+[2025-05-16 16:43:18] INFO     Fitted Gennorm Distribution
+[2025-05-16 16:43:18] INFO     gennorm_beta: 1.7362
+[2025-05-16 16:43:18] INFO     gennorm_loc: 3.9546
+[2025-05-16 16:43:18] INFO     gennorm_scale: 2.1759
+[2025-05-16 16:43:18] INFO     gennorm_loglik: -78833.8441
+[2025-05-16 16:43:18] INFO     gennorm_mean: 3.9546
+[2025-05-16 16:43:18] INFO     gennorm_median: 3.9546
+[2025-05-16 16:43:18] INFO     gennorm_mode: 3.9546
+[2025-05-16 16:43:18] INFO     gennorm_variance: 2.7978
+[2025-05-16 16:43:18] INFO     gennorm_sample_variance: 2.7969
+[2025-05-16 16:43:18] INFO     gennorm_skew: 0.0000
+[2025-05-16 16:43:18] INFO     gennorm_kurtosis: 0.3229
+[2025-05-16 16:43:18] INFO     gennorm_aic: 157673.6882
+[2025-05-16 16:43:18] INFO     gennorm_bic: 157699.5391
+[2025-05-16 16:43:19] INFO     Fitted Johnsonsu Distribution
+[2025-05-16 16:43:19] INFO     johnsonsu_a: -0.2354
+[2025-05-16 16:43:19] INFO     johnsonsu_b: 3.9554
+[2025-05-16 16:43:19] INFO     johnsonsu_loc: 3.5630
+[2025-05-16 16:43:19] INFO     johnsonsu_scale: 6.3955
+[2025-05-16 16:43:19] INFO     johnsonsu_loglik: -78873.3966
+[2025-05-16 16:43:19] INFO     johnsonsu_mean: 3.9562
+[2025-05-16 16:43:19] INFO     johnsonsu_median: 3.9439
+[2025-05-16 16:43:19] INFO     johnsonsu_mode: 3.9210
+[2025-05-16 16:43:19] INFO     johnsonsu_variance: 2.7990
+[2025-05-16 16:43:19] INFO     johnsonsu_sample_variance: 2.7969
+[2025-05-16 16:43:19] INFO     johnsonsu_skew: 0.0481
+[2025-05-16 16:43:19] INFO     johnsonsu_kurtosis: 0.2851
+[2025-05-16 16:43:19] INFO     johnsonsu_aic: 157754.7932
+[2025-05-16 16:43:19] INFO     johnsonsu_bic: 157789.2612
+[2025-05-16 16:43:19] INFO     Fitted Logistic Distribution
+[2025-05-16 16:43:19] INFO     logistic_loc: 3.9508
+[2025-05-16 16:43:19] INFO     logistic_scale: 0.9442
+[2025-05-16 16:43:19] INFO     logistic_loglik: -79016.8758
+[2025-05-16 16:43:19] INFO     logistic_mean: 3.9508
+[2025-05-16 16:43:19] INFO     logistic_median: 3.9508
+[2025-05-16 16:43:19] INFO     logistic_mode: 3.9508
+[2025-05-16 16:43:19] INFO     logistic_variance: 2.9332
+[2025-05-16 16:43:19] INFO     logistic_sample_variance: 2.7969
+[2025-05-16 16:43:19] INFO     logistic_skew: 0.0000
+[2025-05-16 16:43:19] INFO     logistic_kurtosis: 1.2000
+[2025-05-16 16:43:19] INFO     logistic_aic: 158037.7515
+[2025-05-16 16:43:19] INFO     logistic_bic: 158054.9855
+[2025-05-16 16:43:19] INFO     Best fit based on AIC/BIC: Gennorm
+[2025-05-16 16:43:19] INFO     - Gennorm distribution fits best based on AIC and BIC.
+[2025-05-16 16:43:19] INFO     ✅ Unimodal fit (kg-based) completed in 2.51 seconds.
+[2025-05-16 16:55:12] INFO     Bootstrapping CI (kg-based)
+[2025-05-16 16:58:27] INFO     ✅ Bootstrapping CI (kg-based) completed in 3 min 15.1 sec.
+[2025-05-16 16:59:40] INFO     Bootstrapping CI (kg-based)
+[2025-05-16 17:03:05] INFO     ✅ Bootstrapping CI (kg-based) completed in 3 min 25.0 sec.
+[2025-05-16 17:04:04] INFO     Bootstrapping CI (kg-based)
+[2025-05-16 17:07:35] INFO     ✅ Bootstrapping CI (kg-based) completed in 3 min 30.9 sec.
+[2025-05-16 17:15:34] INFO     Bootstrapping CI (kg-based)
+[2025-05-16 17:18:38] INFO     ✅ Bootstrapping CI (kg-based) completed in 3 min 3.9 sec.
+[2025-05-16 17:19:27] INFO     Bootstrapping CI (kg-based)
+[2025-05-16 17:20:11] INFO     Bootstrapping CI (kg-based)
+[2025-05-16 17:23:32] INFO     ✅ Bootstrapping CI (kg-based) completed in 3 min 20.7 sec.
+[2025-05-16 17:36:00] INFO     Bootstrapping CI (kg-based)
+[2025-05-16 17:36:10] INFO     Bootstrapping CI (kg-based)
+[2025-05-16 17:39:18] INFO     ✅ Bootstrapping CI (kg-based) completed in 3 min 8.0 sec.
+[2025-05-16 17:41:44] INFO     Bootstrapping CI (kg-based)
+[2025-05-16 17:45:09] INFO     ✅ Bootstrapping CI (kg-based) completed in 3 min 25.6 sec.
+[2025-05-16 17:46:25] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 17:46:25] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.57 seconds.
+[2025-05-16 17:48:14] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 17:48:15] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.54 seconds.
+[2025-05-16 17:50:22] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 17:50:22] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.67 seconds.
+[2025-05-16 17:51:14] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 17:51:14] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.59 seconds.
+[2025-05-16 17:53:09] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 17:53:10] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.55 seconds.
+[2025-05-16 17:53:51] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 17:53:51] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.64 seconds.
+[2025-05-16 17:54:11] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 17:54:11] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.61 seconds.
+[2025-05-16 17:59:34] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 17:59:35] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.62 seconds.
+[2025-05-16 18:04:54] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:04:55] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.59 seconds.
+[2025-05-16 18:06:46] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:06:47] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.69 seconds.
+[2025-05-16 18:07:22] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:07:23] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.65 seconds.
+[2025-05-16 18:07:50] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:07:51] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 1.35 seconds.
+[2025-05-16 18:08:31] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:08:32] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.61 seconds.
+[2025-05-16 18:08:54] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:08:55] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.87 seconds.
+[2025-05-16 18:10:07] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:11:59] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:12:00] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.77 seconds.
+[2025-05-16 18:13:02] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:13:03] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.49 seconds.
+[2025-05-16 18:20:18] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:20:41] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:20:42] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.76 seconds.
+[2025-05-16 18:21:03] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:21:03] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.63 seconds.
+[2025-05-16 18:24:20] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:24:21] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.72 seconds.
+[2025-05-16 18:25:47] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 1 min 27.0 sec.
+[2025-05-16 18:28:11] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:28:12] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.84 seconds.
+[2025-05-16 18:29:03] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:29:04] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.51 seconds.
+[2025-05-16 18:30:03] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:30:04] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 1.02 seconds.
+[2025-05-16 18:30:14] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:30:15] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.64 seconds.
+[2025-05-16 18:30:56] INFO     Unimodal distribution fit plot for kg-based UV (2023, M)
+[2025-05-16 18:30:57] INFO     ✅ Unimodal distribution fit plot for kg-based UV completed in 0.79 seconds.
