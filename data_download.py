@@ -30,10 +30,10 @@ period = ",".join(f"{year}{month:02d}" for month in range(1, 13))
 path = f"C:/Users/lik6/Data/ComtradeTariffline/tariff_{year}"
 #path = "./month/test"
 os.makedirs(path, exist_ok=True)
-comtradeapicall.bulkDownloadTarifflineFile("4a624b220f67400c9a6ef19b1890f1f9", 
+comtradeapicall.bulkDownloadTarifflineFile("707b66b3161940889e89edcea764320b", 
                                           path,                                # <-- ✅ Save directly to C disk
                                      typeCode='C', freqCode='M', clCode='HS',
-                            period=period, reporterCode=None, decompress=True)
+                            period='202312', reporterCode=None, decompress=True)
 #%% Merge annual data
 start_time = time.time()
 input_folder  = f'C:/Users/lik6/Data/ComtradeTariffline/tariff_{year}'                                                        # Set your folder path

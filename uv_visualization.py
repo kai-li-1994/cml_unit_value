@@ -4,12 +4,14 @@ import matplotlib.pyplot as plt
 from scipy.stats import (norm, iqr, skewnorm, cauchy, logistic,anderson,
     gumbel_r,lognorm, t,gennorm, johnsonsu, gennorm, kstest, expon, gaussian_kde,logistic)
 from matplotlib import cm
+from matplotlib.lines import Line2D
 from sklearn.mixture import GaussianMixture
 import matplotlib as mpl
 import seaborn as sns
 import pandas as pd
-from uv_analysis import bootstrap_parametric_ci, find_gmm_components, fit_gmm, ensure_cov_matrix,fit_gmm2_flexible,fit_gmm3
+from uv_analysis import bootstrap_parametric_ci, find_gmm_components, fit_gmm, ensure_cov_matrix,fit_gmm2_flexible
 from uv_config import load_config
+
 
 config = load_config()
 
@@ -57,8 +59,9 @@ def plot_histogram(data, code, year, flow, unit_label="USD/kg", save_path=None, 
     # Save or show the plot
     if save_path:
         plt.tight_layout()
-        safe_unit_label = unit_label.replace("/", "_")  # e.g., USD/kg → USDperkg
-        save_path = os.path.join(config["dirs"]["figures"], f"hist_{code}_{year}_{flow}_{safe_unit_label}.png")
+        unit_suffix = unit_label.split("/")[-1]  # e.g., "kg" from "USD/kg"
+        save_path = os.path.join(config["dirs"]["figures"], 
+                            f"hist_{code}_{year}_{flow}_{unit_suffix}.png")
         plt.savefig(save_path, dpi=300)
         if ax is None:
             plt.close()   
@@ -66,46 +69,39 @@ def plot_histogram(data, code, year, flow, unit_label="USD/kg", save_path=None, 
         plt.tight_layout()
         plt.show()
         
-def plot_dist(data, code, year, flow, unit_label="USD/kg", dist=None, 
-              best_fit_name=None, report_best_fit_uni=None, report_all_uni_fit=None, 
-              raw_params_dict=None, ci=None, save_path=None, ax=None):
-    """
-    Plot histogram with overlaid fitted distributions and summary stats.
 
-    Args:
-        data (array-like): Log-transformed unit values.
-        code, year, flow: Metadata for title.
-        unit_label (str): e.g., "USD/kg".
-        dist (str): If given, only plot this distribution.
-        best_fit_name (str): Name of best-fit distribution.
-        report_best_fit_uni (dict): Best-fit statistics.
-        report_all_uni_fit (dict): All distribution statistics.
-        raw_params_dict (dict): Raw param tuples by distribution.
-        ci (dict): Flattened CI dict with keys like ci_mean_lower, etc.
-        save_path (str): Optional path to save.
-        ax (matplotlib axis): Optional axis to draw on.
-    """
+def plot_dist(
+    data,
+    code,
+    year,
+    flow,
+    unit_label="USD/kg",
+    dist=None,
+    best_fit_name=None,
+    report_best_fit_uni=None,
+    report_all_uni_fit=None,
+    raw_params_dict=None,
+    ci=None,
+    save_path=None,
+    ax=None):
 
-    # === Fixed color map for consistent distribution coloring ===
     colors = {
-        "norm":      "#66c2a5",  
-        "skewnorm":  "#fc8d62",  
-        "t":         "#8da0cb",  
-        "gennorm":   "#e78ac3",  
-        "johnsonsu": "#a6d854",  
-        "logistic":  "#ffd92f",  
-     }
+        "norm": "#66c2a5", "skewnorm": "#fc8d62", "t": "#8da0cb",
+        "gennorm": "#e78ac3", "johnsonsu": "#a6d854", "logistic": "#ffd92f"
+    }
 
     mpl.rcParams['pdf.fonttype'] = 42
     if ax is None:
         fig, ax = plt.subplots(figsize=(8, 5))
 
     x = np.linspace(min(data), max(data), 1000)
-    ax.hist(data, bins='fd', density=True, alpha=0.4, label="Data", color="gray")
+    hist_output = ax.hist(data, bins='fd', density=True, alpha=0.4, color="gray")
+    hist_patch = hist_output[2][0]  # Get the first rectangle patch from the bar container
+    handles_dist = [hist_patch]
+    labels_dist = ["Histogram"]
     text_d = 'imports' if flow == 'm' else 'exports'
-    fitted_color = "black"  # default fallback
 
-    # === Plot multiple distributions ===
+
     if not dist and report_all_uni_fit and raw_params_dict:
         for name in set(k.split('_')[0] for k in raw_params_dict if k.endswith('_params')):
             try:
@@ -114,18 +110,18 @@ def plot_dist(data, code, year, flow, unit_label="USD/kg", dist=None,
                 y = dist_obj.pdf(x, *params)
                 aic = report_all_uni_fit.get(f"{name}_aic", None)
                 bic = report_all_uni_fit.get(f"{name}_bic", None)
-                #lw = 2.5 if name == best_fit_name else 1.5
                 label = f"{name.capitalize()}"
                 if aic is not None and bic is not None:
                     label += f" (AIC={aic:.1f}, BIC={bic:.1f})"
                 line = ax.plot(x, y, label=label, lw=1.5, alpha=0.9, color=colors.get(name))[0]
+                handles_dist.append(line)
+                labels_dist.append(label)
                 if name == best_fit_name:
                     fitted_color = line.get_color()
             except (KeyError, ValueError):
                 continue
         ax.set_title(f"Distribution fits of unit values ({unit_label}) for HS {code} {text_d} in {year}")
 
-    # === Plot single distribution ===
     elif dist and report_best_fit_uni and raw_params_dict and f"{dist}_params" in raw_params_dict:
         try:
             dist_obj = globals()[dist]
@@ -137,43 +133,77 @@ def plot_dist(data, code, year, flow, unit_label="USD/kg", dist=None,
         except (KeyError, ValueError):
             pass
 
-    # === Plot vertical lines for stats and their CIs ===
+    handles_stats, labels_stats = [], []
     if report_best_fit_uni and best_fit_name and ci:
         mean = report_best_fit_uni[f"{best_fit_name}_mean"]
         median = report_best_fit_uni[f"{best_fit_name}_median"]
         mode = report_best_fit_uni[f"{best_fit_name}_mode"]
         var = report_best_fit_uni[f"{best_fit_name}_variance"]
         sample_var = report_best_fit_uni[f"{best_fit_name}_sample_variance"]
+        skew = report_best_fit_uni.get(f"{best_fit_name}_skew", None)
+        kurt = report_best_fit_uni.get(f"{best_fit_name}_kurtosis", None)
 
-        ax.axvline(mean, color=fitted_color, linestyle='--',
-                   label=f'Mean: {mean:.3f} ({np.exp(mean):.3f} {unit_label})\n95%CI: ({np.exp(ci["ci_mean_lower"]):.3f}, {np.exp(ci["ci_mean_upper"]):.3f})')
-        ax.axvline(median, color=fitted_color, linestyle=':',
-                   label=f'Median: {median:.3f} ({np.exp(median):.3f} {unit_label})\n95%CI: ({np.exp(ci["ci_median_lower"]):.3f}, {np.exp(ci["ci_median_upper"]):.3f})')
-        ax.axvline(mode, color=fitted_color, linestyle=(0, (3, 1, 1, 1, 1, 1)),
-                   label=f'Mode: {mode:.3f} ({np.exp(mode):.3f} {unit_label})\n95%CI: ({np.exp(ci["ci_mode_lower"]):.3f}, {np.exp(ci["ci_mode_upper"]):.3f})')
-        ax.text(0.75, 0.35,
-                f"Best fit in AIC/BIC: {best_fit_name.capitalize()}\nVariance: {var:.4f}\n95%CI: ({ci['ci_variance_lower']:.4f}, {ci['ci_variance_upper']:.4f})\nSample variance: {sample_var:.4f}",
-                transform=ax.transAxes, ha='left', va='top', fontsize=8)
+        dummy = Line2D([], [], linestyle="none")
+        extra_labels = [
+            f"Best fit (AIC/BIC): {best_fit_name.capitalize()}"
+        ]
 
-    # === Axes and legend ===
-    if dist:
-        xlabel = f"ln(Unit Value) [{unit_label}] — {dist.capitalize()} distribution"
-    else:
-        xlabel = f"ln(Unit Value) [{unit_label}] — fitted distributions"
+        handles_stats.append(dummy)
+        labels_stats.append(extra_labels[0])  # only the AIC/BIC line
+
+        # Now the vertical lines (mean, median, mode)
+        handles_stats.append(ax.axvline(mean, color=fitted_color, linestyle='--'))
+        labels_stats.append(
+            f'Mean: {mean:.3f} ({np.exp(mean):.3f} {unit_label})\n'
+            f'95% CI: ({np.exp(ci["ci_mean_lower"]):.3f}, {np.exp(ci["ci_mean_upper"]):.3f})'
+        )
+
+        handles_stats.append(ax.axvline(median, color=fitted_color, linestyle=':'))
+        labels_stats.append(
+            f'Median: {median:.3f} ({np.exp(median):.3f} {unit_label})\n'
+            f'95% CI: ({np.exp(ci["ci_median_lower"]):.3f}, {np.exp(ci["ci_median_upper"]):.3f})'
+        )
+
+        handles_stats.append(ax.axvline(mode, color=fitted_color, linestyle=(0, (3, 1, 1, 1, 1, 1))))
+        labels_stats.append(
+            f'Mode: {mode:.3f} ({np.exp(mode):.3f} {unit_label})\n'
+            f'95% CI: ({np.exp(ci["ci_mode_lower"]):.3f}, {np.exp(ci["ci_mode_upper"]):.3f})'
+        )
+
+        # Now add the other stats
+        extra_labels = [
+            f"Variance: {var:.3f} (95% CI: {ci['ci_variance_lower']:.3f}–{ci['ci_variance_upper']:.3f})",
+            f"Sample variance: {sample_var:.3f}"
+        ]
+        if skew is not None:
+            extra_labels.append(f"Skewness: {skew:.3f}")
+        if kurt is not None:
+            extra_labels.append(f"Kurtosis: {kurt:.3f}")
+
+        handles_stats.extend([dummy] * len(extra_labels))
+        labels_stats.extend(extra_labels)
+
+    xlabel = f"ln(Unit Value) [{unit_label}]" 
     ax.set_xlabel(xlabel)
     ax.set_ylabel("Density")
-    ax.legend(loc='best', fontsize=8)
 
-    # === Save or show ===
+    if handles_dist:
+        leg1 = ax.legend(handles_dist, labels_dist, loc="upper left", 
+                    fontsize=8, title="Candidate distributions")
+        ax.add_artist(leg1)
+    if handles_stats:
+        ax.legend(handles_stats, labels_stats, loc="upper right", 
+                   fontsize=8, title="Best-fit parameters")
+
+    plt.tight_layout()
     if save_path:
-        plt.tight_layout()
-        safe_unit_label = unit_label.replace("/", "_")
-        save_path = os.path.join(config["dirs"]["figures"], f"dist_{code}_{year}_{flow}_{safe_unit_label}.png")
+        unit_suffix = unit_label.split("/")[-1]  # e.g., "kg" from "USD/kg"
+        save_path = os.path.join(config["dirs"]["figures"], 
+           f"fit_{code}_{year}_{flow}_{unit_suffix}_{best_fit_name}.png")
         plt.savefig(save_path, dpi=300)
         if ax is None:
             plt.close()
     else:
-        plt.tight_layout()
         plt.show()
         
 def plot_gdpcountry(df, code, year, flow, save_path=None, ax=None):
