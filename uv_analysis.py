@@ -100,15 +100,6 @@ def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", m
     full_df = df[col].dropna()
     original_n = len(full_df)
     
-    if original_n == 0:
-        logger.warning(f"⚠️ No valid data in column '{col}' for modality test.")
-        return {
-            "step_3_name": "test_modality",
-            "t_modality_votes": 0,
-            "t_sample_capped": False,
-            "t_sample_used": 0,
-            "t_sample_original": 0
-        }, None
 
     # Decide if capping is needed
     boot_methods = {"SI", "HY", "CH", "ACR"}
@@ -147,7 +138,6 @@ def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", m
 
         # Summary report
         report_modality = {
-            "t_name": "modality_test",
             "t_method": "majority",
             "t_modality_decision": final_decision,
             "t_modality_votes": n_reject,
@@ -704,7 +694,7 @@ def fit_gmm(
                 countries_str = ", ".join(
                     [f"{k}: {v*100:.0f}%" for k, v in top_countries[:3]]
                 )
-                label = f"Cluster ({i+1}) {a*100:.0f}%: {np.exp(mu):.2f} {unit_label} ({countries_str})"
+                label = f"Cluster ({i+1}) {a*100:.0f}%: {np.exp(mu):.2f} {unit_label}\n({countries_str})"
             else:
                 label = f"Cluster ({i+1}) {a*100:.0f}%: {np.exp(mu):.2f} {unit_label}"
 
@@ -722,11 +712,26 @@ def fit_gmm(
 
         # Histogram
         bin_edges = np.histogram_bin_edges(data.flatten(), bins='fd') # decide bin width useing Freeman-Diaconis rule
-        ax.hist(data.flatten(), bins=bin_edges, density=True, alpha=0.5, label="Histogram", color="gray")
+        ax.hist(data.flatten(), bins=bin_edges, density=True, alpha=0.4, label="Histogram", color="gray")
 
         # Overall GMM
         ax.plot(x_vals, pdf, label="Overall GMM", color="black", linewidth=2)
-        ax.legend(ncol=2, loc="upper right")
+        
+        # === Evenly split all legend entries into upper left and upper right ===
+        handles_all, labels_all = ax.get_legend_handles_labels()
+        legend_entries = list(zip(handles_all, labels_all))
+
+        total = len(legend_entries)
+        mid = total // 2
+        left_entries = legend_entries[:mid]
+        right_entries = legend_entries[mid:]
+
+        if left_entries:
+            leg1 = ax.legend(*zip(*left_entries), loc="upper left", frameon=False)
+            ax.add_artist(leg1)
+        if right_entries:
+            leg2 = ax.legend(*zip(*right_entries), loc="upper right", frameon=False)
+        
         text_d = 'imports' if flow == 'm' else 'exports'
         ax.set_title(f"GMM fit of unit values ({unit_label}) for HS {code} {text_d} in {year}")
         xlabel = f"ln(Unit Value) [{unit_label}]" 
@@ -775,413 +780,3 @@ def fit_gmm(
     return gmm_1d_report
 
 
-def re_minmax_log(scaled_values, scaler, feature_index):
-    """
-    Reverse the Min-Max scaling and log transformation in one step.
-    Args:
-    - scaled_values (array): Scaled values to reverse.
-    - scaler (MinMaxScaler object): The MinMaxScaler used during scaling.
-    - feature_index (int): The index of the feature to reverse.
-
-    Returns:
-    - Original values before scaling and log transformation.
-    """
-    # Step 1: Reverse Min-Max scaling
-    feature_min = scaler.data_min_[
-        feature_index
-    ]  # Original min value for the feature
-    feature_range = scaler.data_range_[
-        feature_index
-    ]  # Original range for the feature
-    scaled_back = feature_min + (scaled_values * feature_range)
-
-    # Step 2: Reverse the log transformation
-    original_values = np.exp(scaled_back)  # Reverse log1p -> expm1
-
-    return original_values
-
-
-def fit_gmm2(
-    data,
-    components,
-    code,
-    year,
-    flow,
-    plot="2D",
-    save_path=None,
-    ax=None,
-):
-    """
-    Fits a Gaussian Mixture Model (GMM) to a dataset with two features and 
-    provides statistics along with an optional 2D plot.
-
-    Parameters:
-    - data: ndarray or DataFrame with two columns (ln_Unit_Price and ln_netWgt).
-    - components: Number of GMM components to fit.
-    - code: HS code for the commodity.
-    - year: Year of analysis.
-    - flow: 'm' for imports, 'x' for exports.
-    - plot: If '2D', generates a 2D contour plot of GMM clusters.
-    - save_path: Path to save the plot (if provided).
-    - ax: Axes object for the plot (optional).
-
-    Returns:
-    - Dictionary containing means, proportions, covariances, 
-      and confidence intervals.
-    """
-    data = data.to_numpy()
-
-    scaler = MinMaxScaler()  # StandardScaler()
-    data = scaler.fit_transform(
-        data
-    )  # z-score normalization, with the mean and the standard deviation at 0 and 1, repectively.
-
-    # Fit the GMM model
-    gmm = GaussianMixture(n_components=components, random_state=42, n_init=10)
-    gmm.fit(data)
-
-    # Extract statistics from the fitted GMM
-    means = gmm.means_
-    proportions = gmm.weights_
-    covariances = gmm.covariances_
-
-    # Calculate standard errors for the means
-    N = len(data)
-    standard_errors = np.sqrt(
-        np.array([np.diag(cov) for cov in covariances])
-    ) / np.sqrt(N * proportions[:, np.newaxis])
-
-    # 95% confidence intervals
-    z_alpha_half = norm.ppf(0.975)
-    lower_bound = means - z_alpha_half * standard_errors
-    upper_bound = means + z_alpha_half * standard_errors
-
-    # Sort components by proportions
-    sorted_indices = np.argsort(proportions)[::-1]
-    sorted_means = means[sorted_indices]
-    sorted_proportions = proportions[sorted_indices]
-    sorted_covariances = covariances[sorted_indices]
-    sorted_lower_bound = lower_bound[sorted_indices]
-    sorted_upper_bound = upper_bound[sorted_indices]
-
-    # Text for import/export
-    text_d = "imports" if flow == "m" else "exports"
-
-    print(
-        f"In {year}, the unit values for HS {code} {text_d} are represented by {components} clusters."
-    )
-
-    # Report means
-    mean_values = [
-        f"({np.exp(mean[0]):.3f}, {np.exp(mean[1]):.3f})"
-        for mean in sorted_means
-    ]
-    print(f"Means (ln_Unit_Price, ln_netWgt): {', '.join(mean_values)}")
-
-    # Report confidence intervals
-    ci_values = [
-        f"[({np.exp(lower[0]):.3f}, {np.exp(lower[1]):.3f}), ({np.exp(upper[0]):.3f}, {np.exp(upper[1]):.3f})]"
-        for lower, upper in zip(sorted_lower_bound, sorted_upper_bound)
-    ]
-    print(f"95% Confidence Intervals: {', '.join(ci_values)}")
-
-    # Report proportions
-    proportions_values = [f"{prop*100:.2f}%" for prop in sorted_proportions]
-    print(f"Proportions: {', '.join(proportions_values)}")
-
-    # Plot 2D GMM
-    if plot == "2D":
-        # Define grid limits
-        x_min, x_max = min(data[:, 0]), max(data[:, 0])
-        y_min, y_max = min(data[:, 1]), max(data[:, 1])
-        xx, yy = np.meshgrid(
-            np.linspace(x_min, x_max, 100), np.linspace(y_min, y_max, 100)
-        )
-        grid_data = np.vstack([xx.ravel(), yy.ravel()]).T
-
-        # Generate probabilities for the grid
-        ##gmm_probs = np.exp(gmm.score_samples(grid_data)).reshape(xx.shape)
-        colors = cm.get_cmap("tab20", components)
-
-        if ax is None:
-            fig, ax = plt.subplots(figsize=(10, 6))
-
-        # Plot data points
-        ax.scatter(
-            data[:, 0],
-            data[:, 1],
-            alpha=0.2,
-            label="Data",
-            color="gray",
-            s=10,
-        )
-
-        ##ax.contourf(xx, yy, gmm_probs, levels=20, cmap="Blues", alpha=0.5)
-
-        # Plot contours for each component
-        for i in range(components):
-            diff = grid_data - sorted_means[i]
-            cov_inv = np.linalg.inv(
-                sorted_covariances[i]
-            )  # Inverse of covariance matrix
-            exponent = -0.5 * np.sum(diff @ cov_inv * diff, axis=1)
-            component_prob = (
-                sorted_proportions[i]
-                * np.exp(exponent)
-                / (2 * np.pi * np.sqrt(np.linalg.det(sorted_covariances[i])))
-            )
-            component_prob = component_prob.reshape(xx.shape)
-            ax.contour(
-                xx,
-                yy,
-                component_prob,
-                levels=5,
-                colors=[colors(i)],
-                alpha=0.9,
-                linewidths=0.8,
-            )
-
-        # Example data
-        xticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
-
-        # Update the tick labels with original values
-        ori_x = [re_minmax_log(tick, scaler, 0) for tick in xticks]
-        ori_y = [re_minmax_log(tick, scaler, 1) for tick in xticks]
-
-        ori_x = [round(label, 2) for label in ori_x]
-        ori_y = [round(label, 2) for label in ori_y]
-        ori_y = [
-            f"{label:.2e}" if label >= 1000 else round(label, 2)
-            for label in ori_y
-        ]
-        lb_x = [f"{tick} ({label})" for tick, label in zip(xticks, ori_x)]
-        lb_y = [f"{tick}\n({label})" for tick, label in zip(xticks, ori_y)]
-
-        ax.set_xticks(xticks)  # Set the tick positions (scaled values)
-        ax.set_yticks(xticks)  # Set the tick positions (scaled values)
-        ax.set_xticklabels(
-            lb_x, fontsize=10
-        )  # Set the tick labels with original data
-        ax.set_yticklabels(
-            lb_y, fontsize=10
-        )  # Set the tick labels with original data
-
-        # Ensure equal aspect ratio
-        ax.set_aspect("equal", adjustable="box")
-
-        # Add labels, title, and legend
-        ax.set_title(
-            f"GMM Clustering for HS {code} {text_d} in {year}", fontsize=14
-        )
-        ax.set_xlabel("ln_Unit_Price", fontsize=12)
-        ax.set_ylabel("ln_netWgt", fontsize=12)
-        handles, labels = ax.get_legend_handles_labels()
-        # Add the custom legend entry for the scaled and original data pair
-        handles.append(plt.Line2D([0], [0], color="white", lw=2))
-        labels.append("0.4(0.24): Log-Min-Max scaled data (original data)")
-
-        # Add the legend back to the plot with the custom line and original ones
-        ax.legend(handles, labels, loc="upper right", fontsize=10)
-
-        # Save or show the plot
-        if save_path:
-            plt.savefig(save_path, dpi=300)
-        else:
-            plt.show()
-
-    # Return statistics as a dictionary
-    return {
-        "means": sorted_means,
-        "proportions": sorted_proportions,
-        "covariances": sorted_covariances,
-        "confidence_intervals": {
-            "lower": sorted_lower_bound,
-            "upper": sorted_upper_bound,
-        },
-    }
-
-
-def ensure_cov_matrix(cov, cov_type):
-    """Convert diagonal or spherical covariance to full matrix if needed."""
-    if cov_type == "diag":
-        return np.diag(cov)
-    elif cov_type == "spherical":
-        return np.eye(2) * cov  # assumes 2D feature
-    return cov
-
-
-def fit_gmm2_flexible(
-    data,
-    components,
-    code,
-    year,
-    flow,
-    plot="2D",
-    save_path=None,
-    ax=None,
-    covariance_type="full",
-):
-    data = data.to_numpy()
-    scaler = MinMaxScaler()
-    data = scaler.fit_transform(data)
-
-    gmm = GaussianMixture(
-        n_components=components,
-        covariance_type=covariance_type,
-        random_state=42,
-        reg_covar=1e-6,
-        n_init=10,
-    )
-    gmm.fit(data)
-
-    means = gmm.means_
-    proportions = gmm.weights_
-    covariances = gmm.covariances_
-
-    N = len(data)
-
-    # Handle standard error computation
-    if covariance_type == "full":
-        standard_errors = np.sqrt(
-            np.array([np.diag(cov) for cov in covariances])
-        ) / np.sqrt(N * proportions[:, np.newaxis])
-    elif covariance_type == "diag":
-        standard_errors = np.sqrt(covariances) / np.sqrt(
-            N * proportions[:, np.newaxis]
-        )
-    elif covariance_type == "spherical":
-        standard_errors = np.sqrt(covariances)[:, np.newaxis] / np.sqrt(
-            N * proportions[:, np.newaxis]
-        )
-    else:
-        raise NotImplementedError(
-            f"Covariance type {covariance_type} is not supported for standard error computation."
-        )
-
-    z_alpha_half = norm.ppf(0.975)
-    lower_bound = means - z_alpha_half * standard_errors
-    upper_bound = means + z_alpha_half * standard_errors
-
-    sorted_indices = np.argsort(proportions)[::-1]
-    sorted_means = means[sorted_indices]
-    sorted_proportions = proportions[sorted_indices]
-    sorted_covariances = covariances[sorted_indices]
-    sorted_lower_bound = lower_bound[sorted_indices]
-    sorted_upper_bound = upper_bound[sorted_indices]
-
-    text_d = "imports" if flow == "m" else "exports"
-    print(
-        f"In {year}, the unit values for HS {code} {text_d} are represented by {components} clusters."
-    )
-
-    mean_values = [
-        f"({np.exp(mean[0]):.3f}, {np.exp(mean[1]):.3f})"
-        for mean in sorted_means
-    ]
-    print(f"Means (ln_Unit_Price, ln_netWgt): {', '.join(mean_values)}")
-
-    ci_values = [
-        f"[({np.exp(lower[0]):.3f}, {np.exp(lower[1]):.3f}), ({np.exp(upper[0]):.3f}, {np.exp(upper[1]):.3f})]"
-        for lower, upper in zip(sorted_lower_bound, sorted_upper_bound)
-    ]
-    print(f"95% Confidence Intervals: {', '.join(ci_values)}")
-
-    proportions_values = [f"{prop*100:.2f}%" for prop in sorted_proportions]
-    print(f"Proportions: {', '.join(proportions_values)}")
-
-    if plot == "2D":
-        x_min, x_max = min(data[:, 0]), max(data[:, 0])
-        y_min, y_max = min(data[:, 1]), max(data[:, 1])
-        xx, yy = np.meshgrid(
-            np.linspace(x_min, x_max, 100), np.linspace(y_min, y_max, 100)
-        )
-        grid_data = np.vstack([xx.ravel(), yy.ravel()]).T
-
-        colors = cm.get_cmap("tab20", components)
-
-        if ax is None:
-            fig, ax = plt.subplots(figsize=(10, 6))
-
-        ax.scatter(
-            data[:, 0],
-            data[:, 1],
-            alpha=0.2,
-            label="Data",
-            color="gray",
-            s=10,
-        )
-
-        for i in range(components):
-            cov_matrix = ensure_cov_matrix(
-                sorted_covariances[i], covariance_type
-            )
-            cov_inv = np.linalg.inv(cov_matrix)
-            diff = grid_data - sorted_means[i]
-            exponent = -0.5 * np.sum(diff @ cov_inv * diff, axis=1)
-            det_cov = np.linalg.det(cov_matrix)
-            component_prob = (
-                sorted_proportions[i]
-                * np.exp(exponent)
-                / (2 * np.pi * np.sqrt(det_cov))
-            )
-            component_prob = component_prob.reshape(xx.shape)
-            ax.contour(
-                xx,
-                yy,
-                component_prob,
-                levels=5,
-                colors=[colors(i)],
-                alpha=0.9,
-                linewidths=0.8,
-            )
-
-        xticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
-        ori_x = [
-            np.exp(
-                scaler.data_min_[0]
-                + tick * (scaler.data_max_[0] - scaler.data_min_[0])
-            )
-            for tick in xticks
-        ]
-        ori_y = [
-            np.exp(
-                scaler.data_min_[1]
-                + tick * (scaler.data_max_[1] - scaler.data_min_[1])
-            )
-            for tick in xticks
-        ]
-
-        ori_x = [round(label, 2) for label in ori_x]
-        ori_y = [
-            f"{label:.2e}" if label >= 1000 else round(label, 2)
-            for label in ori_y
-        ]
-        lb_x = [f"{tick} ({label})" for tick, label in zip(xticks, ori_x)]
-        lb_y = [f"{tick}\n({label})" for tick, label in zip(xticks, ori_y)]
-
-        ax.set_xticks(xticks)
-        ax.set_yticks(xticks)
-        ax.set_xticklabels(lb_x, fontsize=10)
-        ax.set_yticklabels(lb_y, fontsize=10)
-        ax.set_aspect("equal", adjustable="box")
-        ax.set_title(
-            f"GMM Clustering for HS {code} {text_d} in {year}", fontsize=14
-        )
-        ax.set_xlabel("ln_Unit_Price", fontsize=12)
-        ax.set_ylabel("ln_netWgt", fontsize=12)
-        ax.legend(fontsize=10)
-
-        if save_path:
-            plt.savefig(save_path, dpi=300)
-        else:
-            plt.show()
-
-    return {
-        "means": sorted_means,
-        "proportions": sorted_proportions,
-        "covariances": sorted_covariances,
-        "confidence_intervals": {
-            "lower": sorted_lower_bound,
-            "upper": sorted_upper_bound,
-        },
-    }

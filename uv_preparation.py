@@ -75,7 +75,7 @@ def clean_trade(code, year, flow, config, logger):
     
     df_q = df.iloc[0:0] # Initialize an emplty placeholder
     share_pass = count_pass = False
-    
+    return_unit = "USD/kg"  # Default return unit
     unit_counts = df_q_valid["qtyUnitCode"].value_counts()
     alt_units = unit_counts[~unit_counts.index.isin([-1, 8])] # Exclude kg and unknown
 
@@ -118,6 +118,7 @@ def clean_trade(code, year, flow, config, logger):
             df_q["ln_qty"] = np.log(df_q["qty"])
             df_q.drop(columns=[
                 "netWgt", "uv", "ln_uv", "ln_netWgt" ], errors="ignore", inplace=True)
+            return_unit = f"USD/{unit_abbr}"  # ✅ Set return unit
 
             fail_reason_non_kg_uv = None
             logger.info("✅ Non-kg UV subset created.")
@@ -165,7 +166,7 @@ def clean_trade(code, year, flow, config, logger):
             "c_valid_non_kg_top_unit_rows": p6,
             "c_fail_reason_non_kg_uv": fail_reason_non_kg_uv
         })
-    return df_uv, df_q, lst_report_cleaning, f"USD/{unit_abbr}"
+    return df_uv, df_q, lst_report_cleaning, return_unit
     
 
 def detect_outliers(df, value_column,  code, year, flow, logger,label="Data"):

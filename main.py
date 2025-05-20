@@ -5,7 +5,6 @@ Licensed under LGPL v3.0 – See LICENSE file for details.
 Funding Acknowledgment:
 - European Horizon Project (No. 101060142) "RESOURCE – REgional project development aSsistance fOr the Uptake of an aRagonese Circular Economy"
 - Financial support from CML, Leiden University, for full access to the UN Comtrade database
-test text
 """
 
 import time
@@ -36,9 +35,9 @@ from uv_visualization import (
 
 # subscription_key = "4a624b220f67400c9a6ef19b1890f1f9"
 # path = 'C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy'
-code = "850511"
-year = "2023"
-flow = "m"
+code = "390110"
+year = "2022"
+flow = "x"
 
 config = load_config(input_dir="C:/Users/lik6/Data/ComtradeTariffline/merge/")
 
@@ -87,7 +86,6 @@ def cmltrade_uv(code, year, flow):
         year,
         flow,
         unit_label="USD/kg",
-        save_path=True,
     )
     if df_q is not None and not df_q.empty:
         plot_histogram(
@@ -96,7 +94,6 @@ def cmltrade_uv(code, year, flow):
             year,
             flow,
             unit_label=non_kg_unit,
-            save_path=True,
         )
     logger_time("Completed histogram", start_time, logger)
 
@@ -181,8 +178,9 @@ def cmltrade_uv(code, year, flow):
         logger.info("Fitting GMM on kg-based UV")
         start_time = time.time()
         optimal_k, bic_values, report_gmmf_1d = find_gmm_components(
-            df_filtered[["ln_uv"]]
-        )
+                          df_filtered[["ln_uv"]], code, year, flow, "USD/kg", 
+                          plot=True,save_path=True)
+        
         report_gmm_1d = fit_gmm(
             df_filtered,
             ["ln_uv"],
@@ -193,7 +191,8 @@ def cmltrade_uv(code, year, flow):
             plot=True,
             save_path=True,
             n_init=10,
-            reg_covar=1e-3
+            reg_covar=1e-3,
+            unit_label="USD/kg",
         )
         logger_time(
             "Completed GMM fit on kg-based UV", start_time, logger
@@ -283,71 +282,4 @@ def cmltrade_uv(code, year, flow):
                 start_time,
                 logger,
             )
-    # %%% rest
 
-        start_time = time.time()
-        components, bic_values = find_gmm_components(
-            df2[["ln_uv", "ln_netWgt"]],
-            max_components=50,
-            convergence_threshold=5,
-        )
-        fit_gmm2_flexible(
-            df2[["ln_uv", "ln_netWgt"]],
-            components,
-            code,
-            year,
-            flow,
-            plot="2D",
-            save_path=None,
-            ax=None,
-            covariance_type="full",
-        )
-        logger_time_info(
-            "Fitting a 2D GMM on unit values and trade volume", start_time
-        )
-
-        components, bic_values = find_gmm_components(
-            df2[["ln_uv", "ln_gdp"]],
-            max_components=50,
-            convergence_threshold=5,
-        )
-        fit_gmm2(
-            df2[["ln_uv", "ln_gdp"]],
-            components,
-            code,
-            year,
-            flow,
-            plot="2D",
-            save_path=None,
-            ax=None,
-        )
-
-        logger_section_header(
-            "Fitting a 3D GMM on unit values, trade volume, and GDP per capita"
-        )
-        components, bic_values = find_gmm_components(
-            df2[["ln_uv", "ln_netWgt", "ln_gdp"]],
-            max_components=50,
-            convergence_threshold=5,
-        )
-        a, b = fit_gmm3(
-            df2,
-            ["ln_uv", "ln_netWgt", "ln_gdp"],
-            components,
-            code,
-            year,
-            flow,
-            save_path=None,
-        )
-        logger_time_info(
-            "Fitting a 3D GMM on unit values, trade volume, and GDP per capita",
-            start_time,
-        )
-        plot_gmm1d_country(
-            df2, b, code, year, flow, save_path="country_gmm.svg"
-        )
-
-        # Extra plot on the countries' involvement
-
-    total_time = time.time() - zero_time
-    print(f"Analysis complete. Total time: {total_time:.2f} seconds.")
