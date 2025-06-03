@@ -1,0 +1,130 @@
+[2025-06-01 19:42:02] INFO     Clean trade data (HS 050590, 2023, X)
+[2025-06-01 19:42:02] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2023_numpy\H6_050590_2023.csv
+[2025-06-01 19:42:02] INFO     🧹 Cleaning Summary:
+[2025-06-01 19:42:02] INFO      - Initial rows: 2319
+[2025-06-01 19:42:02] INFO      - Valid country filter: 2120 (91.42%)
+[2025-06-01 19:42:02] INFO      - Valid trade value filter: 1888 (81.41%)
+[2025-06-01 19:42:02] INFO      - Valid kg-based UV rows: 1608 (69.34%)
+[2025-06-01 19:42:02] WARNING  ⚠️ No non-kg units found in qty rows.
+[2025-06-01 19:42:02] INFO     ✅ Finished cleaning: HS 050590, Year 2023, Flow X
+[2025-06-01 19:42:02] INFO     ✅ Completed trade data cleaning completed in 0.09 seconds.
+[2025-06-01 19:42:14] INFO     Clean trade data (HS 050590, 2023, M)
+[2025-06-01 19:42:14] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2023_numpy\H6_050590_2023.csv
+[2025-06-01 19:42:14] INFO     🧹 Cleaning Summary:
+[2025-06-01 19:42:14] INFO      - Initial rows: 2262
+[2025-06-01 19:42:14] INFO      - Valid country filter: 1748 (77.28%)
+[2025-06-01 19:42:14] INFO      - Valid trade value filter: 1597 (70.60%)
+[2025-06-01 19:42:14] INFO      - Valid kg-based UV rows: 1297 (57.34%)
+[2025-06-01 19:42:14] INFO     📊 Non-kg UV Subset:
+[2025-06-01 19:42:14] INFO      - Top unit: Number of items (u)
+[2025-06-01 19:42:14] INFO      - Share of valid qty rows: 0.15% (Required: 10%)
+[2025-06-01 19:42:14] INFO      - Valid qty count: 2 (Required: 200)
+[2025-06-01 19:42:14] WARNING  ❌ No non-kg UV subset created: share 0.15% < 10% and count 2 < 200
+[2025-06-01 19:42:14] INFO     ✅ Finished cleaning: HS 050590, Year 2023, Flow M
+[2025-06-01 19:42:14] INFO     ✅ Completed trade data cleaning completed in 0.09 seconds.
+[2025-06-01 19:42:17] INFO     Outlier detection (HS 050590, 2023, M)
+[2025-06-01 19:42:17] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-06-01 19:42:17] INFO     - Dropped 1 rows (0.077%).
+[2025-06-01 19:42:17] INFO     - Remaining rows: 1296.
+[2025-06-01 19:42:17] INFO     ✅ Completed outlier detection completed in 0.00 seconds.
+[2025-06-01 19:42:19] INFO     Histogram (HS 050590, 2023, M)
+[2025-06-01 19:42:19] INFO     ✅ Completed histogram completed in 0.59 seconds.
+[2025-06-01 19:42:37] INFO     Clean trade data (HS 050590, 2022, M)
+[2025-06-01 19:42:37] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2022_numpy\H6_050590_2022.csv
+[2025-06-01 19:42:37] INFO     🧹 Cleaning Summary:
+[2025-06-01 19:42:37] INFO      - Initial rows: 2463
+[2025-06-01 19:42:37] INFO      - Valid country filter: 1940 (78.77%)
+[2025-06-01 19:42:37] INFO      - Valid trade value filter: 1831 (74.34%)
+[2025-06-01 19:42:37] INFO      - Valid kg-based UV rows: 1549 (62.89%)
+[2025-06-01 19:42:37] INFO     📊 Non-kg UV Subset:
+[2025-06-01 19:42:37] INFO      - Top unit: Number of items (u)
+[2025-06-01 19:42:37] INFO      - Share of valid qty rows: 0.06% (Required: 10%)
+[2025-06-01 19:42:37] INFO      - Valid qty count: 1 (Required: 200)
+[2025-06-01 19:42:37] WARNING  ❌ No non-kg UV subset created: share 0.06% < 10% and count 1 < 200
+[2025-06-01 19:42:37] INFO     ✅ Finished cleaning: HS 050590, Year 2022, Flow M
+[2025-06-01 19:42:37] INFO     ✅ Completed trade data cleaning completed in 0.09 seconds.
+[2025-06-01 19:43:48] INFO     Clean trade data (HS 010121, 2022, M)
+[2025-06-01 19:43:48] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2022_numpy\H6_010121_2022.csv
+[2025-06-01 19:43:48] INFO     🧹 Cleaning Summary:
+[2025-06-01 19:43:48] INFO      - Initial rows: 4106
+[2025-06-01 19:43:48] INFO      - Valid country filter: 3627 (88.33%)
+[2025-06-01 19:43:48] INFO      - Valid trade value filter: 2996 (72.97%)
+[2025-06-01 19:43:48] INFO      - Valid kg-based UV rows: 2175 (52.97%)
+[2025-06-01 19:43:48] INFO     📊 Non-kg UV Subset:
+[2025-06-01 19:43:48] INFO      - Top unit: Number of items (u)
+[2025-06-01 19:43:48] INFO      - Share of valid qty rows: 85.08% (Required: 10%)
+[2025-06-01 19:43:48] INFO      - Valid qty count: 2018 (Required: 200)
+[2025-06-01 19:43:48] INFO     ✅ Non-kg UV subset created.
+[2025-06-01 19:43:48] INFO     ✅ Finished cleaning: HS 010121, Year 2022, Flow M
+[2025-06-01 19:43:48] INFO     ✅ Completed trade data cleaning completed in 0.14 seconds.
+[2025-06-01 19:43:50] INFO     Outlier detection (HS 010121, 2022, M)
+[2025-06-01 19:43:50] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-06-01 19:43:50] INFO     - Dropped 19 rows (0.874%).
+[2025-06-01 19:43:50] INFO     - Remaining rows: 2156.
+[2025-06-01 19:43:50] INFO     📊 Outlier Detection on Non-kg-based UV:
+[2025-06-01 19:43:50] INFO     - Dropped 25 rows (1.239%).
+[2025-06-01 19:43:50] INFO     - Remaining rows: 1993.
+[2025-06-01 19:43:50] INFO     ✅ Completed outlier detection completed in 0.01 seconds.
+[2025-06-01 19:43:52] INFO     Histogram (HS 010121, 2022, M)
+[2025-06-01 19:43:59] INFO     Outlier detection (HS 010121, 2022, M)
+[2025-06-01 19:43:59] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-06-01 19:43:59] INFO     - Dropped 19 rows (0.874%).
+[2025-06-01 19:43:59] INFO     - Remaining rows: 2156.
+[2025-06-01 19:43:59] INFO     📊 Outlier Detection on Non-kg-based UV:
+[2025-06-01 19:43:59] INFO     - Dropped 25 rows (1.239%).
+[2025-06-01 19:43:59] INFO     - Remaining rows: 1993.
+[2025-06-01 19:43:59] INFO     ✅ Completed outlier detection completed in 0.01 seconds.
+[2025-06-01 19:44:08] INFO     Histogram (HS 010121, 2022, M)
+[2025-06-01 19:44:37] INFO     Histogram (HS 010121, 2022, M)
+[2025-06-01 19:44:38] INFO     ✅ Completed histogram completed in 1.02 seconds.
+[2025-06-01 19:45:27] INFO     📈 Modality Test Summary:
+[2025-06-01 19:45:27] INFO     - Column tested: ln_uv
+[2025-06-01 19:45:27] INFO     - Original sample size: 2156
+[2025-06-01 19:45:27] INFO     ✅ Full sample used (no capping applied).
+[2025-06-01 19:45:27] INFO     - Final decision: unimodal (0 reject out of 5)
+[2025-06-01 19:46:27] INFO     Modality Test (HS 010121, 2022, M)
+[2025-06-01 19:46:47] INFO     📈 Modality Test Summary:
+[2025-06-01 19:46:47] INFO     - Column tested: ln_uv
+[2025-06-01 19:46:47] INFO     - Original sample size: 2156
+[2025-06-01 19:46:47] INFO     ✅ Full sample used.
+[2025-06-01 19:46:47] INFO     - Final decision: unimodal (0 reject out of 2)
+[2025-06-01 19:47:23] INFO     📈 Modality Test Summary:
+[2025-06-01 19:47:23] INFO     - Column tested: ln_uv
+[2025-06-01 19:47:23] INFO     - Original sample size: 2156
+[2025-06-01 19:47:23] INFO     ✅ Full sample used (no capping applied).
+[2025-06-01 19:47:23] INFO     - Final decision: unimodal (0 reject out of 5)
+[2025-06-01 19:47:41] INFO     📈 Modality Test Summary:
+[2025-06-01 19:47:41] INFO     - Column tested: ln_uv_q
+[2025-06-01 19:47:41] INFO     - Original sample size: 1993
+[2025-06-01 19:47:41] INFO     ✅ Full sample used.
+[2025-06-01 19:47:41] INFO     - Final decision: unimodal (0 reject out of 2)
+[2025-06-01 19:48:25] INFO     📈 Modality Test Summary:
+[2025-06-01 19:48:25] INFO     - Column tested: ln_uv_q
+[2025-06-01 19:48:25] INFO     - Original sample size: 1993
+[2025-06-01 19:48:25] INFO     ✅ Full sample used (no capping applied).
+[2025-06-01 19:48:25] INFO     - Final decision: unimodal (0 reject out of 5)
+[2025-06-01 19:48:25] INFO     ✅ Completed modality test completed in 1 min 57.7 sec.
+[2025-06-01 20:25:56] INFO     Clean trade data (HS 010121, 2023, M)
+[2025-06-01 20:25:56] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2023_numpy\H6_010121_2023.csv
+[2025-06-01 20:25:56] INFO     🧹 Cleaning Summary:
+[2025-06-01 20:25:56] INFO      - Initial rows: 3996
+[2025-06-01 20:25:56] INFO      - Valid country filter: 3550 (88.84%)
+[2025-06-01 20:25:56] INFO      - Valid trade value filter: 2826 (70.72%)
+[2025-06-01 20:25:56] INFO      - Valid kg-based UV rows: 2103 (52.63%)
+[2025-06-01 20:25:56] INFO     📊 Non-kg UV Subset:
+[2025-06-01 20:25:56] INFO      - Top unit: Number of items (u)
+[2025-06-01 20:25:56] INFO      - Share of valid qty rows: 90.83% (Required: 10%)
+[2025-06-01 20:25:56] INFO      - Valid qty count: 2448 (Required: 200)
+[2025-06-01 20:25:56] INFO     ✅ Non-kg UV subset created.
+[2025-06-01 20:25:56] INFO     ✅ Finished cleaning: HS 010121, Year 2023, Flow M
+[2025-06-01 20:25:56] INFO     ✅ Completed trade data cleaning completed in 0.11 seconds.
+[2025-06-01 20:25:57] INFO     Outlier detection (HS 010121, 2023, M)
+[2025-06-01 20:25:57] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-06-01 20:25:57] INFO     - Dropped 9 rows (0.428%).
+[2025-06-01 20:25:57] INFO     - Remaining rows: 2094.
+[2025-06-01 20:25:57] INFO     📊 Outlier Detection on Non-kg-based UV:
+[2025-06-01 20:25:57] INFO     - Dropped 38 rows (1.552%).
+[2025-06-01 20:25:57] INFO     - Remaining rows: 2410.
+[2025-06-01 20:25:57] INFO     ✅ Completed outlier detection completed in 0.01 seconds.
+[2025-06-01 20:26:08] INFO     Histogram (HS 010121, 2023, M)
+[2025-06-01 20:26:09] INFO     ✅ Completed histogram completed in 1.17 seconds.

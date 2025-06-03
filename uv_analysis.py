@@ -2,39 +2,23 @@ import numpy as np
 import pandas as pd
 from scipy.stats import (
     norm,
-    iqr,
     skewnorm,
-    cauchy,
     logistic,
-    anderson,
-    gumbel_r,
-    lognorm,
     t,
-    gennorm,
     johnsonsu,
     gennorm,
-    kstest,
-    expon,
-    gaussian_kde,
 )
 from scipy.optimize import minimize_scalar
-from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from diptest import diptest
-import time
 from matplotlib import colormaps
 import matplotlib.pyplot as plt
-from matplotlib.ticker import ScalarFormatter
-from mpl_toolkits.mplot3d.art3d import Line3DCollection
-import matplotlib as mpl
 from sklearn.neighbors import KernelDensity
 from scipy.signal import find_peaks
-from sklearn.metrics import silhouette_score
 import subprocess
 from io import StringIO
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from uv_config import load_config
 import os
+from sklearn.mixture import GaussianMixture
+from matplotlib.lines import Line2D
 
 config = load_config()
 
@@ -68,9 +52,139 @@ def bootstrapped_kde_test(data, num_bootstrap=1000):
 
     return real_peak_count, p_value, bootstrap_peak_counts
 
+def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", methods=["SI", "HH"], cap_size=50000, logger=None):
+    """
+    Run R-based modality tests (Silverman and Hartigan's Dip) on a univariate column.
 
+    This function runs the specified modality tests using an R script on a numeric column of a pandas DataFrame.
+    It supports capping sample size for bootstrapped tests (like Silverman's) to improve computational efficiency.
 
-def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", methods=None, cap_size=25000, logger = None):
+    The current implementation is designed to:
+    - Use only two methods: "SI" (Silverman) and "HH" (Hartigan's Dip)
+    - Return a conservative decision: only if both reject unimodality is the data labeled "multimodal"
+    - Label cases where one rejects and the other fails as "borderline" but conservatively mark them as "unimodal"
+    - Return "unknown" if either SI or HH fails to compute (e.g. missing p-values)
+
+    Parameters:
+        df : pandas.DataFrame
+            The input data containing the column to test.
+        r_script_path : str
+            Path to the R script that runs the modality test.
+        mod0 : int
+            Null hypothesis: number of modes to test against (typically 1).
+        col : str
+            Column name in the DataFrame to test.
+        methods : list of str, optional
+            List of modality test methods to run. Default is ["SI", "HH"].
+        cap_size : int, optional (default = 50000)
+            Maximum number of observations used for bootstrapped or kernel-based tests to save time.
+        logger : logger object
+            Optional logger to log diagnostic information and summary.
+
+    Returns:
+        report_modality : dict
+            Dictionary containing all test results, p-values, decision flags, and sample metadata.
+        final_decision : str
+            One of {"unimodal", "multimodal", "unknown"}. Conservative fallback if input is invalid.
+        is_borderline : bool
+            True if exactly one of SI/HH rejects unimodality (i.e. borderline case).
+    """
+    full_df = df[col].dropna()
+    original_n = len(full_df)
+
+    boot_methods = {"SI"}
+    cap_needed = methods is None or any(m in boot_methods for m in methods)
+
+    if cap_needed and original_n > cap_size:
+        sampled = full_df.sample(cap_size, random_state=42)
+        was_capped = True
+    else:
+        sampled = full_df
+        was_capped = False
+
+    values = sampled.to_numpy()
+    csv_data = "\n".join(f"{v}" for v in values)
+
+    cmd = [config["rscript_exec"], r_script_path, str(mod0)]
+    if methods:
+        cmd += methods
+
+    try:
+        process = subprocess.run(
+            cmd,
+            input=csv_data,
+            text=True,
+            capture_output=True,
+            check=True
+        )
+        pvals_df = pd.read_csv(StringIO(process.stdout))
+
+        reject = pvals_df["P_Value"] < 0.05
+        pvals_df["Decision"] = reject.map(lambda x: "reject" if x else "fail to reject")
+        n_reject = reject.sum()
+
+        si_p = pvals_df.loc[pvals_df["Method"] == "SI", "P_Value"].values[0] if "SI" in pvals_df["Method"].values else None
+        hh_p = pvals_df.loc[pvals_df["Method"] == "HH", "P_Value"].values[0] if "HH" in pvals_df["Method"].values else None
+
+        if si_p is not None and hh_p is not None:
+            if si_p < 0.05 and hh_p < 0.05:
+                final_decision = "multimodal"
+                is_borderline = False
+            elif si_p >= 0.05 and hh_p >= 0.05:
+                final_decision = "unimodal"
+                is_borderline = False
+            else:
+                final_decision = "unimodal"
+                is_borderline = True
+        else:
+            final_decision = "unknown"
+            is_borderline = False
+
+        report_modality = {
+            "t_method": "SI+HH",
+            "t_modality_decision": final_decision,
+            "t_modality_votes": n_reject,
+            "t_sample_capped": was_capped,
+            "t_sample_used": len(sampled),
+            "t_sample_original": original_n,
+            "t_borderline": is_borderline
+        }
+
+        for _, row in pvals_df.iterrows():
+            method_name = row["Method"]
+            report_modality[f"t_{method_name}_P"] = row["P_Value"]
+            report_modality[f"t_{method_name}_decision"] = row["Decision"]
+
+        if logger:
+            logger.info("📈 Modality Test Summary:")
+            logger.info(f"- Column tested: {col}")
+            logger.info(f"- Original sample size: {original_n}")
+            if was_capped:
+                logger.warning(f"❗ Sample capped at {cap_size} for efficiency.")
+            else:
+                logger.info("✅ Full sample used.")
+            logger.info(f"- Final decision: {final_decision} ({n_reject} reject out of {len(pvals_df)})")
+            if final_decision == "unknown":
+                logger.warning("⚠️ Modality unknown: SI or HH test missing.")
+            elif is_borderline:
+                logger.warning("⚠️ Borderline modality test result: SI and HH disagree.")
+
+        return report_modality, final_decision, is_borderline
+
+    except subprocess.CalledProcessError as e:
+        if logger:
+            logger.error("❌ R script for modality test failed.")
+            logger.error(f"STDERR:\n{e.stderr}")
+        return {
+            "t_name": "modality_test",
+            "t_modality_error": str(e),
+            "t_modality_decision": "error",
+            "t_sample_capped": was_capped,
+            "t_sample_used": len(sampled),
+            "t_sample_original": original_n
+        }, "error", False
+    
+def modality_test2(df, r_script_path="uv_modality_test2.R", mod0=1, col="ln_uv", methods=None, cap_size=25000, logger = None):
     """
     Run R-based modality tests on a univariate column from a pandas DataFrame.
 
@@ -100,6 +214,15 @@ def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", m
     full_df = df[col].dropna()
     original_n = len(full_df)
     
+    if original_n == 0:
+        logger.warning(f"⚠️ No valid data in column '{col}' for modality test.")
+        return {
+            "step_3_name": "test_modality",
+            "t_modality_votes": 0,
+            "t_sample_capped": False,
+            "t_sample_used": 0,
+            "t_sample_original": 0
+        }, None
 
     # Decide if capping is needed
     boot_methods = {"SI", "HY", "CH", "ACR"}
@@ -138,6 +261,7 @@ def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", m
 
         # Summary report
         report_modality = {
+            "t_name": "modality_test",
             "t_method": "majority",
             "t_modality_decision": final_decision,
             "t_modality_votes": n_reject,
@@ -176,7 +300,6 @@ def modality_test(df, r_script_path="uv_modality_test.R", mod0=1, col="ln_uv", m
         
         return report_modality, "error"
     
-
 def _estimate_mode(dist, args, data):
     """Estimate mode as the peak of the PDF over the data range."""
     result = minimize_scalar(
@@ -460,12 +583,11 @@ def find_gmm_components(
         data = data.reshape(-1, 1)
 
     n_samples = data.shape[0]
-    bic_values = np.empty(max_components - 1)  # store BIC for each k from 2 to max_components
-    stable_counter = 0  # count how long the best BIC stays unchanged
+    bic_values = np.empty(max_components)  # BIC for k=1 to max_components
+    stable_counter = 0
     prev_best = None
 
-    # Fit GMMs from 2 to max_components
-    for i, n_components in enumerate(range(2, max_components + 1)):
+    for i, n_components in enumerate(range(1, max_components + 1)):
         gmm = GaussianMixture(
             n_components=n_components,
             random_state=42,
@@ -476,8 +598,7 @@ def find_gmm_components(
         bic = gmm.bic(data)
         bic_values[i] = bic
 
-        # Track if the best number of components is changing
-        current_best = int(np.argmin(bic_values[: i + 1])) + 2  # +2 since index 0 corresponds to 2 components
+        current_best = int(np.argmin(bic_values[: i + 1])) + 1
         if prev_best is None:
             prev_best = current_best
         elif current_best == prev_best:
@@ -486,40 +607,35 @@ def find_gmm_components(
             stable_counter = 0
         prev_best = current_best
 
-        # Early stopping if best BIC is stable
         if stable_counter >= convergence_threshold:
             bic_values = bic_values[: i + 1]
             break
 
-    # Find best k by BIC minimum
-    best_k = int(np.argmin(bic_values)) + 2
+    best_k = int(np.argmin(bic_values)) + 1
     best_bic = np.min(bic_values)
 
-    # Compute slope (tangent) to detect L-/tick-shaped elbow patterns
     tangents = [
-        (bic - best_bic) / abs(idx - (best_k - 2)) if idx != (best_k - 2) else 0
+        (bic - best_bic) / abs(idx - (best_k - 1)) if idx != (best_k - 1) else 0
         for idx, bic in enumerate(bic_values)
     ]
 
-    # Analyze for early cut-off points via slope changes
-    best_idx = best_k - 2
+    best_idx = best_k - 1
     l_adj = None
     tick_adj = None
 
     if best_idx >= 2:
-        max_pre = max(tangents[:best_idx])           # largest pre-peak slope
-        max_post = max(tangents[best_idx + 1:])      # largest post-peak slope
+        max_pre = max(tangents[:best_idx])
+        max_post = max(tangents[best_idx + 1:])
 
         for i in range(best_idx):
             if tangents[i] < threshold * max_pre:
-                l_adj = i + 2  # candidate from L-shape detection
+                l_adj = i + 1
                 break
         for i in range(best_idx):
             if tangents[i] < threshold * max_post:
-                tick_adj = i + 2  # candidate from tick-shape detection
+                tick_adj = i + 1
                 break
 
-    # Select smallest among BIC-best and adjustments
     candidates = [best_k]
     notes = {}
     if l_adj and l_adj < best_k:
@@ -531,13 +647,12 @@ def find_gmm_components(
 
     optimal_k = min(candidates)
 
-    print(f"\U0001F4C8 GMM selection: BIC-best={best_k}, L-adjust={l_adj}, Tick-adjust={tick_adj}, Selected={optimal_k}")
+    print(f"📈 GMM selection: BIC-best={best_k}, L-adjust={l_adj}, Tick-adjust={tick_adj}, Selected={optimal_k}")
 
-    # Optional plot
     if plot:
         if ax is None:
             fig, ax = plt.subplots(figsize=(10, 6))
-        x_vals = np.arange(2, 2 + len(bic_values))
+        x_vals = np.arange(1, 1 + len(bic_values))
         ax.plot(x_vals, bic_values, marker='o', label="BIC")
         ax.axvline(best_k, linestyle="--", color="red", label=f"Best BIC: {best_k}")
         for k in notes:
@@ -547,35 +662,36 @@ def find_gmm_components(
         ax.set_ylabel("BIC")
         text_d = 'imports' if flow == 'm' else 'exports'
         ax.set_title(f"GMM component selection based on BIC for unit values ({unit_label}) of HS {code} {text_d} in {year}")
-        ax.legend()
+        dummy_sample = Line2D([], [], linestyle="none")
+        handles, labels = ax.get_legend_handles_labels()
+        handles.insert(0, dummy_sample)
+        labels.insert(0, f"Sample size: {n_samples:,}")
+        ax.legend(handles, labels)
         ax.grid(True)
-        
+
         if save_path:
             plt.tight_layout()
-            unit_suffix = unit_label.split("/")[-1]  # e.g., "kg" from "USD/kg"
-            save_path = os.path.join(config["dirs"]["figures"], 
-                 f"cs_{code}_{year}_{flow}_{unit_suffix}.png")
+            unit_suffix = unit_label.split("/")[-1]
+            save_path = os.path.join(config["dirs"]["figures"], f"cs_{code}_{year}_{flow}_{unit_suffix}.png")
             plt.savefig(save_path, dpi=300)
             if ax is None:
-                plt.close()   
+                plt.close()
         else:
             plt.tight_layout()
             plt.show()
-            
 
-    # Return diagnostics and report
     report_gmm_cselect = {
         "cs_n_samples": n_samples,
         "cs_optimal_components": optimal_k,
         "cs_bic_best_components": best_k,
-        "cs_bic_at_optimal_components": round(bic_values[optimal_k - 2],4),
-        "cs_bic_at_best_components": round(bic_values[best_k - 2],4),
+        "cs_bic_at_optimal_components": round(bic_values[optimal_k - 1], 4),
+        "cs_bic_at_best_components": round(bic_values[best_k - 1], 4),
         "cs_l_shape_adjustment": l_adj,
         "cs_tick_shape_adjustment": tick_adj,
         "cs_converged_early": stable_counter >= convergence_threshold,
-        "cs_threshold": threshold, 
+        "cs_threshold": threshold,
         "cs_n_init": n_init,
-        "cs_reg_covar": reg_covar      
+        "cs_reg_covar": reg_covar
     }
 
     return optimal_k, bic_values.tolist(), report_gmm_cselect
@@ -712,7 +828,7 @@ def fit_gmm(
 
         # Histogram
         bin_edges = np.histogram_bin_edges(data.flatten(), bins='fd') # decide bin width useing Freeman-Diaconis rule
-        ax.hist(data.flatten(), bins=bin_edges, density=True, alpha=0.4, label="Histogram", color="gray")
+        ax.hist(data.flatten(), bins=bin_edges, density=True, alpha=0.4, label=f"Histogram (sample size: {len(data):,})", color="gray")
 
         # Overall GMM
         ax.plot(x_vals, pdf, label="Overall GMM", color="black", linewidth=2)

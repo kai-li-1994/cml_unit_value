@@ -5,7 +5,6 @@ import os
 
 
 def clean_trade(code, year, flow, config, logger):
-    
 
     # === Locate file ===
     year_folder = f"split_by_hs_{year}_numpy"
@@ -56,7 +55,8 @@ def clean_trade(code, year, flow, config, logger):
     logger.info(f" - Valid kg-based UV rows: {p5} ({p5/p1:.2%})")
     if p5 < config.get("min_records_uv", 100):
         logger.warning(f"⚠️ Only {p5} kg-based UV records (<{config['min_records_uv']})")
-
+    is_valid_kg = p5 >= config.get("min_records_uv", 100)
+    
     if flow == "m":
         df_uv["uv"] = np.where(df_uv["cifValue"].fillna(0) > 0,
                                df_uv["cifValue"] / df_uv["netWgt"],
@@ -78,7 +78,9 @@ def clean_trade(code, year, flow, config, logger):
     return_unit = "USD/kg"  # Default return unit
     unit_counts = df_q_valid["qtyUnitCode"].value_counts()
     alt_units = unit_counts[~unit_counts.index.isin([-1, 8])] # Exclude kg and unknown
-
+    
+    is_valid_q = False
+    
     if not alt_units.empty: # non-kg unit exits
         top_unit = alt_units.idxmax() # keep only the top non-kg unit 
         top_count = alt_units[top_unit]
@@ -103,7 +105,7 @@ def clean_trade(code, year, flow, config, logger):
             # build df_q
             df_q = df_q_valid[df_q_valid["qtyUnitCode"] == top_unit].copy()
             p6 = len(df_q)
-            
+            is_valid_q = True
             if flow == 'm':
                 df_q['uv_q'] = np.where(df_q['cifValue'].fillna(0) > 0,
                                         df_q['cifValue'] / df_q['qty'],
@@ -138,35 +140,32 @@ def clean_trade(code, year, flow, config, logger):
 
     logger.info(f"✅ Finished cleaning: HS {code}, Year {year}, Flow {flow.upper()}")
     # === Restructure final report ===
-    lst_report_cleaning = []
+    
     report_base = {
         "hs_code": code,
         "year": year,
         "flow": flow,
-        "uv_type": "USD/kg",
-        "step_1_name": "Clean_trade_data",
         "c_initial_rows": p1,
         "c_valid_country_rows": p2,
         "c_valid_value_rows": p4
     }
-    report_kg = {
+    report_clean = {
     **report_base,
+    "uv_type": "USD/kg",
     "c_valid_weight_rows": p5,
     "c_fail_reason_non_kg_uv": fail_reason_non_kg_uv
 }
-
-    lst_report_cleaning.append(report_kg)
+    report_q_clean = None     # default
 
     if share_pass and count_pass:
-        lst_report_cleaning.append({
+        report_q_clean = {
             **report_base,
-            "uv_type": f"USD/{unit_abbr}",
-            "c_non_kg_top_unit": non_kg_top_unit,
-            "c_non_kg_top_unit_share": non_kg_top_unit_share,
-            "c_valid_non_kg_top_unit_rows": p6,
-            "c_fail_reason_non_kg_uv": fail_reason_non_kg_uv
-        })
-    return df_uv, df_q, lst_report_cleaning, return_unit
+            "uv_type_2": f"USD/{unit_abbr}",
+            "c_top_unit": non_kg_top_unit,
+            "c_top_unit_share": non_kg_top_unit_share,
+            "c_valid_top_unit_rows": p6
+        }
+    return df_uv, df_q, report_clean, report_q_clean, return_unit, is_valid_kg, is_valid_q
     
 
 def detect_outliers(df, value_column,  code, year, flow, logger,label="Data"):
@@ -192,7 +191,6 @@ def detect_outliers(df, value_column,  code, year, flow, logger,label="Data"):
     if mad == 0:
         logger.warning(f"⚠️ Outlier Detection: MAD=0 for {value_column} — skipping detection.")
         return df.copy().reset_index(drop=True), df.iloc[0:0].copy(), {
-            "step_2_name": "detect_outliers",
             "d_initial_rows": len(df),
             "d_outliers_removed": 0,
             "d_outlier_rate": 0.0,
@@ -213,7 +211,6 @@ def detect_outliers(df, value_column,  code, year, flow, logger,label="Data"):
     
     # === Prepare outlier report
     report_outlier = {
-        "step_2_name": "detect_outliers",
         "d_initial_rows": len(df),
         "d_outliers_removed": len(df_outliers),
         "d_outlier_rate": dp_rate,

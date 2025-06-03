@@ -1,21 +1,13 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import (norm, iqr, skewnorm, cauchy, logistic,anderson,
-    gumbel_r,lognorm, t,gennorm, johnsonsu, gennorm, kstest, expon, gaussian_kde,logistic)
-from matplotlib import cm
 from matplotlib.lines import Line2D
-from sklearn.mixture import GaussianMixture
 import matplotlib as mpl
-import seaborn as sns
-import pandas as pd
-from uv_analysis import bootstrap_parametric_ci, find_gmm_components, fit_gmm, ensure_cov_matrix,fit_gmm2_flexible
 from uv_config import load_config
-
-
+from scipy.stats import norm, skewnorm, t, gennorm, johnsonsu, logistic
 config = load_config()
 
-def plot_histogram(data, code, year, flow, unit_label="USD/kg", save_path=None, ax=None):
+def plot_histogram(data, code, year, flow, unit_label="USD/kg", save_path=None, ax=None, file_format="png"):
     """
     Plot a histogram with customizable options and Freedman-Diaconis rule for bin width.
     
@@ -27,6 +19,7 @@ def plot_histogram(data, code, year, flow, unit_label="USD/kg", save_path=None, 
         unit_label: Label for the x-axis unit (e.g., 'USD/kg' or 'USD/u' etc.).
         save_path: Path to save the figure. If None, it will display instead.
         ax: Optional matplotlib Axes object to plot on.
+        file_format: File format for saving the figure (e.g., 'png', 'pdf', 'svg').
     """
     mpl.rcParams['pdf.fonttype'] = 42                                         # Set rcParams to ensure editable text in the PDF
     data = np.asarray(data)  # Ensure it's a NumPy array for slicing speed
@@ -49,19 +42,20 @@ def plot_histogram(data, code, year, flow, unit_label="USD/kg", save_path=None, 
         fig, ax = plt.subplots(figsize=(8, 5))  # Create a new figure
     
     # Step 3: Plot histogram
-    ax.hist(data, bins=bin_edges, edgecolor='black', alpha=0.6)
+    ax.hist(data, bins=bin_edges, color='lightgray', edgecolor = 'white')
     text_d = 'imports' if flow == 'm' else 'exports'
-    ax.set_title(f"Histogram of unit values for HS {code} {text_d} in {year}")
+    ax.set_title(f"Histogram of unit values ({unit_label}) for HS {code} {text_d} in {year}")
     ax.set_xlabel(f"ln(Unit Price) [{unit_label}]")
     ax.set_ylabel("Counts")
-    ax.grid(axis='y', linestyle='--', alpha=0.6)
+    ax.text(0.75, 0.9, f"Sample size: {len(data):,}", transform=ax.transAxes)
+    #ax.grid(axis='y', linestyle='--', alpha=0.6)
 
     # Save or show the plot
     if save_path:
         plt.tight_layout()
         unit_suffix = unit_label.split("/")[-1]  # e.g., "kg" from "USD/kg"
         save_path = os.path.join(config["dirs"]["figures"], 
-                            f"hist_{code}_{year}_{flow}_{unit_suffix}.png")
+                            f"hist_{code}_{year}_{flow}_{unit_suffix}.{file_format}")
         plt.savefig(save_path, dpi=300)
         if ax is None:
             plt.close()   
@@ -83,7 +77,8 @@ def plot_dist(
     raw_params_dict=None,
     ci=None,
     save_path=None,
-    ax=None):
+    ax=None,
+    file_format="png"):
 
     colors = {
         "norm": "#66c2a5", "skewnorm": "#fc8d62", "t": "#8da0cb",
@@ -93,12 +88,13 @@ def plot_dist(
     mpl.rcParams['pdf.fonttype'] = 42
     if ax is None:
         fig, ax = plt.subplots(figsize=(8, 5))
+    fitted_color = "black"  # default fallback color
 
     x = np.linspace(min(data), max(data), 1000)
     hist_output = ax.hist(data, bins='fd', density=True, alpha=0.4, color="gray")
     hist_patch = hist_output[2][0]  # Get the first rectangle patch from the bar container
     handles_dist = [hist_patch]
-    labels_dist = ["Histogram"]
+    labels_dist = [f"Histogram (sample size: {len(data):,})"]
     text_d = 'imports' if flow == 'm' else 'exports'
 
 
@@ -199,7 +195,7 @@ def plot_dist(
     if save_path:
         unit_suffix = unit_label.split("/")[-1]  # e.g., "kg" from "USD/kg"
         save_path = os.path.join(config["dirs"]["figures"], 
-           f"fit_{code}_{year}_{flow}_{unit_suffix}_{best_fit_name}.png")
+           f"fit_{code}_{year}_{flow}_{unit_suffix}_{best_fit_name}.{file_format}")
         plt.savefig(save_path, dpi=300)
         if ax is None:
             plt.close()

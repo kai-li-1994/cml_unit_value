@@ -1,0 +1,479 @@
+[2025-05-20 19:13:09] INFO     Clean trade data (HS 390110, 2022, X)
+[2025-05-20 19:13:09] ERROR    No matching file found for code 390110 in path C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2022_numpy
+[2025-05-20 19:13:19] INFO     Clean trade data (HS 390110, 2022, X)
+[2025-05-20 19:13:19] ERROR    No matching file found for code 390110 in path C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2022_numpy
+[2025-05-20 19:13:28] INFO     Clean trade data (HS 390110, 2022, X)
+[2025-05-20 19:13:28] ERROR    No matching file found for code 390110 in path C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2022_numpy
+[2025-05-20 19:14:00] INFO     Clean trade data (HS 390110, 2022, X)
+[2025-05-20 19:14:00] ERROR    No matching file found for code 390110 in path C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2022_numpy
+[2025-05-20 19:14:15] INFO     Clean trade data (HS 390110, 2022, X)
+[2025-05-20 19:14:15] ERROR    No matching file found for code 390110 in path C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2022_numpy
+[2025-05-20 19:15:09] INFO     Clean trade data (HS 390110, 2022, X)
+[2025-05-20 19:15:09] ERROR    No matching file found for code 390110 in path C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2022_numpy
+[2025-05-20 19:15:47] INFO     Clean trade data (HS 390110, 2023, X)
+[2025-05-20 19:15:48] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_390110.csv
+[2025-05-20 19:15:48] INFO     🧹 Cleaning Summary:
+[2025-05-20 19:15:48] INFO      - Initial rows: 48511
+[2025-05-20 19:15:48] INFO      - Valid country filter: 42137 (86.86%)
+[2025-05-20 19:15:48] INFO      - Valid trade value filter: 36457 (75.15%)
+[2025-05-20 19:15:48] INFO      - Valid kg-based UV rows: 34426 (70.97%)
+[2025-05-20 19:15:48] WARNING  ⚠️ No non-kg units found in qty rows.
+[2025-05-20 19:15:48] INFO     ✅ Finished cleaning: HS 390110, Year 2023, Flow X
+[2025-05-20 19:15:48] INFO     ✅ Completed trade data cleaning completed in 0.48 seconds.
+[2025-05-20 19:15:53] INFO     Outlier detection (HS 390110, 2023, X)
+[2025-05-20 19:15:53] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-20 19:15:53] INFO     - Dropped 2970 rows (8.627%).
+[2025-05-20 19:15:53] INFO     - Remaining rows: 31456.
+[2025-05-20 19:15:53] INFO     ✅ Completed outlier detection completed in 0.01 seconds.
+[2025-05-20 19:15:55] INFO     Histogram (HS 390110, 2023, X)
+[2025-05-20 19:15:55] INFO     ✅ Completed histogram completed in 0.30 seconds.
+[2025-05-20 19:15:58] INFO     Modality Test (HS 390110, 2023, X)
+[2025-05-20 19:17:22] INFO     📈 Modality Test Summary:
+[2025-05-20 19:17:22] INFO     - Column tested: ln_uv
+[2025-05-20 19:17:22] INFO     - Original sample size: 31456
+[2025-05-20 19:17:22] WARNING  ❗ Sample capped at 25000 for efficiency.
+[2025-05-20 19:17:22] INFO     - Final decision: unimodal (2 reject out of 5)
+[2025-05-20 19:17:22] INFO     ⚠️ Skipping quantity-weighted modality test: df1_q is None or empty.
+[2025-05-20 19:17:22] INFO     ✅ Completed modality test completed in 1 min 24.4 sec.
+[2025-05-20 19:17:47] INFO     Fitting Unimodal distribution of kg-based UV (2023, X)
+[2025-05-20 19:17:47] INFO     Fitted Norm Distribution
+[2025-05-20 19:17:47] INFO     norm_loc: 0.3752
+[2025-05-20 19:17:47] INFO     norm_scale: 0.5444
+[2025-05-20 19:17:47] INFO     norm_loglik: -25508.8817
+[2025-05-20 19:17:47] INFO     norm_mean: 0.3752
+[2025-05-20 19:17:47] INFO     norm_median: 0.3752
+[2025-05-20 19:17:47] INFO     norm_mode: 0.3752
+[2025-05-20 19:17:47] INFO     norm_variance: 0.2964
+[2025-05-20 19:17:47] INFO     norm_sample_variance: 0.2964
+[2025-05-20 19:17:47] INFO     norm_skew: 0.0000
+[2025-05-20 19:17:47] INFO     norm_kurtosis: 0.0000
+[2025-05-20 19:17:47] INFO     norm_aic: 51021.7633
+[2025-05-20 19:17:47] INFO     norm_bic: 51038.4760
+[2025-05-20 19:17:47] INFO     Fitted Skewnorm Distribution
+[2025-05-20 19:17:47] INFO     skewnorm_a: 1.7552
+[2025-05-20 19:17:47] INFO     skewnorm_loc: -0.1429
+[2025-05-20 19:17:47] INFO     skewnorm_scale: 0.7516
+[2025-05-20 19:17:47] INFO     skewnorm_loglik: -24989.2267
+[2025-05-20 19:17:47] INFO     skewnorm_mean: 0.3781
+[2025-05-20 19:17:47] INFO     skewnorm_median: 0.3409
+[2025-05-20 19:17:47] INFO     skewnorm_mode: 0.2628
+[2025-05-20 19:17:47] INFO     skewnorm_variance: 0.2934
+[2025-05-20 19:17:47] INFO     skewnorm_sample_variance: 0.2964
+[2025-05-20 19:17:47] INFO     skewnorm_skew: 0.3821
+[2025-05-20 19:17:47] INFO     skewnorm_kurtosis: 0.2425
+[2025-05-20 19:17:47] INFO     skewnorm_aic: 49984.4534
+[2025-05-20 19:17:47] INFO     skewnorm_bic: 50009.5224
+[2025-05-20 19:17:48] INFO     Fitted T Distribution
+[2025-05-20 19:17:48] INFO     t_df: 5.6735
+[2025-05-20 19:17:48] INFO     t_loc: 0.3397
+[2025-05-20 19:17:48] INFO     t_scale: 0.4482
+[2025-05-20 19:17:48] INFO     t_loglik: -25145.9244
+[2025-05-20 19:17:48] INFO     t_mean: 0.3397
+[2025-05-20 19:17:48] INFO     t_median: 0.3397
+[2025-05-20 19:17:48] INFO     t_mode: 0.3397
+[2025-05-20 19:17:48] INFO     t_variance: 0.3102
+[2025-05-20 19:17:48] INFO     t_sample_variance: 0.2964
+[2025-05-20 19:17:48] INFO     t_skew: 0.0000
+[2025-05-20 19:17:48] INFO     t_kurtosis: 3.5853
+[2025-05-20 19:17:48] INFO     t_aic: 50297.8489
+[2025-05-20 19:17:48] INFO     t_bic: 50322.9179
+[2025-05-20 19:17:48] INFO     Fitted Gennorm Distribution
+[2025-05-20 19:17:48] INFO     gennorm_beta: 1.2786
+[2025-05-20 19:17:48] INFO     gennorm_loc: 0.3148
+[2025-05-20 19:17:48] INFO     gennorm_scale: 0.5453
+[2025-05-20 19:17:48] INFO     gennorm_loglik: -24939.5743
+[2025-05-20 19:17:48] INFO     gennorm_mean: 0.3148
+[2025-05-20 19:17:48] INFO     gennorm_median: 0.3148
+[2025-05-20 19:17:48] INFO     gennorm_mode: 0.3148
+[2025-05-20 19:17:48] INFO     gennorm_variance: 0.3012
+[2025-05-20 19:17:48] INFO     gennorm_sample_variance: 0.2964
+[2025-05-20 19:17:48] INFO     gennorm_skew: 0.0000
+[2025-05-20 19:17:48] INFO     gennorm_kurtosis: 1.4156
+[2025-05-20 19:17:48] INFO     gennorm_aic: 49885.1487
+[2025-05-20 19:17:48] INFO     gennorm_bic: 49910.2177
+[2025-05-20 19:17:48] INFO     Fitted Johnsonsu Distribution
+[2025-05-20 19:17:48] INFO     johnsonsu_a: -0.5729
+[2025-05-20 19:17:48] INFO     johnsonsu_b: 1.4279
+[2025-05-20 19:17:48] INFO     johnsonsu_loc: 0.0768
+[2025-05-20 19:17:48] INFO     johnsonsu_scale: 0.5768
+[2025-05-20 19:17:48] INFO     johnsonsu_loglik: -24467.2983
+[2025-05-20 19:17:48] INFO     johnsonsu_mean: 0.3805
+[2025-05-20 19:17:48] INFO     johnsonsu_median: 0.3145
+[2025-05-20 19:17:48] INFO     johnsonsu_mode: 0.2352
+[2025-05-20 19:17:48] INFO     johnsonsu_variance: 0.3357
+[2025-05-20 19:17:48] INFO     johnsonsu_sample_variance: 0.2964
+[2025-05-20 19:17:48] INFO     johnsonsu_skew: 1.2924
+[2025-05-20 19:17:48] INFO     johnsonsu_kurtosis: 7.2585
+[2025-05-20 19:17:48] INFO     johnsonsu_aic: 48942.5965
+[2025-05-20 19:17:48] INFO     johnsonsu_bic: 48976.0219
+[2025-05-20 19:17:48] INFO     Fitted Logistic Distribution
+[2025-05-20 19:17:48] INFO     logistic_loc: 0.3435
+[2025-05-20 19:17:48] INFO     logistic_scale: 0.2985
+[2025-05-20 19:17:48] INFO     logistic_loglik: -25082.9945
+[2025-05-20 19:17:48] INFO     logistic_mean: 0.3435
+[2025-05-20 19:17:48] INFO     logistic_median: 0.3435
+[2025-05-20 19:17:48] INFO     logistic_mode: 0.3435
+[2025-05-20 19:17:48] INFO     logistic_variance: 0.2931
+[2025-05-20 19:17:48] INFO     logistic_sample_variance: 0.2964
+[2025-05-20 19:17:48] INFO     logistic_skew: 0.0000
+[2025-05-20 19:17:48] INFO     logistic_kurtosis: 1.2000
+[2025-05-20 19:17:48] INFO     logistic_aic: 50169.9890
+[2025-05-20 19:17:48] INFO     logistic_bic: 50186.7017
+[2025-05-20 19:17:48] INFO     Best fit based on AIC/BIC: Johnsonsu
+[2025-05-20 19:17:48] INFO     - Johnsonsu distribution fits best based on AIC and BIC.
+[2025-05-20 19:17:48] INFO     ✅ Completed unimodal distribution fit (kg-based) completed in 1.48 seconds.
+[2025-05-20 19:17:48] INFO     Bootstrapping CI (kg-based) (2023, X)
+[2025-05-20 19:24:49] INFO     ✅ Completed ootstrapping CI (kg-based) completed in 7 min 0.6 sec.
+[2025-05-20 19:24:49] INFO     Plotting unimodal distribution fit of kg-based UV (2023, X))
+[2025-05-20 19:30:42] INFO     Plotting unimodal distribution fit of non-kg-based UV (2023, X))
+[2025-05-20 19:30:59] INFO     Plotting unimodal distribution fit of kg-based UV (2023, X))
+[2025-05-20 19:30:59] INFO     ✅ Completed unimodal distribution fit plot for kg-based UV completed in 0.52 seconds.
+[2025-05-20 19:39:10] INFO     Clean trade data (HS 390110, 2023, M)
+[2025-05-20 19:39:10] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_390110.csv
+[2025-05-20 19:39:10] INFO     🧹 Cleaning Summary:
+[2025-05-20 19:39:10] INFO      - Initial rows: 51370
+[2025-05-20 19:39:10] INFO      - Valid country filter: 46789 (91.08%)
+[2025-05-20 19:39:10] INFO      - Valid trade value filter: 43633 (84.94%)
+[2025-05-20 19:39:10] INFO      - Valid kg-based UV rows: 41400 (80.59%)
+[2025-05-20 19:39:10] INFO     📊 Non-kg UV Subset:
+[2025-05-20 19:39:10] INFO      - Top unit: Number of items (u)
+[2025-05-20 19:39:10] INFO      - Share of valid qty rows: 0.15% (Required: 10%)
+[2025-05-20 19:39:10] INFO      - Valid qty count: 61 (Required: 100)
+[2025-05-20 19:39:10] WARNING  ❌ No non-kg UV subset created: share 0.15% < 10% and count 61 < 100
+[2025-05-20 19:39:10] INFO     ✅ Finished cleaning: HS 390110, Year 2023, Flow M
+[2025-05-20 19:39:10] INFO     ✅ Completed trade data cleaning completed in 0.33 seconds.
+[2025-05-20 19:39:11] INFO     Outlier detection (HS 390110, 2023, M)
+[2025-05-20 19:39:11] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-20 19:39:11] INFO     - Dropped 3842 rows (9.280%).
+[2025-05-20 19:39:11] INFO     - Remaining rows: 37558.
+[2025-05-20 19:39:11] INFO     ✅ Completed outlier detection completed in 0.01 seconds.
+[2025-05-20 19:39:12] INFO     Histogram (HS 390110, 2023, M)
+[2025-05-20 19:39:12] INFO     ✅ Completed histogram completed in 0.25 seconds.
+[2025-05-20 19:39:15] INFO     Fitting Unimodal distribution of kg-based UV (2023, M)
+[2025-05-20 19:39:15] INFO     Fitted Norm Distribution
+[2025-05-20 19:39:15] INFO     norm_loc: 0.4067
+[2025-05-20 19:39:15] INFO     norm_scale: 0.4744
+[2025-05-20 19:39:15] INFO     norm_loglik: -25284.8855
+[2025-05-20 19:39:15] INFO     norm_mean: 0.4067
+[2025-05-20 19:39:15] INFO     norm_median: 0.4067
+[2025-05-20 19:39:15] INFO     norm_mode: 0.4067
+[2025-05-20 19:39:15] INFO     norm_variance: 0.2251
+[2025-05-20 19:39:15] INFO     norm_sample_variance: 0.2251
+[2025-05-20 19:39:15] INFO     norm_skew: 0.0000
+[2025-05-20 19:39:15] INFO     norm_kurtosis: 0.0000
+[2025-05-20 19:39:15] INFO     norm_aic: 50573.7710
+[2025-05-20 19:39:15] INFO     norm_bic: 50590.8383
+[2025-05-20 19:39:15] INFO     Fitted Skewnorm Distribution
+[2025-05-20 19:39:15] INFO     skewnorm_a: 1.8446
+[2025-05-20 19:39:15] INFO     skewnorm_loc: -0.0528
+[2025-05-20 19:39:15] INFO     skewnorm_scale: 0.6604
+[2025-05-20 19:39:15] INFO     skewnorm_loglik: -24504.2236
+[2025-05-20 19:39:15] INFO     skewnorm_mean: 0.4105
+[2025-05-20 19:39:15] INFO     skewnorm_median: 0.3756
+[2025-05-20 19:39:15] INFO     skewnorm_mode: 0.3019
+[2025-05-20 19:39:15] INFO     skewnorm_variance: 0.2216
+[2025-05-20 19:39:15] INFO     skewnorm_sample_variance: 0.2251
+[2025-05-20 19:39:15] INFO     skewnorm_skew: 0.4091
+[2025-05-20 19:39:15] INFO     skewnorm_kurtosis: 0.2657
+[2025-05-20 19:39:15] INFO     skewnorm_aic: 49014.4471
+[2025-05-20 19:39:15] INFO     skewnorm_bic: 49040.0481
+[2025-05-20 19:39:16] INFO     Fitted T Distribution
+[2025-05-20 19:39:16] INFO     t_df: 4.3667
+[2025-05-20 19:39:16] INFO     t_loc: 0.3608
+[2025-05-20 19:39:16] INFO     t_scale: 0.3661
+[2025-05-20 19:39:16] INFO     t_loglik: -24567.1402
+[2025-05-20 19:39:16] INFO     t_mean: 0.3608
+[2025-05-20 19:39:16] INFO     t_median: 0.3608
+[2025-05-20 19:39:16] INFO     t_mode: 0.3608
+[2025-05-20 19:39:16] INFO     t_variance: 0.2473
+[2025-05-20 19:39:16] INFO     t_sample_variance: 0.2251
+[2025-05-20 19:39:16] INFO     t_skew: 0.0000
+[2025-05-20 19:39:16] INFO     t_kurtosis: 16.3620
+[2025-05-20 19:39:16] INFO     t_aic: 49140.2803
+[2025-05-20 19:39:16] INFO     t_bic: 49165.8812
+[2025-05-20 19:39:16] INFO     Fitted Gennorm Distribution
+[2025-05-20 19:39:16] INFO     gennorm_beta: 1.1713
+[2025-05-20 19:39:16] INFO     gennorm_loc: 0.3320
+[2025-05-20 19:39:16] INFO     gennorm_scale: 0.4299
+[2025-05-20 19:39:16] INFO     gennorm_loglik: -24339.2855
+[2025-05-20 19:39:16] INFO     gennorm_mean: 0.3320
+[2025-05-20 19:39:16] INFO     gennorm_median: 0.3320
+[2025-05-20 19:39:16] INFO     gennorm_mode: 0.3320
+[2025-05-20 19:39:16] INFO     gennorm_variance: 0.2315
+[2025-05-20 19:39:16] INFO     gennorm_sample_variance: 0.2251
+[2025-05-20 19:39:16] INFO     gennorm_skew: 0.0000
+[2025-05-20 19:39:16] INFO     gennorm_kurtosis: 1.8812
+[2025-05-20 19:39:16] INFO     gennorm_aic: 48684.5710
+[2025-05-20 19:39:16] INFO     gennorm_bic: 48710.1719
+[2025-05-20 19:39:16] INFO     Fitted Johnsonsu Distribution
+[2025-05-20 19:39:16] INFO     johnsonsu_a: -0.6130
+[2025-05-20 19:39:16] INFO     johnsonsu_b: 1.1925
+[2025-05-20 19:39:16] INFO     johnsonsu_loc: 0.1356
+[2025-05-20 19:39:16] INFO     johnsonsu_scale: 0.3701
+[2025-05-20 19:39:16] INFO     johnsonsu_loglik: -23258.8231
+[2025-05-20 19:39:16] INFO     johnsonsu_mean: 0.4182
+[2025-05-20 19:39:16] INFO     johnsonsu_median: 0.3344
+[2025-05-20 19:39:16] INFO     johnsonsu_mode: 0.2505
+[2025-05-20 19:39:16] INFO     johnsonsu_variance: 0.2925
+[2025-05-20 19:39:16] INFO     johnsonsu_sample_variance: 0.2251
+[2025-05-20 19:39:16] INFO     johnsonsu_skew: 2.3389
+[2025-05-20 19:39:16] INFO     johnsonsu_kurtosis: 20.0048
+[2025-05-20 19:39:16] INFO     johnsonsu_aic: 46525.6461
+[2025-05-20 19:39:16] INFO     johnsonsu_bic: 46559.7807
+[2025-05-20 19:39:16] INFO     Fitted Logistic Distribution
+[2025-05-20 19:39:16] INFO     logistic_loc: 0.3739
+[2025-05-20 19:39:16] INFO     logistic_scale: 0.2577
+[2025-05-20 19:39:16] INFO     logistic_loglik: -24568.0809
+[2025-05-20 19:39:16] INFO     logistic_mean: 0.3739
+[2025-05-20 19:39:16] INFO     logistic_median: 0.3739
+[2025-05-20 19:39:16] INFO     logistic_mode: 0.3739
+[2025-05-20 19:39:16] INFO     logistic_variance: 0.2185
+[2025-05-20 19:39:16] INFO     logistic_sample_variance: 0.2251
+[2025-05-20 19:39:16] INFO     logistic_skew: 0.0000
+[2025-05-20 19:39:16] INFO     logistic_kurtosis: 1.2000
+[2025-05-20 19:39:16] INFO     logistic_aic: 49140.1617
+[2025-05-20 19:39:16] INFO     logistic_bic: 49157.2290
+[2025-05-20 19:39:16] INFO     Best fit based on AIC/BIC: Johnsonsu
+[2025-05-20 19:39:16] INFO     - Johnsonsu distribution fits best based on AIC and BIC.
+[2025-05-20 19:39:16] INFO     ✅ Completed unimodal distribution fit (kg-based) completed in 1.78 seconds.
+[2025-05-20 19:39:16] INFO     Bootstrapping CI (kg-based) (2023, M)
+[2025-05-20 19:47:21] INFO     ✅ Completed ootstrapping CI (kg-based) completed in 8 min 4.5 sec.
+[2025-05-20 19:47:21] INFO     Plotting unimodal distribution fit of kg-based UV (2023, M))
+[2025-05-20 19:47:22] INFO     ✅ Completed unimodal distribution fit plot for kg-based UV completed in 0.54 seconds.
+[2025-05-20 19:52:32] INFO     Plotting unimodal distribution fit of kg-based UV (2023, M))
+[2025-05-20 19:52:33] INFO     ✅ Completed unimodal distribution fit plot for kg-based UV completed in 0.60 seconds.
+[2025-05-20 20:14:05] INFO     Clean trade data (HS 850511, 2023, X)
+[2025-05-20 20:14:06] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_850511.csv
+[2025-05-20 20:14:06] INFO     🧹 Cleaning Summary:
+[2025-05-20 20:14:06] INFO      - Initial rows: 44699
+[2025-05-20 20:14:06] INFO      - Valid country filter: 36630 (81.95%)
+[2025-05-20 20:14:06] INFO      - Valid trade value filter: 31028 (69.42%)
+[2025-05-20 20:14:06] INFO      - Valid kg-based UV rows: 27293 (61.06%)
+[2025-05-20 20:14:06] INFO     📊 Non-kg UV Subset:
+[2025-05-20 20:14:06] INFO      - Top unit: Number of items (u)
+[2025-05-20 20:14:06] INFO      - Share of valid qty rows: 9.06% (Required: 10%)
+[2025-05-20 20:14:06] INFO      - Valid qty count: 2483 (Required: 100)
+[2025-05-20 20:14:06] WARNING  ❌ No non-kg UV subset created: share 9.06% < 10%
+[2025-05-20 20:14:06] INFO     ✅ Finished cleaning: HS 850511, Year 2023, Flow X
+[2025-05-20 20:14:06] INFO     ✅ Completed trade data cleaning completed in 0.29 seconds.
+[2025-05-20 20:14:07] INFO     Outlier detection (HS 850511, 2023, X)
+[2025-05-20 20:14:07] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-20 20:14:07] INFO     - Dropped 160 rows (0.586%).
+[2025-05-20 20:14:07] INFO     - Remaining rows: 27133.
+[2025-05-20 20:14:07] INFO     ✅ Completed outlier detection completed in 0.01 seconds.
+[2025-05-20 20:14:17] INFO     Histogram (HS 850511, 2023, X)
+[2025-05-20 20:14:17] INFO     ✅ Completed histogram completed in 0.23 seconds.
+[2025-05-20 20:14:20] INFO     Modality Test (HS 850511, 2023, X)
+[2025-05-20 20:15:40] INFO     📈 Modality Test Summary:
+[2025-05-20 20:15:40] INFO     - Column tested: ln_uv
+[2025-05-20 20:15:40] INFO     - Original sample size: 27133
+[2025-05-20 20:15:40] WARNING  ❗ Sample capped at 25000 for efficiency.
+[2025-05-20 20:15:40] INFO     - Final decision: multimodal (3 reject out of 5)
+[2025-05-20 20:15:40] INFO     ⚠️ Skipping quantity-weighted modality test: df1_q is None or empty.
+[2025-05-20 20:15:40] INFO     ✅ Completed modality test completed in 1 min 19.9 sec.
+[2025-05-20 20:15:56] INFO     Fitting GMM on kg-based UV
+[2025-05-20 20:17:45] INFO     Fitting GMM on kg-based UV
+[2025-05-20 20:17:57] INFO     ✅ Completed GMM fit on kg-based UV completed in 11.30 seconds.
+[2025-05-20 20:44:27] INFO     Modality Test (HS 850511, 2023, X)
+[2025-05-20 20:44:58] INFO     📈 Modality Test Summary:
+[2025-05-20 20:44:58] INFO     - Column tested: ln_uv
+[2025-05-20 20:44:58] INFO     - Original sample size: 27133
+[2025-05-20 20:44:58] WARNING  ❗ Sample capped at 25000 for efficiency.
+[2025-05-20 20:44:58] INFO     - Final decision: unimodal (0 reject out of 2)
+[2025-05-20 20:44:58] INFO     ⚠️ Skipping quantity-weighted modality test: df1_q is None or empty.
+[2025-05-20 20:44:58] INFO     ✅ Completed modality test completed in 30.73 seconds.
+[2025-05-20 20:49:29] INFO     Clean trade data (HS 391590, 2023, X)
+[2025-05-20 20:49:29] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_391590.csv
+[2025-05-20 20:49:29] INFO     🧹 Cleaning Summary:
+[2025-05-20 20:49:29] INFO      - Initial rows: 17587
+[2025-05-20 20:49:29] INFO      - Valid country filter: 15956 (90.73%)
+[2025-05-20 20:49:29] INFO      - Valid trade value filter: 13388 (76.12%)
+[2025-05-20 20:49:29] INFO      - Valid kg-based UV rows: 12792 (72.74%)
+[2025-05-20 20:49:29] INFO     📊 Non-kg UV Subset:
+[2025-05-20 20:49:29] INFO      - Top unit: Number of items (u)
+[2025-05-20 20:49:29] INFO      - Share of valid qty rows: 0.03% (Required: 10%)
+[2025-05-20 20:49:29] INFO      - Valid qty count: 4 (Required: 100)
+[2025-05-20 20:49:29] WARNING  ❌ No non-kg UV subset created: share 0.03% < 10% and count 4 < 100
+[2025-05-20 20:49:29] INFO     ✅ Finished cleaning: HS 391590, Year 2023, Flow X
+[2025-05-20 20:49:29] INFO     ✅ Completed trade data cleaning completed in 0.16 seconds.
+[2025-05-20 20:49:30] INFO     Outlier detection (HS 391590, 2023, X)
+[2025-05-20 20:49:30] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-20 20:49:30] INFO     - Dropped 995 rows (7.778%).
+[2025-05-20 20:49:30] INFO     - Remaining rows: 11797.
+[2025-05-20 20:49:30] INFO     ✅ Completed outlier detection completed in 0.01 seconds.
+[2025-05-20 20:49:31] INFO     Histogram (HS 391590, 2023, X)
+[2025-05-20 20:49:32] INFO     ✅ Completed histogram completed in 0.27 seconds.
+[2025-05-20 20:49:43] INFO     Modality Test (HS 391590, 2023, X)
+[2025-05-20 20:49:57] INFO     📈 Modality Test Summary:
+[2025-05-20 20:49:57] INFO     - Column tested: ln_uv
+[2025-05-20 20:49:57] INFO     - Original sample size: 11797
+[2025-05-20 20:49:57] INFO     ✅ Full sample used.
+[2025-05-20 20:49:57] INFO     - Final decision: multimodal (2 reject out of 2)
+[2025-05-20 20:49:57] INFO     ⚠️ Skipping quantity-weighted modality test: df1_q is None or empty.
+[2025-05-20 20:49:57] INFO     ✅ Completed modality test completed in 13.69 seconds.
+[2025-05-20 20:50:33] INFO     Clean trade data (HS 391510, 2023, X)
+[2025-05-20 20:50:33] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_391510.csv
+[2025-05-20 20:50:33] INFO     🧹 Cleaning Summary:
+[2025-05-20 20:50:33] INFO      - Initial rows: 11020
+[2025-05-20 20:50:33] INFO      - Valid country filter: 10049 (91.19%)
+[2025-05-20 20:50:33] INFO      - Valid trade value filter: 8991 (81.59%)
+[2025-05-20 20:50:33] INFO      - Valid kg-based UV rows: 8824 (80.07%)
+[2025-05-20 20:50:33] INFO     📊 Non-kg UV Subset:
+[2025-05-20 20:50:33] INFO      - Top unit: Number of items (u)
+[2025-05-20 20:50:33] INFO      - Share of valid qty rows: 0.01% (Required: 10%)
+[2025-05-20 20:50:33] INFO      - Valid qty count: 1 (Required: 100)
+[2025-05-20 20:50:33] WARNING  ❌ No non-kg UV subset created: share 0.01% < 10% and count 1 < 100
+[2025-05-20 20:50:33] INFO     ✅ Finished cleaning: HS 391510, Year 2023, Flow X
+[2025-05-20 20:50:33] INFO     ✅ Completed trade data cleaning completed in 0.09 seconds.
+[2025-05-20 20:50:35] INFO     Outlier detection (HS 391510, 2023, X)
+[2025-05-20 20:50:35] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-20 20:50:35] INFO     - Dropped 558 rows (6.324%).
+[2025-05-20 20:50:35] INFO     - Remaining rows: 8266.
+[2025-05-20 20:50:35] INFO     ✅ Completed outlier detection completed in 0.00 seconds.
+[2025-05-20 20:50:36] INFO     Histogram (HS 391510, 2023, X)
+[2025-05-20 20:50:37] INFO     ✅ Completed histogram completed in 0.24 seconds.
+[2025-05-20 20:50:39] INFO     Modality Test (HS 391510, 2023, X)
+[2025-05-20 20:50:53] INFO     📈 Modality Test Summary:
+[2025-05-20 20:50:53] INFO     - Column tested: ln_uv
+[2025-05-20 20:50:53] INFO     - Original sample size: 8266
+[2025-05-20 20:50:53] INFO     ✅ Full sample used.
+[2025-05-20 20:50:53] INFO     - Final decision: multimodal (2 reject out of 2)
+[2025-05-20 20:50:53] INFO     ⚠️ Skipping quantity-weighted modality test: df1_q is None or empty.
+[2025-05-20 20:50:53] INFO     ✅ Completed modality test completed in 13.31 seconds.
+[2025-05-20 20:51:25] INFO     Clean trade data (HS 390110, 2023, X)
+[2025-05-20 20:51:25] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_390110.csv
+[2025-05-20 20:51:26] INFO     🧹 Cleaning Summary:
+[2025-05-20 20:51:26] INFO      - Initial rows: 48511
+[2025-05-20 20:51:26] INFO      - Valid country filter: 42137 (86.86%)
+[2025-05-20 20:51:26] INFO      - Valid trade value filter: 36457 (75.15%)
+[2025-05-20 20:51:26] INFO      - Valid kg-based UV rows: 34426 (70.97%)
+[2025-05-20 20:51:26] WARNING  ⚠️ No non-kg units found in qty rows.
+[2025-05-20 20:51:26] INFO     ✅ Finished cleaning: HS 390110, Year 2023, Flow X
+[2025-05-20 20:51:26] INFO     ✅ Completed trade data cleaning completed in 0.33 seconds.
+[2025-05-20 20:51:26] INFO     Outlier detection (HS 390110, 2023, X)
+[2025-05-20 20:51:26] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-20 20:51:26] INFO     - Dropped 2970 rows (8.627%).
+[2025-05-20 20:51:26] INFO     - Remaining rows: 31456.
+[2025-05-20 20:51:26] INFO     ✅ Completed outlier detection completed in 0.01 seconds.
+[2025-05-20 20:51:28] INFO     Histogram (HS 390110, 2023, X)
+[2025-05-20 20:51:28] INFO     ✅ Completed histogram completed in 0.24 seconds.
+[2025-05-20 20:51:30] INFO     Modality Test (HS 390110, 2023, X)
+[2025-05-20 20:51:55] INFO     📈 Modality Test Summary:
+[2025-05-20 20:51:55] INFO     - Column tested: ln_uv
+[2025-05-20 20:51:55] INFO     - Original sample size: 31456
+[2025-05-20 20:51:55] WARNING  ❗ Sample capped at 25000 for efficiency.
+[2025-05-20 20:51:55] INFO     - Final decision: unimodal (0 reject out of 2)
+[2025-05-20 20:51:55] INFO     ⚠️ Skipping quantity-weighted modality test: df1_q is None or empty.
+[2025-05-20 20:51:55] INFO     ✅ Completed modality test completed in 25.22 seconds.
+[2025-05-20 20:54:21] INFO     Clean trade data (HS 050590, 2023, X)
+[2025-05-20 20:54:21] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_050590.csv
+[2025-05-20 20:54:21] INFO     🧹 Cleaning Summary:
+[2025-05-20 20:54:21] INFO      - Initial rows: 2269
+[2025-05-20 20:54:21] INFO      - Valid country filter: 2120 (93.43%)
+[2025-05-20 20:54:21] INFO      - Valid trade value filter: 1888 (83.21%)
+[2025-05-20 20:54:21] INFO      - Valid kg-based UV rows: 1608 (70.87%)
+[2025-05-20 20:54:22] WARNING  ⚠️ No non-kg units found in qty rows.
+[2025-05-20 20:54:22] INFO     ✅ Finished cleaning: HS 050590, Year 2023, Flow X
+[2025-05-20 20:54:22] INFO     ✅ Completed trade data cleaning completed in 0.05 seconds.
+[2025-05-20 20:54:25] INFO     Outlier detection (HS 050590, 2023, X)
+[2025-05-20 20:54:25] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-20 20:54:25] INFO     - Dropped 37 rows (2.301%).
+[2025-05-20 20:54:25] INFO     - Remaining rows: 1571.
+[2025-05-20 20:54:25] INFO     ✅ Completed outlier detection completed in 0.00 seconds.
+[2025-05-20 20:54:28] INFO     Histogram (HS 050590, 2023, X)
+[2025-05-20 20:54:28] INFO     ✅ Completed histogram completed in 0.18 seconds.
+[2025-05-20 20:54:33] INFO     Modality Test (HS 050590, 2023, X)
+[2025-05-20 20:54:41] INFO     📈 Modality Test Summary:
+[2025-05-20 20:54:41] INFO     - Column tested: ln_uv
+[2025-05-20 20:54:41] INFO     - Original sample size: 1571
+[2025-05-20 20:54:41] INFO     ✅ Full sample used.
+[2025-05-20 20:54:41] INFO     - Final decision: multimodal (2 reject out of 2)
+[2025-05-20 20:54:41] INFO     ⚠️ Skipping quantity-weighted modality test: df1_q is None or empty.
+[2025-05-20 20:54:41] INFO     ✅ Completed modality test completed in 8.48 seconds.
+[2025-05-20 20:54:50] INFO     Fitting GMM on kg-based UV
+[2025-05-20 20:54:54] INFO     ✅ Completed GMM fit on kg-based UV completed in 4.23 seconds.
+[2025-05-20 21:06:46] INFO     Clean trade data (HS 261800, 2023, M)
+[2025-05-20 21:06:46] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_261800.csv
+[2025-05-20 21:06:46] INFO     🧹 Cleaning Summary:
+[2025-05-20 21:06:46] INFO      - Initial rows: 3401
+[2025-05-20 21:06:46] INFO      - Valid country filter: 2997 (88.12%)
+[2025-05-20 21:06:46] INFO      - Valid trade value filter: 2590 (76.15%)
+[2025-05-20 21:06:46] INFO      - Valid kg-based UV rows: 2513 (73.89%)
+[2025-05-20 21:06:46] INFO     📊 Non-kg UV Subset:
+[2025-05-20 21:06:46] INFO      - Top unit: Gross tonnage (GT)
+[2025-05-20 21:06:46] INFO      - Share of valid qty rows: 0.04% (Required: 10%)
+[2025-05-20 21:06:46] INFO      - Valid qty count: 1 (Required: 100)
+[2025-05-20 21:06:46] WARNING  ❌ No non-kg UV subset created: share 0.04% < 10% and count 1 < 100
+[2025-05-20 21:06:46] INFO     ✅ Finished cleaning: HS 261800, Year 2023, Flow M
+[2025-05-20 21:06:46] INFO     ✅ Completed trade data cleaning completed in 0.06 seconds.
+[2025-05-20 21:06:50] INFO     Outlier detection (HS 261800, 2023, M)
+[2025-05-20 21:06:50] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-20 21:06:50] INFO     - Dropped 160 rows (6.367%).
+[2025-05-20 21:06:50] INFO     - Remaining rows: 2353.
+[2025-05-20 21:06:50] INFO     ✅ Completed outlier detection completed in 0.00 seconds.
+[2025-05-20 21:06:51] INFO     Histogram (HS 261800, 2023, M)
+[2025-05-20 21:06:51] INFO     ✅ Completed histogram completed in 0.21 seconds.
+[2025-05-20 21:06:53] INFO     Modality Test (HS 261800, 2023, M)
+[2025-05-20 21:07:04] INFO     📈 Modality Test Summary:
+[2025-05-20 21:07:04] INFO     - Column tested: ln_uv
+[2025-05-20 21:07:04] INFO     - Original sample size: 2353
+[2025-05-20 21:07:04] INFO     ✅ Full sample used.
+[2025-05-20 21:07:04] INFO     - Final decision: multimodal (2 reject out of 2)
+[2025-05-20 21:07:04] INFO     ⚠️ Skipping quantity-weighted modality test: df1_q is None or empty.
+[2025-05-20 21:07:04] INFO     ✅ Completed modality test completed in 11.14 seconds.
+[2025-05-20 21:07:08] INFO     Fitting GMM on kg-based UV
+[2025-05-20 21:07:12] INFO     ✅ Completed GMM fit on kg-based UV completed in 4.09 seconds.
+[2025-05-20 21:07:51] INFO     Clean trade data (HS 293991, 2023, M)
+[2025-05-20 21:07:51] ERROR    No matching file found for code 293991 in path C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy
+[2025-05-20 21:08:03] INFO     Clean trade data (HS 293991, 2023, M)
+[2025-05-20 21:08:03] ERROR    No matching file found for code 293991 in path C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy
+[2025-05-20 21:08:15] INFO     Clean trade data (HS 370110, 2023, M)
+[2025-05-20 21:08:15] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_370110.csv
+[2025-05-20 21:08:15] INFO     🧹 Cleaning Summary:
+[2025-05-20 21:08:15] INFO      - Initial rows: 7842
+[2025-05-20 21:08:15] INFO      - Valid country filter: 7497 (95.60%)
+[2025-05-20 21:08:15] INFO      - Valid trade value filter: 6918 (88.22%)
+[2025-05-20 21:08:15] INFO      - Valid kg-based UV rows: 4777 (60.92%)
+[2025-05-20 21:08:15] INFO     📊 Non-kg UV Subset:
+[2025-05-20 21:08:15] INFO      - Top unit: Area in square meters (m²)
+[2025-05-20 21:08:15] INFO      - Share of valid qty rows: 82.16% (Required: 10%)
+[2025-05-20 21:08:15] INFO      - Valid qty count: 5254 (Required: 100)
+[2025-05-20 21:08:15] INFO     ✅ Non-kg UV subset created.
+[2025-05-20 21:08:15] INFO     ✅ Finished cleaning: HS 370110, Year 2023, Flow M
+[2025-05-20 21:08:15] INFO     ✅ Completed trade data cleaning completed in 0.09 seconds.
+[2025-05-20 21:08:19] INFO     Clean trade data (HS 370110, 2023, M)
+[2025-05-20 21:08:19] INFO     📄 Found file: C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy\hs6_370110.csv
+[2025-05-20 21:08:19] INFO     🧹 Cleaning Summary:
+[2025-05-20 21:08:19] INFO      - Initial rows: 7842
+[2025-05-20 21:08:19] INFO      - Valid country filter: 7497 (95.60%)
+[2025-05-20 21:08:19] INFO      - Valid trade value filter: 6918 (88.22%)
+[2025-05-20 21:08:19] INFO      - Valid kg-based UV rows: 4777 (60.92%)
+[2025-05-20 21:08:19] INFO     📊 Non-kg UV Subset:
+[2025-05-20 21:08:19] INFO      - Top unit: Area in square meters (m²)
+[2025-05-20 21:08:19] INFO      - Share of valid qty rows: 82.16% (Required: 10%)
+[2025-05-20 21:08:19] INFO      - Valid qty count: 5254 (Required: 100)
+[2025-05-20 21:08:19] INFO     ✅ Non-kg UV subset created.
+[2025-05-20 21:08:19] INFO     ✅ Finished cleaning: HS 370110, Year 2023, Flow M
+[2025-05-20 21:08:19] INFO     ✅ Completed trade data cleaning completed in 0.08 seconds.
+[2025-05-20 21:08:19] INFO     Outlier detection (HS 370110, 2023, M)
+[2025-05-20 21:08:19] INFO     📊 Outlier Detection on Kg-based UV:
+[2025-05-20 21:08:19] INFO     - Dropped 100 rows (2.093%).
+[2025-05-20 21:08:19] INFO     - Remaining rows: 4677.
+[2025-05-20 21:08:19] INFO     📊 Outlier Detection on Non-kg-based UV:
+[2025-05-20 21:08:19] INFO     - Dropped 10 rows (0.190%).
+[2025-05-20 21:08:19] INFO     - Remaining rows: 5244.
+[2025-05-20 21:08:19] INFO     ✅ Completed outlier detection completed in 0.01 seconds.
+[2025-05-20 21:08:21] INFO     Histogram (HS 370110, 2023, M)
+[2025-05-20 21:08:22] INFO     ✅ Completed histogram completed in 0.44 seconds.
+[2025-05-20 21:08:23] INFO     Modality Test (HS 370110, 2023, M)
+[2025-05-20 21:08:34] INFO     📈 Modality Test Summary:
+[2025-05-20 21:08:34] INFO     - Column tested: ln_uv
+[2025-05-20 21:08:34] INFO     - Original sample size: 4677
+[2025-05-20 21:08:34] INFO     ✅ Full sample used.
+[2025-05-20 21:08:34] INFO     - Final decision: unimodal (1 reject out of 2)
+[2025-05-20 21:08:45] INFO     📈 Modality Test Summary:
+[2025-05-20 21:08:45] INFO     - Column tested: ln_uv_q
+[2025-05-20 21:08:45] INFO     - Original sample size: 5244
+[2025-05-20 21:08:45] INFO     ✅ Full sample used.
+[2025-05-20 21:08:45] INFO     - Final decision: unimodal (1 reject out of 2)
+[2025-05-20 21:08:45] INFO     ✅ Completed modality test completed in 22.09 seconds.

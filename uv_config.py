@@ -66,8 +66,8 @@ def load_config(
         "unit_abbr_map": unit_abbr_map,
         "cols_to_keep_early": cols_to_keep_early,
         "q_share_threshold": 0.10,
-        "min_records_q": 100,
-        "min_records_uv": 100,
+        "min_records_q": 200,
+        "min_records_uv": 200,
         "dirs": {
             "figures": figures_dir,
             "logs": logs_dir,
@@ -77,3 +77,11 @@ def load_config(
         },
         "rscript_exec": rscript_exec,
     }
+
+def prefix_dict_keys(d, prefix, skip_keys=None):
+    """
+    Add a prefix to all keys in a dictionary, except for any in skip_keys.
+    """
+    if skip_keys is None:
+        skip_keys = {"hs_code", "year", "flow"}
+    return { (f"{prefix}{k}" if k not in skip_keys else k): v for k, v in d.items() }
