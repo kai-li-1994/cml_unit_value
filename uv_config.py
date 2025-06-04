@@ -85,3 +85,20 @@ def prefix_dict_keys(d, prefix, skip_keys=None):
     if skip_keys is None:
         skip_keys = {"hs_code", "year", "flow"}
     return { (f"{prefix}{k}" if k not in skip_keys else k): v for k, v in d.items() }
+
+def save_report_dict(report_dict, code, year, flow, config, logger=None):
+    """
+    Save a flat dictionary as a .parquet file in the reports folder.
+    All values are converted to string to avoid ArrowTypeError.
+    """
+    report_path = os.path.join(
+        config["dirs"]["reports"],
+        f"report_{code}_{year}_{flow}.parquet"
+    )
+    
+    # Convert all values to strings for safe saving
+    df = pd.Series({k: str(v) for k, v in report_dict.items()}).to_frame("value")
+    df.to_parquet(report_path)
+
+    if logger:
+        logger.info(f"✅ Saved final report to {report_path}")

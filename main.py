@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 from uv_logger import logger_setup, logger_time
 
-from uv_config import load_config, prefix_dict_keys
+from uv_config import load_config, prefix_dict_keys, save_report_dict
 
 from uv_preparation import clean_trade, detect_outliers
 
@@ -29,17 +29,21 @@ from uv_visualization import plot_histogram, plot_dist
 # subscription_key = "4a624b220f67400c9a6ef19b1890f1f9"
 # path = 'C:/Users/lik6/Data/ComtradeTariffline/merge/split_by_hs_2023_numpy'
 code = "370110"
-year = "2018"
+year = "2013"
 flow = "m"
 
-config = load_config(
-    input_dir=Path(r"C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade"))  # where you change the input uncomtrade data
-
-logger = logger_setup(
-    code=code, year=year, flow=flow, log_dir=config["dirs"]["logs"]
-)
 
 def cmltrade_uv(code, year, flow):
+    
+    # === Load config (including folder paths, mappings, thresholds)
+    config = load_config(
+        input_dir=Path(r"C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade")
+    )
+
+    # === Setup logger for this specific HS code, year, and flow
+    logger = logger_setup(
+        code=code, year=year, flow=flow, log_dir=config["dirs"]["logs"]
+    )
     zero_time = time.time()  # Starting the total analysis timer
     print(f"Starting analysis for HS code {code} in year {year}...\n")
     # %% Step 1: Clean trade data
@@ -62,8 +66,10 @@ def cmltrade_uv(code, year, flow):
             report_final.update(report_q_clean)
 
         report_final["skip_reason"] = "Too few kg-based and non-kg-based records"
+        
+        save_report_dict(report_final, code, year, flow, config, logger)
 
-        #return report_final
+        return report_final
     
     logger_time("Completed trade data cleaning", start_time, logger)
     # %% Step 2: Detect outliers
@@ -73,12 +79,14 @@ def cmltrade_uv(code, year, flow):
     # === Kg-based UV ===
     if is_valid_kg:
         df_filtered, df_outliers, report_outlier = detect_outliers(
-            df_uv, ["ln_uv"], code, year, flow, logger, label="Kg-based UV")
+            df_uv, "ln_uv", code, year, flow, logger, unit_label="USD/kg", 
+            plot =True, save_path=True, file_format="pdf")
     
     # === Non-kg-based UV (if exists) ===
     if is_valid_q and df_q is not None and not df_q.empty:
         df_q_filtered, df_q_outliers, report_q_outlier = detect_outliers(
-            df_q,["ln_uv_q"],code,year,flow,logger,label="Non-kg-based UV")
+            df_q,"ln_uv_q",code,year,flow,logger,unit_label=non_kg_unit,
+            plot =True, save_path=True,)
         
     logger_time("Completed outlier detection", start_time, logger)
 
@@ -336,4 +344,6 @@ def cmltrade_uv(code, year, flow):
             r_prefixed = prefix_dict_keys(r, prefix="q_")
             report_final.update(r_prefixed)
             
+    save_report_dict(report_final, code, year, flow, config, logger)
+          
     return report_final

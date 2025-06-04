@@ -1,0 +1,356 @@
+[2025-06-04 15:22:02] INFO     Clean trade data (HS 370110, 2013, M)
+[2025-06-04 15:22:02] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2013_numpy\H5_370110_2013.csv
+[2025-06-04 15:22:02] INFO     🧹 Cleaning Summary:
+[2025-06-04 15:22:02] INFO      - Initial rows: 7765
+[2025-06-04 15:22:02] INFO      - Valid country filter: 7219 (92.97%)
+[2025-06-04 15:22:02] INFO      - Valid trade value filter: 1990 (25.63%)
+[2025-06-04 15:22:02] INFO      - Valid kg-based UV rows: 1337 (17.22%)
+[2025-06-04 15:22:02] INFO     📊 Non-kg UV Subset:
+[2025-06-04 15:22:02] INFO      - Top unit: Area in square meters (m²)
+[2025-06-04 15:22:02] INFO      - Share of valid qty rows: 75.97% (Required: 10%)
+[2025-06-04 15:22:02] INFO      - Valid qty count: 1375 (Required: 200)
+[2025-06-04 15:22:02] INFO     ✅ Non-kg UV subset created.
+[2025-06-04 15:22:02] INFO     ✅ Finished cleaning: HS 370110, Year 2013, Flow M
+[2025-06-04 15:22:02] INFO     ✅ Completed trade data cleaning completed in 0.05 seconds.
+[2025-06-04 15:22:06] INFO     Outlier detection (HS 370110, 2013, M)
+[2025-06-04 15:22:06] WARNING  📌 log(UV)=0 spike detected at bin 6: 52 vs. neighbors avg 1.0 (share = 3.89%) — removed
+[2025-06-04 15:22:06] INFO     📁 Saved histogram to .\figures\hist_od_370110_2013_m_kg.pdf
+[2025-06-04 15:22:06] INFO     📊 Outlier Detection on USD/kg (370110-2013, m):
+[2025-06-04 15:22:06] INFO     - Total rows: 1337
+[2025-06-04 15:22:06] INFO     - Z-score outliers: 33
+[2025-06-04 15:22:06] INFO     - log(UV) = 0 outliers: 52 (share = 3.89%)
+[2025-06-04 15:22:06] INFO     - ✅ Total dropped: 85 rows (6.358%)
+[2025-06-04 15:22:06] INFO     - ✅ Remaining rows: 1252
+[2025-06-04 15:22:06] INFO     log(UV)=0 present but no spike: 28 vs. neighbors avg 18.5 (share = 0.00%) — kept
+[2025-06-04 15:22:07] INFO     📁 Saved histogram to .\figures\hist_od_370110_2013_m_m².png
+[2025-06-04 15:22:07] INFO     📊 Outlier Detection on USD/m² (370110-2013, m):
+[2025-06-04 15:22:07] INFO     - Total rows: 1375
+[2025-06-04 15:22:07] INFO     - Z-score outliers: 13
+[2025-06-04 15:22:07] INFO     - log(UV) = 0 outliers: 0 (share = 0.00%)
+[2025-06-04 15:22:07] INFO     - ✅ Total dropped: 13 rows (0.945%)
+[2025-06-04 15:22:07] INFO     - ✅ Remaining rows: 1362
+[2025-06-04 15:22:07] INFO     ✅ Completed outlier detection completed in 0.25 seconds.
+[2025-06-04 15:22:08] INFO     Histogram (HS 370110, 2013, M)
+[2025-06-04 15:22:08] INFO     ✅ Completed histogram completed in 0.22 seconds.
+[2025-06-04 16:07:56] INFO     Clean trade data (HS 720250, 2013, X)
+[2025-06-04 16:07:56] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2013_numpy\H5_720250_2013.csv
+[2025-06-04 16:07:56] INFO     🧹 Cleaning Summary:
+[2025-06-04 16:07:56] INFO      - Initial rows: 163
+[2025-06-04 16:07:56] INFO      - Valid country filter: 146 (89.57%)
+[2025-06-04 16:07:56] INFO      - Valid trade value filter: 80 (49.08%)
+[2025-06-04 16:07:56] INFO      - Valid kg-based UV rows: 25 (15.34%)
+[2025-06-04 16:07:56] WARNING  ⚠️ Only 25 kg-based UV records (<200)
+[2025-06-04 16:07:56] WARNING  ⚠️ No non-kg units found in qty rows.
+[2025-06-04 16:07:56] INFO     ✅ Finished cleaning: HS 720250, Year 2013, Flow X
+[2025-06-04 16:07:56] WARNING  ❌ Skipping both kg-based and non-kg-based analysis due to insufficient sample size.
+[2025-06-04 16:07:56] INFO     ✅ Completed trade data cleaning completed in 0.03 seconds.
+[2025-06-04 16:07:56] INFO     Outlier detection (HS 720250, 2013, X)
+[2025-06-04 16:07:56] INFO     ✅ Completed outlier detection completed in 0.00 seconds.
+[2025-06-04 16:07:56] INFO     Histogram (HS 720250, 2013, X)
+[2025-06-04 16:07:56] INFO     ✅ Completed histogram completed in 0.00 seconds.
+[2025-06-04 16:07:56] INFO     Modality Test (HS 720250, 2013, X)
+[2025-06-04 16:07:56] INFO     ✅ Completed modality test completed in 0.00 seconds.
+[2025-06-04 16:09:15] INFO     Clean trade data (HS 720250, 2013, X)
+[2025-06-04 16:09:15] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2013_numpy\H5_720250_2013.csv
+[2025-06-04 16:09:15] INFO     🧹 Cleaning Summary:
+[2025-06-04 16:09:15] INFO      - Initial rows: 163
+[2025-06-04 16:09:15] INFO      - Valid country filter: 146 (89.57%)
+[2025-06-04 16:09:15] INFO      - Valid trade value filter: 80 (49.08%)
+[2025-06-04 16:09:15] INFO      - Valid kg-based UV rows: 25 (15.34%)
+[2025-06-04 16:09:15] WARNING  ⚠️ Only 25 kg-based UV records (<200)
+[2025-06-04 16:09:15] WARNING  ⚠️ No non-kg units found in qty rows.
+[2025-06-04 16:09:15] INFO     ✅ Finished cleaning: HS 720250, Year 2013, Flow X
+[2025-06-04 16:09:15] WARNING  ❌ Skipping both kg-based and non-kg-based analysis due to insufficient sample size.
+[2025-06-04 16:39:45] INFO     Clean trade data (HS 720250, 2013, X)
+[2025-06-04 16:39:45] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2013_numpy\H5_720250_2013.csv
+[2025-06-04 16:39:45] INFO     🧹 Cleaning Summary:
+[2025-06-04 16:39:45] INFO      - Initial rows: 163
+[2025-06-04 16:39:45] INFO      - Valid country filter: 146 (89.57%)
+[2025-06-04 16:39:45] INFO      - Valid trade value filter: 80 (49.08%)
+[2025-06-04 16:39:45] INFO      - Valid kg-based UV rows: 25 (15.34%)
+[2025-06-04 16:39:45] WARNING  ⚠️ Only 25 kg-based UV records (<200)
+[2025-06-04 16:39:45] WARNING  ⚠️ No non-kg units found in qty rows.
+[2025-06-04 16:39:45] INFO     ✅ Finished cleaning: HS 720250, Year 2013, Flow X
+[2025-06-04 16:39:45] WARNING  ❌ Skipping both kg-based and non-kg-based analysis due to insufficient sample size.
+[2025-06-04 16:41:36] INFO     Clean trade data (HS 720250, 2013, X)
+[2025-06-04 16:41:36] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2013_numpy\H5_720250_2013.csv
+[2025-06-04 16:41:36] INFO     🧹 Cleaning Summary:
+[2025-06-04 16:41:36] INFO      - Initial rows: 163
+[2025-06-04 16:41:36] INFO      - Valid country filter: 146 (89.57%)
+[2025-06-04 16:41:36] INFO      - Valid trade value filter: 80 (49.08%)
+[2025-06-04 16:41:36] INFO      - Valid kg-based UV rows: 25 (15.34%)
+[2025-06-04 16:41:36] WARNING  ⚠️ Only 25 kg-based UV records (<200)
+[2025-06-04 16:41:36] WARNING  ⚠️ No non-kg units found in qty rows.
+[2025-06-04 16:41:36] INFO     ✅ Finished cleaning: HS 720250, Year 2013, Flow X
+[2025-06-04 16:41:36] WARNING  ❌ Skipping both kg-based and non-kg-based analysis due to insufficient sample size.
+[2025-06-04 16:45:23] INFO     Clean trade data (HS 720250, 2013, X)
+[2025-06-04 16:45:23] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2013_numpy\H5_720250_2013.csv
+[2025-06-04 16:45:23] INFO     🧹 Cleaning Summary:
+[2025-06-04 16:45:23] INFO      - Initial rows: 163
+[2025-06-04 16:45:23] INFO      - Valid country filter: 146 (89.57%)
+[2025-06-04 16:45:23] INFO      - Valid trade value filter: 80 (49.08%)
+[2025-06-04 16:45:23] INFO      - Valid kg-based UV rows: 25 (15.34%)
+[2025-06-04 16:45:23] WARNING  ⚠️ Only 25 kg-based UV records (<200)
+[2025-06-04 16:45:23] WARNING  ⚠️ No non-kg units found in qty rows.
+[2025-06-04 16:45:23] INFO     ✅ Finished cleaning: HS 720250, Year 2013, Flow X
+[2025-06-04 16:45:23] WARNING  ❌ Skipping both kg-based and non-kg-based analysis due to insufficient sample size.
+[2025-06-04 16:45:23] INFO     ✅ Saved final report to .\reports\report_720250_2013_x.parquet
+[2025-06-04 16:46:18] INFO     Clean trade data (HS 720250, 2013, X)
+[2025-06-04 16:46:18] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2013_numpy\H5_720250_2013.csv
+[2025-06-04 16:46:18] INFO     🧹 Cleaning Summary:
+[2025-06-04 16:46:18] INFO      - Initial rows: 163
+[2025-06-04 16:46:18] INFO      - Valid country filter: 146 (89.57%)
+[2025-06-04 16:46:18] INFO      - Valid trade value filter: 80 (49.08%)
+[2025-06-04 16:46:18] INFO      - Valid kg-based UV rows: 25 (15.34%)
+[2025-06-04 16:46:18] WARNING  ⚠️ Only 25 kg-based UV records (<200)
+[2025-06-04 16:46:18] WARNING  ⚠️ No non-kg units found in qty rows.
+[2025-06-04 16:46:18] INFO     ✅ Finished cleaning: HS 720250, Year 2013, Flow X
+[2025-06-04 16:46:18] WARNING  ❌ Skipping both kg-based and non-kg-based analysis due to insufficient sample size.
+[2025-06-04 16:46:18] INFO     ✅ Saved final report to .\reports\report_720250_2013_x.parquet
+[2025-06-04 16:47:45] INFO     Clean trade data (HS 720250, 2013, X)
+[2025-06-04 16:47:45] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2013_numpy\H5_720250_2013.csv
+[2025-06-04 16:47:45] INFO     🧹 Cleaning Summary:
+[2025-06-04 16:47:45] INFO      - Initial rows: 163
+[2025-06-04 16:47:45] INFO      - Valid country filter: 146 (89.57%)
+[2025-06-04 16:47:45] INFO      - Valid trade value filter: 80 (49.08%)
+[2025-06-04 16:47:45] INFO      - Valid kg-based UV rows: 25 (15.34%)
+[2025-06-04 16:47:45] WARNING  ⚠️ Only 25 kg-based UV records (<200)
+[2025-06-04 16:47:45] WARNING  ⚠️ No non-kg units found in qty rows.
+[2025-06-04 16:47:45] INFO     ✅ Finished cleaning: HS 720250, Year 2013, Flow X
+[2025-06-04 16:47:45] WARNING  ❌ Skipping both kg-based and non-kg-based analysis due to insufficient sample size.
+[2025-06-04 16:47:45] INFO     ✅ Saved final report to .\reports\report_720250_2013_x.parquet
+[2025-06-04 16:51:00] INFO     Clean trade data (HS 370110, 2013, M)
+[2025-06-04 16:51:00] INFO     📄 Found file: C:\Users\lik6\OneDrive - Universiteit Leiden\PlasticTradeFlow\tradeflow\cml_trade\data_uncomtrade\split_by_hs_2013_numpy\H5_370110_2013.csv
+[2025-06-04 16:51:00] INFO     🧹 Cleaning Summary:
+[2025-06-04 16:51:00] INFO      - Initial rows: 7765
+[2025-06-04 16:51:00] INFO      - Valid country filter: 7219 (92.97%)
+[2025-06-04 16:51:00] INFO      - Valid trade value filter: 1990 (25.63%)
+[2025-06-04 16:51:00] INFO      - Valid kg-based UV rows: 1337 (17.22%)
+[2025-06-04 16:51:00] INFO     📊 Non-kg UV Subset:
+[2025-06-04 16:51:00] INFO      - Top unit: Area in square meters (m²)
+[2025-06-04 16:51:00] INFO      - Share of valid qty rows: 75.97% (Required: 10%)
+[2025-06-04 16:51:00] INFO      - Valid qty count: 1375 (Required: 200)
+[2025-06-04 16:51:00] INFO     ✅ Non-kg UV subset created.
+[2025-06-04 16:51:00] INFO     ✅ Finished cleaning: HS 370110, Year 2013, Flow M
+[2025-06-04 16:51:00] INFO     ✅ Completed trade data cleaning completed in 0.05 seconds.
+[2025-06-04 16:51:00] INFO     Outlier detection (HS 370110, 2013, M)
+[2025-06-04 16:51:00] WARNING  📌 log(UV)=0 spike detected at bin 6: 52 vs. neighbors avg 1.0 (share = 3.89%) — removed
+[2025-06-04 16:51:01] INFO     📁 Saved histogram to .\figures\hist_od_370110_2013_m_kg.pdf
+[2025-06-04 16:51:01] INFO     📊 Outlier Detection on USD/kg (370110-2013, m):
+[2025-06-04 16:51:01] INFO     - Total rows: 1337
+[2025-06-04 16:51:01] INFO     - Z-score outliers: 33
+[2025-06-04 16:51:01] INFO     - log(UV) = 0 outliers: 52 (share = 3.89%)
+[2025-06-04 16:51:01] INFO     - ✅ Total dropped: 85 rows (6.358%)
+[2025-06-04 16:51:01] INFO     - ✅ Remaining rows: 1252
+[2025-06-04 16:51:01] INFO     log(UV)=0 present but no spike: 28 vs. neighbors avg 18.5 (share = 0.00%) — kept
+[2025-06-04 16:51:01] INFO     📁 Saved histogram to .\figures\hist_od_370110_2013_m_m².png
+[2025-06-04 16:51:01] INFO     📊 Outlier Detection on USD/m² (370110-2013, m):
+[2025-06-04 16:51:01] INFO     - Total rows: 1375
+[2025-06-04 16:51:01] INFO     - Z-score outliers: 13
+[2025-06-04 16:51:01] INFO     - log(UV) = 0 outliers: 0 (share = 0.00%)
+[2025-06-04 16:51:01] INFO     - ✅ Total dropped: 13 rows (0.945%)
+[2025-06-04 16:51:01] INFO     - ✅ Remaining rows: 1362
+[2025-06-04 16:51:01] INFO     ✅ Completed outlier detection completed in 0.27 seconds.
+[2025-06-04 16:51:01] INFO     Histogram (HS 370110, 2013, M)
+[2025-06-04 16:51:01] INFO     ✅ Completed histogram completed in 0.23 seconds.
+[2025-06-04 16:51:01] INFO     Modality Test (HS 370110, 2013, M)
+[2025-06-04 16:51:07] INFO     📈 Modality Test Summary:
+[2025-06-04 16:51:07] INFO     - Column tested: ln_uv
+[2025-06-04 16:51:07] INFO     - Original sample size: 1252
+[2025-06-04 16:51:07] INFO     ✅ Full sample used.
+[2025-06-04 16:51:07] INFO     - Final decision: unimodal (1 reject out of 2)
+[2025-06-04 16:51:07] WARNING  ⚠️ Borderline modality test result: SI and HH disagree.
+[2025-06-04 16:51:12] INFO     📈 Modality Test Summary:
+[2025-06-04 16:51:12] INFO     - Column tested: ln_uv_q
+[2025-06-04 16:51:12] INFO     - Original sample size: 1362
+[2025-06-04 16:51:12] INFO     ✅ Full sample used.
+[2025-06-04 16:51:12] INFO     - Final decision: unimodal (1 reject out of 2)
+[2025-06-04 16:51:12] WARNING  ⚠️ Borderline modality test result: SI and HH disagree.
+[2025-06-04 16:51:12] INFO     ✅ Completed modality test completed in 10.75 seconds.
+[2025-06-04 16:51:12] INFO     Fitting Unimodal distribution of kg-based UV (2013, M)
+[2025-06-04 16:51:12] INFO     Fitted Norm Distribution
+[2025-06-04 16:51:12] INFO     norm_loc: 3.8775
+[2025-06-04 16:51:12] INFO     norm_scale: 1.1448
+[2025-06-04 16:51:12] INFO     norm_loglik: -1945.8156
+[2025-06-04 16:51:12] INFO     norm_mean: 3.8775
+[2025-06-04 16:51:12] INFO     norm_median: 3.8775
+[2025-06-04 16:51:12] INFO     norm_mode: 3.8775
+[2025-06-04 16:51:12] INFO     norm_variance: 1.3106
+[2025-06-04 16:51:12] INFO     norm_sample_variance: 1.3116
+[2025-06-04 16:51:12] INFO     norm_skew: 0.0000
+[2025-06-04 16:51:12] INFO     norm_kurtosis: 0.0000
+[2025-06-04 16:51:12] INFO     norm_aic: 3895.6312
+[2025-06-04 16:51:12] INFO     norm_bic: 3905.8962
+[2025-06-04 16:51:12] INFO     Fitted Skewnorm Distribution
+[2025-06-04 16:51:12] INFO     skewnorm_a: 1.8915
+[2025-06-04 16:51:12] INFO     skewnorm_loc: 2.7484
+[2025-06-04 16:51:12] INFO     skewnorm_scale: 1.6079
+[2025-06-04 16:51:12] INFO     skewnorm_loglik: -1922.1432
+[2025-06-04 16:51:12] INFO     skewnorm_mean: 3.8826
+[2025-06-04 16:51:12] INFO     skewnorm_median: 3.7950
+[2025-06-04 16:51:12] INFO     skewnorm_mode: 3.6091
+[2025-06-04 16:51:12] INFO     skewnorm_variance: 1.2991
+[2025-06-04 16:51:12] INFO     skewnorm_sample_variance: 1.3116
+[2025-06-04 16:51:12] INFO     skewnorm_skew: 0.4230
+[2025-06-04 16:51:12] INFO     skewnorm_kurtosis: 0.2777
+[2025-06-04 16:51:12] INFO     skewnorm_aic: 3850.2864
+[2025-06-04 16:51:12] INFO     skewnorm_bic: 3865.6839
+[2025-06-04 16:51:12] INFO     Fitted T Distribution
+[2025-06-04 16:51:12] INFO     t_df: 8.8971
+[2025-06-04 16:51:12] INFO     t_loc: 3.8271
+[2025-06-04 16:51:12] INFO     t_scale: 1.0136
+[2025-06-04 16:51:12] INFO     t_loglik: -1937.8255
+[2025-06-04 16:51:12] INFO     t_mean: 3.8271
+[2025-06-04 16:51:12] INFO     t_median: 3.8271
+[2025-06-04 16:51:12] INFO     t_mode: 3.8271
+[2025-06-04 16:51:12] INFO     t_variance: 1.3254
+[2025-06-04 16:51:12] INFO     t_sample_variance: 1.3116
+[2025-06-04 16:51:12] INFO     t_skew: 0.0000
+[2025-06-04 16:51:12] INFO     t_kurtosis: 1.2252
+[2025-06-04 16:51:12] INFO     t_aic: 3881.6509
+[2025-06-04 16:51:12] INFO     t_bic: 3897.0484
+[2025-06-04 16:51:12] INFO     Fitted Gennorm Distribution
+[2025-06-04 16:51:12] INFO     gennorm_beta: 1.5869
+[2025-06-04 16:51:12] INFO     gennorm_loc: 3.8210
+[2025-06-04 16:51:12] INFO     gennorm_scale: 1.3958
+[2025-06-04 16:51:12] INFO     gennorm_loglik: -1938.5341
+[2025-06-04 16:51:12] INFO     gennorm_mean: 3.8210
+[2025-06-04 16:51:12] INFO     gennorm_median: 3.8210
+[2025-06-04 16:51:12] INFO     gennorm_mode: 3.8210
+[2025-06-04 16:51:12] INFO     gennorm_variance: 1.3115
+[2025-06-04 16:51:12] INFO     gennorm_sample_variance: 1.3116
+[2025-06-04 16:51:12] INFO     gennorm_skew: 0.0000
+[2025-06-04 16:51:12] INFO     gennorm_kurtosis: 0.5780
+[2025-06-04 16:51:12] INFO     gennorm_aic: 3883.0682
+[2025-06-04 16:51:12] INFO     gennorm_bic: 3898.4657
+[2025-06-04 16:51:12] INFO     Fitted Johnsonsu Distribution
+[2025-06-04 16:51:12] INFO     johnsonsu_a: -0.9144
+[2025-06-04 16:51:12] INFO     johnsonsu_b: 1.9912
+[2025-06-04 16:51:12] INFO     johnsonsu_loc: 2.8987
+[2025-06-04 16:51:12] INFO     johnsonsu_scale: 1.8212
+[2025-06-04 16:51:12] INFO     johnsonsu_loglik: -1914.4054
+[2025-06-04 16:51:12] INFO     johnsonsu_mean: 3.8812
+[2025-06-04 16:51:12] INFO     johnsonsu_median: 3.7648
+[2025-06-04 16:51:12] INFO     johnsonsu_mode: 3.5879
+[2025-06-04 16:51:12] INFO     johnsonsu_variance: 1.3649
+[2025-06-04 16:51:12] INFO     johnsonsu_sample_variance: 1.3116
+[2025-06-04 16:51:12] INFO     johnsonsu_skew: 0.8205
+[2025-06-04 16:51:12] INFO     johnsonsu_kurtosis: 2.4773
+[2025-06-04 16:51:12] INFO     johnsonsu_aic: 3836.8107
+[2025-06-04 16:51:12] INFO     johnsonsu_bic: 3857.3407
+[2025-06-04 16:51:12] INFO     Fitted Logistic Distribution
+[2025-06-04 16:51:12] INFO     logistic_loc: 3.8143
+[2025-06-04 16:51:12] INFO     logistic_scale: 0.6361
+[2025-06-04 16:51:12] INFO     logistic_loglik: -1936.6750
+[2025-06-04 16:51:12] INFO     logistic_mean: 3.8143
+[2025-06-04 16:51:12] INFO     logistic_median: 3.8143
+[2025-06-04 16:51:12] INFO     logistic_mode: 3.8143
+[2025-06-04 16:51:12] INFO     logistic_variance: 1.3313
+[2025-06-04 16:51:12] INFO     logistic_sample_variance: 1.3116
+[2025-06-04 16:51:12] INFO     logistic_skew: 0.0000
+[2025-06-04 16:51:12] INFO     logistic_kurtosis: 1.2000
+[2025-06-04 16:51:12] INFO     logistic_aic: 3877.3500
+[2025-06-04 16:51:12] INFO     logistic_bic: 3887.6150
+[2025-06-04 16:51:12] INFO     Best fit based on AIC/BIC: Johnsonsu
+[2025-06-04 16:51:12] INFO     - Johnsonsu distribution fits best based on AIC and BIC.
+[2025-06-04 16:51:12] INFO     ✅ Completed unimodal distribution fit (kg-based) completed in 0.16 seconds.
+[2025-06-04 16:51:12] INFO     Bootstrapping CI (kg-based) (2013, M)
+[2025-06-04 16:51:28] INFO     ✅ Completed ootstrapping CI (kg-based) completed in 15.84 seconds.
+[2025-06-04 16:51:28] INFO     Plotting unimodal distribution fit of kg-based UV (2013, M))
+[2025-06-04 16:51:28] INFO     ✅ Completed unimodal distribution fit plot for kg-based UV completed in 0.20 seconds.
+[2025-06-04 16:51:28] INFO     ⚠️ Borderline modality: Also fitting GMM on kg-based UV
+[2025-06-04 16:51:32] INFO     ✅ Completed GMM fit on kg-based UV (borderline) completed in 3.68 seconds.
+[2025-06-04 16:51:32] INFO     Fitting Unimodal distribution of non-kg-based UV (2013, M)
+[2025-06-04 16:51:32] INFO     Fitted Norm Distribution
+[2025-06-04 16:51:32] INFO     norm_loc: 3.6430
+[2025-06-04 16:51:32] INFO     norm_scale: 2.0509
+[2025-06-04 16:51:32] INFO     norm_loglik: -2910.8607
+[2025-06-04 16:51:32] INFO     norm_mean: 3.6430
+[2025-06-04 16:51:32] INFO     norm_median: 3.6430
+[2025-06-04 16:51:32] INFO     norm_mode: 3.6430
+[2025-06-04 16:51:32] INFO     norm_variance: 4.2060
+[2025-06-04 16:51:32] INFO     norm_sample_variance: 4.2091
+[2025-06-04 16:51:32] INFO     norm_skew: 0.0000
+[2025-06-04 16:51:32] INFO     norm_kurtosis: 0.0000
+[2025-06-04 16:51:32] INFO     norm_aic: 5825.7215
+[2025-06-04 16:51:32] INFO     norm_bic: 5836.1549
+[2025-06-04 16:51:32] INFO     Fitted Skewnorm Distribution
+[2025-06-04 16:51:32] INFO     skewnorm_a: 2.2231
+[2025-06-04 16:51:32] INFO     skewnorm_loc: 1.4416
+[2025-06-04 16:51:32] INFO     skewnorm_scale: 3.0087
+[2025-06-04 16:51:32] INFO     skewnorm_loglik: -2891.4972
+[2025-06-04 16:51:32] INFO     skewnorm_mean: 3.6309
+[2025-06-04 16:51:32] INFO     skewnorm_median: 3.4338
+[2025-06-04 16:51:32] INFO     skewnorm_mode: 3.0049
+[2025-06-04 16:51:32] INFO     skewnorm_variance: 4.2592
+[2025-06-04 16:51:32] INFO     skewnorm_sample_variance: 4.2091
+[2025-06-04 16:51:32] INFO     skewnorm_skew: 0.5124
+[2025-06-04 16:51:32] INFO     skewnorm_kurtosis: 0.3586
+[2025-06-04 16:51:32] INFO     skewnorm_aic: 5788.9945
+[2025-06-04 16:51:32] INFO     skewnorm_bic: 5804.6446
+[2025-06-04 16:51:32] INFO     Fitted T Distribution
+[2025-06-04 16:51:32] INFO     t_df: 232649096.0410
+[2025-06-04 16:51:32] INFO     t_loc: 3.6430
+[2025-06-04 16:51:32] INFO     t_scale: 2.0509
+[2025-06-04 16:51:32] INFO     t_loglik: -2910.8607
+[2025-06-04 16:51:32] INFO     t_mean: 3.6430
+[2025-06-04 16:51:32] INFO     t_median: 3.6430
+[2025-06-04 16:51:32] INFO     t_mode: 3.6430
+[2025-06-04 16:51:32] INFO     t_variance: 4.2060
+[2025-06-04 16:51:32] INFO     t_sample_variance: 4.2091
+[2025-06-04 16:51:32] INFO     t_skew: 0.0000
+[2025-06-04 16:51:32] INFO     t_kurtosis: 0.0000
+[2025-06-04 16:51:32] INFO     t_aic: 5827.7215
+[2025-06-04 16:51:32] INFO     t_bic: 5843.3716
+[2025-06-04 16:51:32] INFO     Fitted Gennorm Distribution
+[2025-06-04 16:51:32] INFO     gennorm_beta: 2.3470
+[2025-06-04 16:51:32] INFO     gennorm_loc: 3.6932
+[2025-06-04 16:51:32] INFO     gennorm_scale: 3.1120
+[2025-06-04 16:51:32] INFO     gennorm_loglik: -2905.9745
+[2025-06-04 16:51:32] INFO     gennorm_mean: 3.6932
+[2025-06-04 16:51:32] INFO     gennorm_median: 3.6932
+[2025-06-04 16:51:32] INFO     gennorm_mode: 3.6932
+[2025-06-04 16:51:32] INFO     gennorm_variance: 4.1955
+[2025-06-04 16:51:32] INFO     gennorm_sample_variance: 4.2091
+[2025-06-04 16:51:32] INFO     gennorm_skew: 0.0000
+[2025-06-04 16:51:32] INFO     gennorm_kurtosis: -0.2786
+[2025-06-04 16:51:32] INFO     gennorm_aic: 5817.9489
+[2025-06-04 16:51:32] INFO     gennorm_bic: 5833.5990
+[2025-06-04 16:51:32] INFO     Fitted Johnsonsu Distribution
+[2025-06-04 16:51:32] INFO     johnsonsu_a: -3.1012
+[2025-06-04 16:51:32] INFO     johnsonsu_b: 4.1708
+[2025-06-04 16:51:32] INFO     johnsonsu_loc: -1.7527
+[2025-06-04 16:51:32] INFO     johnsonsu_scale: 6.4418
+[2025-06-04 16:51:32] INFO     johnsonsu_loglik: -2894.5486
+[2025-06-04 16:51:32] INFO     johnsonsu_mean: 3.6438
+[2025-06-04 16:51:32] INFO     johnsonsu_median: 3.4909
+[2025-06-04 16:51:32] INFO     johnsonsu_mode: 3.2029
+[2025-06-04 16:51:32] INFO     johnsonsu_variance: 4.2513
+[2025-06-04 16:51:32] INFO     johnsonsu_sample_variance: 4.2091
+[2025-06-04 16:51:32] INFO     johnsonsu_skew: 0.4765
+[2025-06-04 16:51:32] INFO     johnsonsu_kurtosis: 0.5575
+[2025-06-04 16:51:32] INFO     johnsonsu_aic: 5797.0972
+[2025-06-04 16:51:32] INFO     johnsonsu_bic: 5817.9640
+[2025-06-04 16:51:32] INFO     Fitted Logistic Distribution
+[2025-06-04 16:51:32] INFO     logistic_loc: 3.5567
+[2025-06-04 16:51:32] INFO     logistic_scale: 1.1901
+[2025-06-04 16:51:32] INFO     logistic_loglik: -2932.3576
+[2025-06-04 16:51:32] INFO     logistic_mean: 3.5567
+[2025-06-04 16:51:32] INFO     logistic_median: 3.5567
+[2025-06-04 16:51:32] INFO     logistic_mode: 3.5567
+[2025-06-04 16:51:32] INFO     logistic_variance: 4.6597
+[2025-06-04 16:51:32] INFO     logistic_sample_variance: 4.2091
+[2025-06-04 16:51:32] INFO     logistic_skew: 0.0000
+[2025-06-04 16:51:32] INFO     logistic_kurtosis: 1.2000
+[2025-06-04 16:51:32] INFO     logistic_aic: 5868.7152
+[2025-06-04 16:51:32] INFO     logistic_bic: 5879.1487
+[2025-06-04 16:51:32] INFO     Best fit based on AIC/BIC: Skewnorm
+[2025-06-04 16:51:32] INFO     - Skewnorm distribution fits best based on AIC and BIC.
+[2025-06-04 16:51:32] INFO     ✅ Completed unimodal distribution fit (non-kg-based) completed in 0.20 seconds.
+[2025-06-04 16:51:32] INFO     Bootstrapping CI (non-kg-based) (2013, M)
+[2025-06-04 16:51:44] INFO     ✅ Completed bootstrapping CI (non-kg-based) completed in 12.05 seconds.
+[2025-06-04 16:51:44] INFO     Plotting unimodal distribution fit of non-kg-based UV (2013, M))
+[2025-06-04 16:51:44] INFO     ✅ Completed unimodal distribution fit plot for non-kg-based UV completed in 0.19 seconds.
+[2025-06-04 16:51:44] INFO     ⚠️ Borderline modality: Also fitting GMM on non-kg-based UV
+[2025-06-04 16:51:48] INFO     ✅ Completed GMM fit on non-kg-based UV (borderline) completed in 3.77 seconds.
+[2025-06-04 16:51:48] INFO     ✅ Saved final report to .\reports\report_370110_2013_m.parquet

@@ -33,7 +33,7 @@ def logger_setup(name="trade_logger", level=logging.INFO, log_to_file=True,
     # === Force-add file handler if all info is provided
     if log_to_file and code and year and flow and log_dir:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        log_filename = f"hs_{code}_{year}_{flow}__{timestamp}.log"
+        log_filename = f"hs_{code}_{year}_{flow}_{timestamp}.log"
         log_path = os.path.join(log_dir, log_filename)
 
         # Avoid duplicate file handler

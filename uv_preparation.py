@@ -2,7 +2,9 @@ import pandas as pd
 import numpy as np
 import glob
 import os
-
+import matplotlib.pyplot as plt
+from uv_config import load_config
+config = load_config()
 
 def clean_trade(code, year, flow, config, logger):
 
@@ -168,53 +170,109 @@ def clean_trade(code, year, flow, config, logger):
     return df_uv, df_q, report_clean, report_q_clean, return_unit, is_valid_kg, is_valid_q
     
 
-def detect_outliers(df, value_column,  code, year, flow, logger,label="Data"):
-    """
-    Detect outliers in a DataFrame using the modified Z-score method.
 
-    Args:
-        df (pd.DataFrame): The input DataFrame to check.
-        value_column: The column to use for outlier detection.
-        label (str): Label for printing/logging purposes.
-
-    Returns:
-        df_filtered (pd.DataFrame): DataFrame after removing outliers.
-        df_outliers (pd.DataFrame): DataFrame containing detected outliers.
-        report_outlier (dict): Summary report of outlier detection.
+def detect_outliers(
+    df, value_column, code, year, flow, logger, unit_label="USD/kg",
+    plot=False, save_path=None, file_format="png"
+):
     """
-    
-    # === Calculate modified Z-scores
+    Detect outliers using modified Z-score and optional spike at log(UV) = 0 (i.e., UV = 1.0).
+    """
+    # === Step 1: Histogram-based spike detection at log(UV) = 0
+    uv_raw = df[value_column]
+    iqr = np.subtract(*np.percentile(uv_raw, [75, 25]))
+    bin_width = 2 * iqr / (len(uv_raw) ** (1/3)) if iqr > 0 else 0.1
+    bins = np.arange(uv_raw.min(), uv_raw.max() + bin_width, bin_width)
+    counts, edges = np.histogram(uv_raw, bins=bins)
+    bin_idx = np.digitize([0.0], edges)[0] - 1  # log(UV = 1.0) = 0.0
+
+    if 0 <= bin_idx < len(counts):
+        bar = counts[bin_idx]
+        neighbors = []
+        if bin_idx > 0:
+            neighbors.append(counts[bin_idx - 1])
+        if bin_idx < len(counts) - 1:
+            neighbors.append(counts[bin_idx + 1])
+        local_avg = np.mean(neighbors) if neighbors else 0
+
+        mask_eq1 = uv_raw == 0.0  # log(1.0) = 0.0
+        share_eq1 = mask_eq1.sum() / len(df)
+        apply_eq1 = bar > 5 * local_avg and share_eq1 > 0.01
+        n_eq1_outliers = int(mask_eq1.sum()) if apply_eq1 else 0
+
+        if apply_eq1:
+            logger.warning(f"📌 log(UV)=0 spike detected at bin {bin_idx}: {bar} vs. neighbors avg {local_avg:.1f} (share = {share_eq1:.2%}) — removed")
+        else:
+            logger.info(f"log(UV)=0 present but no spike: {bar} vs. neighbors avg {local_avg:.1f} (share = {share_eq1:.2%}) — kept")
+    else:
+        mask_eq1 = pd.Series(False, index=df.index)
+        share_eq1 = 0.0
+        apply_eq1 = False
+        n_eq1_outliers = 0
+
+    # === Step 2: Optional histogram plotting
+    if plot and uv_raw is not None:
+        fig, ax = plt.subplots(figsize=(7, 4))
+        ax.hist(uv_raw, bins=edges, color='lightgray', edgecolor = 'white')
+        ax.set_title(f"TUV histogram ({unit_label}, {code}-{year}, {flow}) in outlier detection")
+        ax.set_xlabel(f"ln(Unit Price) [{unit_label}]")
+        ax.set_ylabel("Count")
+        ax.text(0.75, 0.9, f"Sample size: {len(df):,}", transform=ax.transAxes)
+        plt.tight_layout()
+        if save_path:
+            unit_suffix = unit_label.split("/")[-1]
+            fig_path = os.path.join(config["dirs"]["figures"], f"hist_od_{code}_{year}_{flow}_{unit_suffix}.{file_format}")
+            plt.savefig(fig_path, dpi=300)
+            logger.info(f"📁 Saved histogram to {fig_path}")
+        else:
+            plt.show()
+
+    # === Step 3: Modified Z-score detection
     raw_data = df[value_column].values
     median = np.median(raw_data)
     mad = np.median(np.abs(raw_data - median))
-    
+
     if mad == 0:
         logger.warning(f"⚠️ Outlier Detection: MAD=0 for {value_column} — skipping detection.")
         return df.copy().reset_index(drop=True), df.iloc[0:0].copy(), {
             "d_initial_rows": len(df),
             "d_outliers_removed": 0,
+            "d_z_outliers": 0,
+            "d_uv_eq1_removed": 0,
+            "d_uv_eq1_share": round(share_eq1, 4),
             "d_outlier_rate": 0.0,
             "d_rows_after_outliers": len(df)
         }
-    
-    modified_z_scores = 0.6745 * (raw_data - median) / mad
-    
-    # === Identify filtered data and outliers
-    df_filtered = df[np.abs(modified_z_scores) <= 3.5]
-    df_outliers = df[np.abs(modified_z_scores) > 3.5]
-    dp_rate = (len(df_outliers) / len(df)) * 100
 
-    # === Print Summary
-    logger.info(f"📊 Outlier Detection on {label}:")
-    logger.info(f"- Dropped {len(df_outliers)} rows ({dp_rate:.3f}%).")
-    logger.info(f"- Remaining rows: {len(df_filtered)}.")
-    
-    # === Prepare outlier report
+    modified_z_scores = 0.6745 * (raw_data - median) / mad
+    mask_z = np.abs(modified_z_scores) > 3.5
+
+    combined_outlier_mask = mask_z | mask_eq1 if apply_eq1 else mask_z
+    df_outliers = df[combined_outlier_mask]
+    df_filtered = df[~combined_outlier_mask]
+
+    # === Step 4: Summary
+    n_total = len(df)
+    n_z_outliers = int(mask_z.sum())
+    n_combined_outliers = len(df_outliers)
+    n_remaining = len(df_filtered)
+    outlier_rate = (n_combined_outliers / n_total) * 100
+
+    logger.info(f"📊 Outlier Detection on {unit_label} ({code}-{year}, {flow}):")
+    logger.info(f"- Total rows: {n_total}")
+    logger.info(f"- Z-score outliers: {n_z_outliers}")
+    logger.info(f"- log(UV) = 0 outliers: {n_eq1_outliers} (share = {share_eq1:.2%})")
+    logger.info(f"- ✅ Total dropped: {n_combined_outliers} rows ({outlier_rate:.3f}%)")
+    logger.info(f"- ✅ Remaining rows: {n_remaining}")
+
     report_outlier = {
-        "d_initial_rows": len(df),
-        "d_outliers_removed": len(df_outliers),
-        "d_outlier_rate": dp_rate,
-        "d_rows_after_outliers": len(df_filtered)
+        "d_initial_rows": n_total,
+        "d_outliers_removed": n_combined_outliers,
+        "d_outlier_rate": outlier_rate,
+        "d_rows_after_outliers": n_remaining,
+        "d_z_outliers": n_z_outliers,
+        "d_uv_eq1_removed": n_eq1_outliers,
+        "d_uv_eq1_share": round(share_eq1, 4)
     }
 
     return df_filtered, df_outliers, report_outlier

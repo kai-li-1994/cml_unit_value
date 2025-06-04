@@ -63,7 +63,6 @@ def plot_histogram(data, code, year, flow, unit_label="USD/kg", save_path=None, 
         plt.tight_layout()
         plt.show()
         
-
 def plot_dist(
     data,
     code,
